@@ -43,14 +43,14 @@ void World::initSpriteMap()
 
 void World::worldGenerate(int objCount)
 {
-	auto s = float(sqrt(objCount));
+	auto s = int(sqrt(objCount));
 	
 	for (auto i = 0; i < s; i++)
 	{
 		for (auto j = 0; j < s; j++)
 		{
-			auto position = Vector2f(i * (width / s), j * (height / s));
-			staticGrid.addItem(new Stone(position, spriteMap["stone.png"].texture.getSize(), "stone.png", "obj"),"tree"+std::to_string(int(i*s+j)), int(position.x), int(position.y));
+			auto position = Vector2i(i * (width / s), j * (height / s));
+			staticGrid.addItem(new Stone(Vector2f(position), spriteMap["stone.png"].texture.getSize(), "stone.png", "obj"),"stone"+std::to_string(i * s+j), position.x, position.y);
 		}
 	}
 }

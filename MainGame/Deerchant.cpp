@@ -50,8 +50,8 @@ void Deerchant::move(float time)
 	{
 		position.x -= speed;
 		name = "heroL_";
-		//name += to_string(currentImg);
-		name += "0.png";
+		name += std::to_string(currentImg);
+		name += ".png";
 
 	}
 	else
@@ -59,8 +59,8 @@ void Deerchant::move(float time)
 		{
 			position.x += speed;
 			name = "heroR_";
-			//name += to_string(currentImg);
-			name += "0.png";
+			name += std::to_string(currentImg);
+			name += ".png";
 		}
 		else
 			if (direction == UP)
