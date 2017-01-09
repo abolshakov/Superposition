@@ -1,15 +1,13 @@
-#include <SFML/Graphics.hpp>
-#include "Structs.h"
+#pragma once
 #include "DynamicObject.h"
 
 using namespace sf;
-using namespace std;
 
 struct bodyElements
 {
 	Texture texture;
 	Sprite sprite;
-	string name;
+	std::string name;
 };
 
 class Deerchant : public DynamicObject
@@ -17,14 +15,13 @@ class Deerchant : public DynamicObject
 private:
 	float lastTime, timeForNewImage;
 	Clock clock;
-	Vector2f screenSize;
 	int bodyElementsNumber;
 	int currentImg;
 	int imgInRunAnimation;
 
 public:
-	string nameOfFile;
-	Deerchant(Vector2f position, Vector2u size, string name, string type);
+	std::string nameOfFile;
+	Deerchant(Vector2f position, Vector2u size, std::string name, std::string type);
 	void move(float time);
 };
 

@@ -1,12 +1,13 @@
 #pragma once
-#ifndef _GRIDLIST_CPP_
-#define _GRIDLIST_CPP_
+#ifndef GRIDLIST_CPP
+#define GRIDLIST_CPP
 
-#include "GridList.h"
 #include <cmath>
+// ReSharper disable once CppUnusedIncludeDirective
+#include "GridList.h"
 
 template <class T>
-GridList<T>::GridList()
+GridList<T>::GridList() : width(0), height(0), size(0)
 {
 }
 
@@ -16,44 +17,70 @@ GridList<T>::GridList(int width, int height, int size)
 	this->width = width;
 	this->height = height;
 	this->size = size;
-	int vectorSize = ceil(double(height) / size)*ceil(double(width) / size);
+	auto vectorSize = int(ceil(double(height) / size) * ceil(double(width) / size));
 	cells.resize(vectorSize);
 }
 
 template <class T>
-int GridList<T>::getIndexByPoint(int x, int y)
+GridList<T>::~GridList()
 {
-	int y1 = y / size;
-	int x1 = ceil(double(width) / size);
-	int res = x1*y1;
-	res += x / size;
-	return res;
+	for (std::vector<T*> cell : cells)
+	{
+		for (T* ptr : cell)
+		{
+			delete ptr;
+		}
+		cell.clear();
+	}
+	cells.clear();
 }
 
 template <class T>
-void GridList<T>::addItem(T item, int x, int y)
+int GridList<T>::getIndexByPoint(int x, int y) const
 {
-	cells[getIndexByPoint(x, y)].push_back(item);
+	auto y1 = y / size;
+	auto x1 = ceil(double(width) / size);
+	auto result = x1 * y1 + x / size;
+	return int(result);
 }
 
 template <class T>
-std::vector<T> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY)
+void GridList<T>::addItem(T* item, const std::string& name, int x, int y)
+{
+	if (items.find(name) != items.end())
+		throw std::invalid_argument("The key '" + name + "' already exists in the Grid.");
+
+	auto index = getIndexByPoint(x, y);
+	auto position = std::make_pair(index, int(cells[index].size()));
+	cells[index].push_back(item);	
+	items.insert({ name, position });
+}
+
+template <class T>
+T* GridList<T>::getItemByName(std::string& name)
+{
+	auto position = items.at(name);
+	return cells[position.first][position.second];
+}
+
+template <class T>
+std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY)
 {
 	if (upperLeftX < 0)
 		upperLeftX = 0;
 	if (upperLeftY < 0)
 		upperLeftY = 0;
-
 	if (bottomRightX > width)
 		upperLeftX = width;
 	if (bottomRightY > height)
 		bottomRightY = height;
-	std::vector<T> result;
-	for (int i = 0; i < ceil(double(bottomRightY - upperLeftY) / size); i++)
+
+	std::vector<T*> result;
+	for (auto i = 0; i < ceil(double(bottomRightY - upperLeftY) / size); i++)
 	{
-		for (int j = getIndexByPoint(upperLeftX, upperLeftY + i*size); j < getIndexByPoint(bottomRightX, upperLeftY + i*size); j++)
+		for (auto j = getIndexByPoint(upperLeftX, upperLeftY + i*size); j < getIndexByPoint(bottomRightX, upperLeftY + i*size); j++)
 		{
-			for (int k = 0; k < cells[j].size(); k++)
+			for (auto k = 0; k < cells[j].size(); k++)
 			{
 				result.push_back(cells[j][k]);
 			}

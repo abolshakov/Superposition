@@ -2,49 +2,37 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-
-#include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include "GridList.h"
 #include "DynamicObject.h"
-#include "Structs.h"
 #include "Stone.h"
 
 using namespace sf;
-using namespace std;
-
-//struct worldBlock {
-//	boardObject activeObjects[300];
-//	int activeObjectsCount;
-//	int id;
-//};
 
 struct boardSprite
 {
-	string type;
-	string name;
+	std::string type;
+	std::string name;
 	Texture texture;
 	Sprite sprite;
 };
 
 class World
 {
-	string nameOfFile;
-	int objectsNumber;
+	std::string nameOfFile;
 	int screenSizeX;
 	int screenSizeY;
 	int width, height;
 	
 public:
-	GridList<StaticObject> staticObjects;
-	GridList<DynamicObject> dynamicObjects;
-	int curDraw;
 	World(int width, int height);
+	GridList<StaticObject> staticGrid;
+	GridList<DynamicObject> dynamicGrid;
 	void worldGenerate(int objCount);
-	unordered_map<string, boardSprite> spriteMap;
+	std::unordered_map<std::string, boardSprite> spriteMap;
 	void initSpriteMap();
 	void objectsInteract(DynamicObject heroSprite);
-	void drawBoard(RenderWindow *window, Vector2f screenSize, DynamicObject heroSprite);
+	void drawBoard(RenderWindow* window, Vector2f screenSize, DynamicObject* heroSprite);
 };
 
 #endif

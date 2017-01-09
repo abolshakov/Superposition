@@ -1,20 +1,15 @@
-#include <windows.h>
-#include <fstream> 
-#include <iomanip>
 #include "Deerchant.h"
 #include "Helper.h"
 
 using namespace sf;
-using namespace std;
 
-Deerchant::Deerchant(Vector2f position, Vector2u size, string name, string type) : DynamicObject(position, size, name, type)
+Deerchant::Deerchant(Vector2f position, Vector2u size, std::string name, std::string type) : DynamicObject(position, size, name, type)
 {		
 	currentImg = 1;
 	lastTime = 0, timeForNewImage = 0;
 	speed = 10;
-	name = "heroF_0.png";
-	screenSize = Helper::GetScreenSize();
 	imgInRunAnimation = 8;
+	bodyElementsNumber = 0;
 }
 
 void Deerchant::move(float time)
@@ -49,7 +44,7 @@ void Deerchant::move(float time)
 		speed += 1;
 	if (Keyboard::isKeyPressed(Keyboard::LShift) && speed > 1)
 		speed -= 1;
-	sqrtspeed = ceil(speed / double(sqrt(2)));
+	sqrtspeed = ceil(speed / float(sqrt(2)));
 
 	if (direction == LEFT)
 	{
@@ -72,7 +67,7 @@ void Deerchant::move(float time)
 			{
 				position.y -= speed;
 				name = "heroB_";
-				name += to_string(currentImg);
+				name += std::to_string(currentImg);
 				name += ".png";
 			}
 			else
@@ -80,7 +75,7 @@ void Deerchant::move(float time)
 				{
 					position.y += speed;
 					name = "heroF_";
-					name += to_string(currentImg);
+					name += std::to_string(currentImg);
 					name += ".png";
 				}
 				else

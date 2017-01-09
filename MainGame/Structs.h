@@ -4,12 +4,10 @@
 
 #include <string>
 
-using namespace std;
-
 struct boardObject
 {
-	string name;
-	string type;
+	std::string name;
+	std::string type;
 	int xPos;
 	int yPos;
 	int xSize;

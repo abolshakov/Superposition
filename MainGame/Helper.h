@@ -1,8 +1,8 @@
-#include <windows.h>
+#pragma once
 #include <SFML/Graphics.hpp>
 
 using namespace sf;
-static class Helper
+class Helper
 {
 public:
 	static Vector2f GetScreenSize();

@@ -1,6 +1,6 @@
 #include "StaticObject.h"
 
-StaticObject::StaticObject(Vector2f position, Vector2u size, string name, string type) : WorldObject(position, size, name, type)
+StaticObject::StaticObject(Vector2f position, Vector2u size, std::string name, std::string type) : WorldObject(position, size, name, type)
 {
 	focus1.x = position.x + size.x / 10;
 	focus1.y = position.y + 9 * size.y / 10;

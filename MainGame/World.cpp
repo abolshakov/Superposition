@@ -1,36 +1,39 @@
-#include <windows.h>
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
-#include <cstdlib>
-#include <algorithm>
+#include <windows.h>
+
 #include "World.h"
 
 using namespace sf;
-using namespace std;
 
-World::World(int width, int height)
+World::World(int width, int height): screenSizeX(0), screenSizeY(0)
 {
 	this->width = width;
 	this->height = height;
-	staticObjects = GridList<StaticObject>(width, height, int(sqrt(min(width, height))));
-	dynamicObjects = GridList<DynamicObject>(width, height, int(sqrt(min(width, height))));
+	auto blockSize = int(sqrt(min(width, height)));
+	staticGrid = GridList<StaticObject>(width, height, blockSize);
+	dynamicGrid = GridList<DynamicObject>(width, height, blockSize);
 }
 
-bool cmpImgDraw(WorldObject obj1, WorldObject obj2)
+bool cmpImgDraw(const WorldObject* first, const WorldObject* second)
 {
-	return obj1.getPosition().y + obj1.getSize().y < obj2.getPosition().y + obj2.getSize().y;
+	return first->getPosition().y + first->getSize().y < second->getPosition().y + second->getSize().y;
 }
 
 void World::initSpriteMap()
 {
-	ifstream fin("World/objects.txt");
+	std::ifstream fin("World/objects.txt");
+
+	int objectsNumber;
 	fin >> objectsNumber;
-	for (int i = 0; i < objectsNumber; i++)
+
+	for (auto i = 0; i < objectsNumber; i++)
 	{
-		string name;
+		std::string name;
 		fin >> name;
 		spriteMap.insert({ name, boardSprite{} });
-		boardSprite *sprite = &spriteMap[name];
+		auto sprite = &spriteMap[name];
 		fin >> sprite->type;
 		sprite->texture.loadFromFile("World/" + name);
 		sprite->sprite.setTexture(sprite->texture);
@@ -40,15 +43,14 @@ void World::initSpriteMap()
 
 void World::worldGenerate(int objCount)
 {
-
-	//srand(time(0));
-	int s = sqrt(objCount);
-	for (int i = 0; i < s; i++)
+	auto s = float(sqrt(objCount));
+	
+	for (auto i = 0; i < s; i++)
 	{
-		for (int j = 0; j < s; j++)
+		for (auto j = 0; j < s; j++)
 		{
-			Stone item(Vector2f(i * (width / s), j * (height / s)), spriteMap["stone.png"].texture.getSize(), "stone.png", "obj");
-			staticObjects.addItem(item, item.getPosition().x, item.getPosition().y);
+			auto position = Vector2f(i * (width / s), j * (height / s));
+			staticGrid.addItem(new Stone(position, spriteMap["stone.png"].texture.getSize(), "stone.png", "obj"),"tree"+std::to_string(int(i*s+j)), int(position.x), int(position.y));
 		}
 	}
 }
@@ -57,45 +59,42 @@ void World::objectsInteract(DynamicObject heroSprite)
 
 }
 
-void World::drawBoard(RenderWindow *window, Vector2f screenSize, DynamicObject heroSprite)
+void World::drawBoard(RenderWindow *window, Vector2f screenSize, DynamicObject* focusedObject)
 {
-	const int extra = 600;
-	Vector2u characterSize = heroSprite.getSize();
+	const auto extra = 600;
+	auto characterSize = focusedObject->getSize();
 
 	Vector2f characterScreen;
 	characterScreen.x = screenSize.x / 2 - characterSize.x / 2;
 	characterScreen.y = screenSize.y / 2 - characterSize.y / 2;
 
-	Vector2f characterPosition = heroSprite.getPosition();
+	auto characterPosition = focusedObject->getPosition();
 	Vector2f characterScreenToWorld;
 	characterScreenToWorld.x = characterPosition.x + characterSize.x / 2;
 	characterScreenToWorld.y = characterPosition.y + characterSize.y / 2;
 
-	Vector2f worldUpperLeft;
-	worldUpperLeft.x = characterScreenToWorld.x - screenSize.x / 2;
-	worldUpperLeft.y = characterScreenToWorld.y - screenSize.y / 2;
-	Vector2f worldBottomRight;
-	worldBottomRight.x = characterScreenToWorld.x + screenSize.x / 2;
-	worldBottomRight.y = characterScreenToWorld.y + screenSize.y / 2;
+	Vector2i worldUpperLeft;
+	worldUpperLeft.x = int(characterScreenToWorld.x - screenSize.x / 2);
+	worldUpperLeft.y = int(characterScreenToWorld.y - screenSize.y / 2);
+	Vector2i worldBottomRight;
+	worldBottomRight.x = int(characterScreenToWorld.x + screenSize.x / 2);
+	worldBottomRight.y = int(characterScreenToWorld.y + screenSize.y / 2);
 
-	float characterBottom = characterPosition.y + characterSize.y;
-
-	vector<StaticObject> staticItems = staticObjects.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
-	vector<DynamicObject> dynamicItems = dynamicObjects.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
-	vector<WorldObject> visibleItems = vector<WorldObject>(staticItems.begin(), staticItems.end());
-	vector<WorldObject> visibleDynamicItems = vector<WorldObject>(dynamicItems.begin(), dynamicItems.end());
+	auto staticItems = staticGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
+	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
+	auto visibleItems = std::vector<WorldObject*>(staticItems.begin(), staticItems.end());
+	auto visibleDynamicItems = std::vector<WorldObject*>(dynamicItems.begin(), dynamicItems.end());
 	visibleItems.insert(visibleItems.end(), visibleDynamicItems.begin(), visibleDynamicItems.end());
 
-	curDraw = staticObjects.getIndexByPoint(characterPosition.x, characterPosition.y);
 	sort(visibleItems.begin(), visibleItems.end(), cmpImgDraw);
 
-	for (int i = 0; i < visibleItems.size(); i++)
+	for (auto i = 0; i < visibleItems.size(); i++)
 	{
-		WorldObject *worldItem = &visibleItems[i];
-		boardSprite *spriteItem = &spriteMap[worldItem->getName()];
+		auto worldItem = visibleItems[i];
+		auto spriteItem = &spriteMap[worldItem->getName()];
 
-		float spriteX = worldItem->getPosition().x - characterPosition.x + characterScreen.x;
-		float spriteY = worldItem->getPosition().y - characterPosition.y + characterScreen.y;
+		auto spriteX = worldItem->getPosition().x - characterPosition.x + characterScreen.x;
+		auto spriteY = worldItem->getPosition().y - characterPosition.y + characterScreen.y;
 		spriteItem->sprite.setPosition(Vector2f(spriteX, spriteY));
 		window->draw(spriteItem->sprite);
 	}

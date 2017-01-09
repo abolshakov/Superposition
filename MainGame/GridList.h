@@ -3,20 +3,25 @@
 #define GRIDLIST_H
 
 #include <vector>
+#include <unordered_map>
 
 template <class T>
 class GridList
 {	
 	int width, height, size;
-	std::vector<std::vector<T>> cells;
+	std::vector<std::vector<T*>> cells;
+	std::unordered_map<std::string, std::pair<int, int>> items;
 public:
 	GridList();
 	GridList(int width, int height, int size);
-	int getIndexByPoint(int x, int y);
-	void addItem(T item, int x, int y);
-	std::vector<T> getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY);
+	~GridList();
+	int getIndexByPoint(int x, int y) const;
+	void addItem(T* item, const std::string& name, int x, int y);
+	T* getItemByName(std::string& name);
+	std::vector<T*> getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY);
 };
 
+// ReSharper disable once CppUnusedIncludeDirective
 #include "GridList.cpp"
 #endif
 
