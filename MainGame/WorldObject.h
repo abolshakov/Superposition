@@ -9,13 +9,15 @@ using namespace sf;
 class WorldObject
 {
 protected:
-	Vector2f position;
 	Vector2u size;
-	std::string name, type;
+	std::string name;
 public:
-	WorldObject(Vector2f position, Vector2u size, std::string name, std::string type);
+	Vector2f position;
+
+	WorldObject(Vector2f position, Vector2u size, std::string name);
 	virtual ~WorldObject();
-	Vector2f getPosition() const { return position;	}
+
+	virtual std::string getSpriteName(long long elapsedTime) = 0;
 	Vector2u getSize() const { return size; }
 	std::string getName() const { return name; }
 };

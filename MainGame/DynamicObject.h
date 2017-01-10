@@ -4,16 +4,19 @@
 
 #include "WorldObject.h"
 
+enum Direction { STAND, LEFT, RIGHT, UP, DOWN, UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT };
+
 class DynamicObject : public WorldObject
 {
 	Vector2f focus1, focus2;
 public:
-	DynamicObject(Vector2f position, Vector2u size, std::string name, std::string type);
-	int elipseSize;
-	float speed, sqrtspeed;
-	enum directions {LEFT, RIGHT, UP, DOWN, UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT, STAND};
-	directions direction;
+	float speed;
+	Direction direction;
 	Vector2f motion;
+	int ellipseSize;
+
+	DynamicObject(Vector2f position, Vector2u size, std::string name);
+	virtual void handleInput();
 };
 
 #endif

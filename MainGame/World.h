@@ -23,16 +23,19 @@ class World
 	int screenSizeX;
 	int screenSizeY;
 	int width, height;
-	
+	static Vector2f move(const DynamicObject& dynamicObject, long long elapsedTime);
 public:
-	World(int width, int height);
 	GridList<StaticObject> staticGrid;
 	GridList<DynamicObject> dynamicGrid;
-	void worldGenerate(int objCount);
+	DynamicObject* focusedObject;
 	std::unordered_map<std::string, boardSprite> spriteMap;
+
+	World(int width, int height);
+	
 	void initSpriteMap();
-	void objectsInteract(DynamicObject heroSprite);
-	void drawBoard(RenderWindow* window, Vector2f screenSize, DynamicObject* heroSprite);
+	void generate(int objCount);
+	void interact(long long elapsedTime) const;
+	void draw(RenderWindow& window, long long elapsedTime);	
 };
 
 #endif

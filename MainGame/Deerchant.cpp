@@ -3,16 +3,15 @@
 
 using namespace sf;
 
-Deerchant::Deerchant(Vector2f position, Vector2u size, std::string name, std::string type) : DynamicObject(position, size, name, type)
-{		
-	currentImg = 1;
-	lastTime = 0, timeForNewImage = 0;
-	speed = 10;
-	imgInRunAnimation = 8;
-	bodyElementsNumber = 0;
+Deerchant::Deerchant(Vector2f position, Vector2u size, std::string name) : DynamicObject(position, size, name)
+{
+	currentSprite = 1;
+	timeForNewSprite = 0;
+	speed = 0.0005f;
+	animationLength = 8;
 }
 
-void Deerchant::move(float time)
+void Deerchant::handleInput()
 {
 	if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::W))
 		direction = UPLEFT;
@@ -42,100 +41,72 @@ void Deerchant::move(float time)
 
 	if (Keyboard::isKeyPressed(Keyboard::LControl))
 		speed += 1;
-	if (Keyboard::isKeyPressed(Keyboard::LShift) && speed > 1)
+	else if (Keyboard::isKeyPressed(Keyboard::LShift) && speed > 1)
 		speed -= 1;
-	sqrtspeed = ceil(speed / float(sqrt(2)));
-
-	if (direction == LEFT)
-	{
-		position.x -= speed;
-		name = "heroL_";
-		name += std::to_string(currentImg);
-		name += ".png";
-
-	}
-	else
-		if (direction == RIGHT)
-		{
-			position.x += speed;
-			name = "heroR_";
-			name += std::to_string(currentImg);
-			name += ".png";
-		}
-		else
-			if (direction == UP)
-			{
-				position.y -= speed;
-				name = "heroB_";
-				name += std::to_string(currentImg);
-				name += ".png";
-			}
-			else
-				if (direction == DOWN)
-				{
-					position.y += speed;
-					name = "heroF_";
-					name += std::to_string(currentImg);
-					name += ".png";
-				}
-				else
-					if (direction == UPLEFT)
-					{
-						position.x -= sqrtspeed;
-						position.y -= sqrtspeed;
-						name = "heroBL_";
-						//name += to_string(currentImg);
-						name += "0.png";
-					}
-					else
-						if (direction == UPRIGHT)
-						{
-							position.x += sqrtspeed;
-							position.y -= sqrtspeed;
-							name = "heroBR_";
-							//name += to_string(currentImg);
-							name += "0.png";
-						}
-						else
-							if (direction == DOWNLEFT)
-							{
-								position.x -= sqrtspeed;
-								position.y += sqrtspeed;
-								name = "heroFL_";
-								//name += to_string(currentImg);
-								name += "0.png";
-							}
-							else
-								if (direction == DOWNRIGHT)
-								{
-									position.x += sqrtspeed;
-									position.y += sqrtspeed;
-									name = "heroFR_";
-									//name += to_string(currentImg);
-									name += "0.png";
-								}
-								else
-								{
-									if (direction == STAND)
-									{
-										name = "heroF_0.png";
-										currentImg = 0;
-										//name += ".png";
-									}
-								}
-
-	if (timeForNewImage > time)
-	{
-		timeForNewImage = 0;
-	}
-	if (time - timeForNewImage >= 500000/speed && direction != STAND)
-	{
-		timeForNewImage = time;
-		currentImg++;
-		if (currentImg > imgInRunAnimation)
-		{
-			currentImg = 1;
-		}
-	}
 }
 
+std::string Deerchant::getSpriteName(long long elapsedTime)
+{
+	if (direction != STAND)
+	{
+		timeForNewSprite += elapsedTime;
+
+		if (timeForNewSprite >= 150000000 * speed)
+		{
+			timeForNewSprite = 0;
+			
+			if (++currentSprite > animationLength)
+				currentSprite = 1;
+		}
+	}
+	std::string spriteName;
+
+	switch (direction)
+	{
+	case LEFT:
+		spriteName = "heroL_";
+		spriteName += std::to_string(currentSprite);
+		spriteName += ".png";
+		break;
+	case RIGHT:
+		spriteName = "heroR_";
+		spriteName += std::to_string(currentSprite);
+		spriteName += ".png";
+		break;
+	case UP:
+		spriteName = "heroB_";
+		spriteName += std::to_string(currentSprite);
+		spriteName += ".png";
+		break;
+	case DOWN:
+		spriteName = "heroF_";
+		spriteName += std::to_string(currentSprite);
+		spriteName += ".png";
+		break;
+	case UPLEFT:
+		spriteName = "heroBL_";
+		//spriteName += to_string(currentSprite);
+		spriteName += "0.png";
+		break;
+	case UPRIGHT:
+		spriteName = "heroBR_";
+		//spriteName += to_string(currentSprite);
+		spriteName += "0.png";
+		break;
+	case DOWNLEFT:
+		spriteName = "heroFL_";
+		//spriteName += to_string(currentSprite);
+		spriteName += "0.png";
+		break;
+	case DOWNRIGHT:
+		spriteName = "heroFR_";
+		//spriteName += to_string(currentSprite);
+		spriteName += "0.png";
+		break;
+	case STAND:
+		spriteName = "heroF_0.png";
+		currentSprite = 0;
+	default:;
+	}
+	return spriteName;
+}
