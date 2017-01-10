@@ -3,6 +3,9 @@
 #include <iomanip>
 #include <windows.h>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "World.h"
 #include "Deerchant.h"
 
@@ -59,14 +62,17 @@ void World::generate(int objCount)
 	auto heroPosition = Vector2f(100, 100);
 	std::string heroName = "hero";
 	dynamicGrid.addItem(new Deerchant(heroPosition, spriteMap["heroF_0.png"].texture.getSize(), heroName), heroName, int(heroPosition.x), int(heroPosition.y));
-	
+
 	focusedObject = dynamicGrid.getItemByName(heroName);
 }
 
 void World::interact(long long elapsedTime) const
 {
-	auto newPosition = move(*focusedObject, elapsedTime);
-	focusedObject->position = newPosition;
+	if (focusedObject->direction != STAND)
+	{
+		auto newPosition = move(*focusedObject, elapsedTime);
+		focusedObject->position = newPosition;
+	}
 }
 
 void World::draw(RenderWindow& window, long long elapsedTime)
@@ -104,47 +110,12 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)
 {
-	auto speed = dynamicObject.speed;
-	auto direction = dynamicObject.direction;
+	auto angle = dynamicObject.direction * M_PI / 180;
 	auto position = dynamicObject.position;
 
-	auto distance = speed * elapsedTime;
-	auto diagonalDistance = speed * 0.7f * elapsedTime;
+	position.x = float(position.x + dynamicObject.speed * cos(angle) * elapsedTime);
+	position.y = float(position.y - dynamicObject.speed * sin(angle) * elapsedTime);
 
-	switch (direction)
-	{
-	case LEFT:
-		position.x -= distance;
-		break;
-	case RIGHT:
-		position.x += distance;
-		break;
-	case UP:
-		position.y -= distance;
-		break;
-	case DOWN:
-		position.y += distance;
-		break;
-	case UPLEFT:
-		position.x -= diagonalDistance;
-		position.y -= diagonalDistance;
-		break;
-	case UPRIGHT:
-		position.x += diagonalDistance;
-		position.y -= diagonalDistance;
-		break;
-	case DOWNLEFT:
-		position.x -= diagonalDistance;
-		position.y += diagonalDistance;
-		break;
-	case DOWNRIGHT:
-		position.x += diagonalDistance;
-		position.y += diagonalDistance;
-		break;
-	case STAND:
-		break;
-	default:;
-	}
 	return position;
 }
 
