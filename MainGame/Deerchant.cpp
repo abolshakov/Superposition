@@ -3,7 +3,7 @@
 
 using namespace sf;
 
-Deerchant::Deerchant(std::string name, FloatRect boundingBox, IntRect textureBox) : DynamicObject(name, boundingBox, textureBox)
+Deerchant::Deerchant(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize) : DynamicObject(name, boundingBox, textureOffset, textureBoxSize)
 {
 	currentSprite = 1;
 	timeForNewSprite = 0;

@@ -14,7 +14,7 @@ public:
 	Vector2f motion;
 	int ellipseSize;
 
-	DynamicObject(std::string name, FloatRect boundingBox, IntRect textureBox);
+	DynamicObject(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize);
 	virtual void handleInput();
 };
 

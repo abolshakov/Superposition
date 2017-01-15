@@ -1,6 +1,6 @@
 #include "Stone.h"
 
-Stone::Stone(std::string name, FloatRect boundingBox, IntRect textureBox) : TerrainObject(name, boundingBox, textureBox)
+Stone::Stone(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize) : TerrainObject(name, boundingBox, textureOffset, textureBoxSize)
 {
 }
 

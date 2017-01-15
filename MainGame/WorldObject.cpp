@@ -1,13 +1,12 @@
 #include "WorldObject.h"
 
-WorldObject::WorldObject(std::string objectName, FloatRect boundingBox, IntRect textureBoundingBox)
+WorldObject::WorldObject(std::string objectName, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize)
 {
 	name = objectName;
 	box = boundingBox;
-	textureBox = textureBoundingBox;
+	textureBoxOffset = textureOffset;
 	size = Vector2i(box.width, box.height);
-	texturePosition = Vector2i(textureBox.left, textureBox.top);
-	textureSize = Vector2i(textureBox.width, textureBox.height);	
+	textureBox = IntRect(box.left - textureBoxOffset.x, box.top - textureBoxOffset.y, textureBoxSize.x, textureBoxSize.y);	
 }
 
 WorldObject::~WorldObject()

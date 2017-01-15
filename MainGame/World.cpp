@@ -49,9 +49,9 @@ void World::generate(int objCount)
 {
 	auto s = int(sqrt(objCount));
 
-	auto stoneTextureSize = Vector2i(spriteMap["stone.png"].texture.getSize());
+	auto stoneTextureSize = Vector2f(spriteMap["stone.png"].texture.getSize());
 	auto stoneSize = Vector2f(stoneTextureSize.x, stoneTextureSize.y / 2);
-	auto stoneTextureOffset = Vector2i(0, stoneTextureSize.y - stoneSize.y);
+	auto stoneTextureOffset = Vector2f(0, stoneTextureSize.y - stoneSize.y);
 
 	for (auto i = 0; i < s; i++)
 	{
@@ -59,16 +59,16 @@ void World::generate(int objCount)
 		{
 			auto name = "stone" + std::to_string(i * s + j);
 			auto position = Vector2f(i * (width / s), j * (height / s));
-			staticGrid.addItem(new Stone(name, FloatRect(position, stoneSize), IntRect(Vector2i(position.x - stoneTextureOffset.x, position.y - stoneTextureOffset.y), stoneTextureSize)), name, position.x, position.y);
+			staticGrid.addItem(new Stone(name, FloatRect(position, stoneSize), stoneTextureOffset, stoneTextureSize), name, position.x, position.y);
 		}
 	}
 
 	std::string heroName = "hero";
-	auto heroTextureSize = Vector2i(spriteMap["heroF_0.png"].texture.getSize());
+	auto heroTextureSize = Vector2f(spriteMap["heroF_0.png"].texture.getSize());
 	auto heroSize = Vector2f(heroTextureSize.x, heroTextureSize.y / 5);
-	auto heroTextureOffset = Vector2i(0, heroTextureSize.y - heroSize.y);
-	auto heroPosition = Vector2f(400, 400);
-	dynamicGrid.addItem(new Deerchant(heroName, FloatRect(heroPosition, heroSize), IntRect(Vector2i(heroPosition.x - heroTextureOffset.x, heroPosition.y - heroTextureOffset.y), heroTextureSize)), heroName, int(heroPosition.x), int(heroPosition.y));
+	auto heroTextureOffset = Vector2f(0, heroTextureSize.y - heroSize.y);
+	auto heroPosition = Vector2f(200, 200);
+	dynamicGrid.addItem(new Deerchant(heroName, FloatRect(heroPosition, heroSize), heroTextureOffset, heroTextureSize), heroName, int(heroPosition.x), int(heroPosition.y));
 
 	focusedObject = dynamicGrid.getItemByName(heroName);
 }
@@ -164,7 +164,7 @@ Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)
 
 bool World::isIntersect(Vector2f position, const DynamicObject& dynamic, const WorldObject& other)
 { 
-	return false;
+	//return false;
 	Rect<float> first(position.x, position.y, dynamic.getSize().x, dynamic.getSize().y);
 	Rect<float> second = other.getBoundingBox();
 	return (first.left <= second.left && first.left + first.width >= second.left || second.left <= first.left && second.left + second.width >= first.left)

@@ -1,6 +1,6 @@
 #include "DynamicObject.h"
 
-DynamicObject::DynamicObject(std::string name, FloatRect boundingBox, IntRect textureBox) : WorldObject(name, boundingBox, textureBox)
+DynamicObject::DynamicObject(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize) : WorldObject(name, boundingBox, textureOffset, textureBoxSize)
 {
 	speed = 0;
 	direction = STAND;
