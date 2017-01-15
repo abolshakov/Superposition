@@ -11,8 +11,8 @@ private:
 	int animationLength;
 public:
 	std::string nameOfFile;
-	Deerchant(Vector2f position, Vector2u size, std::string name);
-	std::string getSpriteName(long long elapsedTime) override;
+	Deerchant(std::string name, FloatRect boundingBox, IntRect textureBox);
+	const std::string getSpriteName(long long elapsedTime) override;
 	void handleInput() override;
 };
 

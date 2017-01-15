@@ -3,7 +3,7 @@
 
 using namespace sf;
 
-Deerchant::Deerchant(Vector2f position, Vector2u size, std::string name) : DynamicObject(position, size, name)
+Deerchant::Deerchant(std::string name, FloatRect boundingBox, IntRect textureBox) : DynamicObject(name, boundingBox, textureBox)
 {
 	currentSprite = 1;
 	timeForNewSprite = 0;
@@ -45,7 +45,7 @@ void Deerchant::handleInput()
 		speed -= 1;
 }
 
-std::string Deerchant::getSpriteName(long long elapsedTime)
+const std::string Deerchant::getSpriteName(long long elapsedTime)
 {
 	if (direction != STAND)
 	{

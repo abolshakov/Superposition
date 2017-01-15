@@ -8,14 +8,13 @@ enum Direction { RIGHT = 0, UPRIGHT = 45, UP = 90, UPLEFT = 135, LEFT = 180, DOW
 
 class DynamicObject : public WorldObject
 {
-	Vector2f focus1, focus2;
 public:
 	float speed;
 	Direction direction;
 	Vector2f motion;
 	int ellipseSize;
 
-	DynamicObject(Vector2f position, Vector2u size, std::string name);
+	DynamicObject(std::string name, FloatRect boundingBox, IntRect textureBox);
 	virtual void handleInput();
 };
 

@@ -9,17 +9,30 @@ using namespace sf;
 class WorldObject
 {
 protected:
-	Vector2u size;
 	std::string name;
+	Vector2i size;
+	Vector2i textureSize;	
+	Vector2i texturePosition;
+	FloatRect box;
+	IntRect textureBox;
 public:
-	Vector2f position;
-
-	WorldObject(Vector2f position, Vector2u size, std::string name);
+	WorldObject(std::string name, FloatRect boundingBox, IntRect textureBox);
 	virtual ~WorldObject();
 
-	virtual std::string getSpriteName(long long elapsedTime) = 0;
-	Vector2u getSize() const { return size; }
-	std::string getName() const { return name; }
+	const std::string& getName() const { return name; }
+	Vector2f getPosition() const { return Vector2f(box.left, box.top); }
+	void setPosition(Vector2f newPosition)
+	{
+		box.left = newPosition.x;
+		box.top = newPosition.y; // Introduce Texture Offset
+		textureBox.left = newPosition.x;
+		textureBox.top = newPosition.y;
+	}
+	Vector2i getSize() const { return size; }
+	const FloatRect& getBoundingBox() const { return box; }
+	Vector2i getTextureSize() const { return textureSize; }	
+	Vector2i getTexturePosition() const { return texturePosition; }
+	virtual const std::string getSpriteName(long long elapsedTime) = 0;
 };
 
 #endif

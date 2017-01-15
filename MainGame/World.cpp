@@ -22,7 +22,7 @@ World::World(int width, int height) : screenSizeX(0), screenSizeY(0), focusedObj
 
 bool cmpImgDraw(const WorldObject* first, const WorldObject* second)
 {
-	return first->position.y + first->getSize().y < second->position.y + second->getSize().y;
+	return first->getPosition().y + first->getTextureSize().y < second->getPosition().y + second->getTextureSize().y;
 }
 
 void World::initSpriteMap()
@@ -48,30 +48,73 @@ void World::initSpriteMap()
 void World::generate(int objCount)
 {
 	auto s = int(sqrt(objCount));
-	auto size = spriteMap["stone.png"].texture.getSize();
+
+	auto stoneTextureSize = Vector2i(spriteMap["stone.png"].texture.getSize());
+	auto stoneSize = Vector2f(stoneTextureSize.x, stoneTextureSize.y / 2);
+	auto stoneTextureOffset = Vector2i(0, stoneTextureSize.y - stoneSize.y);
 
 	for (auto i = 0; i < s; i++)
 	{
 		for (auto j = 0; j < s; j++)
 		{
-			auto position = Vector2i(i * (width / s), j * (height / s));
 			auto name = "stone" + std::to_string(i * s + j);
-			staticGrid.addItem(new Stone(Vector2f(position), size, name), name, position.x, position.y);
+			auto position = Vector2f(i * (width / s), j * (height / s));
+			staticGrid.addItem(new Stone(name, FloatRect(position, stoneSize), IntRect(Vector2i(position.x - stoneTextureOffset.x, position.y - stoneTextureOffset.y), stoneTextureSize)), name, position.x, position.y);
 		}
 	}
-	auto heroPosition = Vector2f(100, 100);
+
 	std::string heroName = "hero";
-	dynamicGrid.addItem(new Deerchant(heroPosition, spriteMap["heroF_0.png"].texture.getSize(), heroName), heroName, int(heroPosition.x), int(heroPosition.y));
+	auto heroTextureSize = Vector2i(spriteMap["heroF_0.png"].texture.getSize());
+	auto heroSize = Vector2f(heroTextureSize.x, heroTextureSize.y / 5);
+	auto heroTextureOffset = Vector2i(0, heroTextureSize.y - heroSize.y);
+	auto heroPosition = Vector2f(400, 400);
+	dynamicGrid.addItem(new Deerchant(heroName, FloatRect(heroPosition, heroSize), IntRect(Vector2i(heroPosition.x - heroTextureOffset.x, heroPosition.y - heroTextureOffset.y), heroTextureSize)), heroName, int(heroPosition.x), int(heroPosition.y));
 
 	focusedObject = dynamicGrid.getItemByName(heroName);
 }
 
-void World::interact(long long elapsedTime) const
+void World::interact(RenderWindow& window, long long elapsedTime)
 {
-	if (focusedObject->direction != STAND)
+	const auto extra = 600;
+	auto screenSize = window.getSize();
+	auto characterSize = focusedObject->getTextureSize();
+	auto characterPosition = focusedObject->getTexturePosition();
+
+	Vector2i worldUpperLeft(int(characterPosition.x - screenSize.x / 2 + characterSize.x / 2), int(characterPosition.y - screenSize.y / 2 + characterSize.y / 2));
+	Vector2i worldBottomRight(int(characterPosition.x + screenSize.x / 2 - characterSize.x / 2), int(characterPosition.y + screenSize.y / 2 - characterSize.y / 2));
+
+	auto staticItems = staticGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
+	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
+
+	for (auto dynamicItem : dynamicItems)
 	{
-		auto newPosition = move(*focusedObject, elapsedTime);
-		focusedObject->position = newPosition;
+		bool intersects = false;
+		if (dynamicItem->direction != STAND)
+		{
+			auto newPosition = move(*dynamicItem, elapsedTime);
+			for (auto staticItem : staticItems)
+			{
+				if (isIntersect(newPosition, *dynamicItem, *staticItem))
+				{
+					intersects = true;
+					break;
+				}
+			}
+			if (intersects)
+				continue;
+			for (auto otherDynamicItem : dynamicItems)
+			{
+				if (otherDynamicItem == dynamicItem)
+					continue;
+				if (isIntersect(newPosition, *dynamicItem, *otherDynamicItem))
+				{
+					intersects = true;
+					break;
+				}
+			}
+			if (!intersects)
+				dynamicItem->setPosition(newPosition);
+		}
 	}
 }
 
@@ -79,13 +122,13 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 {
 	const auto extra = 600;
 	auto screenSize = window.getSize();
-	auto characterSize = focusedObject->getSize();
-	auto characterPosition = focusedObject->position;
+	auto screenCenter = Vector2i(screenSize.x / 2, screenSize.y / 2);
+	auto characterSize = focusedObject->getTextureSize();
+	auto characterHalfSize = Vector2i(characterSize.x / 2, characterSize.y / 2);
+	auto characterPosition = focusedObject->getTexturePosition();
 
-	Vector2u characterScreen(screenSize.x / 2 - characterSize.x / 2, screenSize.y / 2 - characterSize.y / 2);
-	Vector2f characterScreenToWorld(characterPosition.x + characterSize.x / 2, characterPosition.y + characterSize.y / 2);
-	Vector2i worldUpperLeft(int(characterScreenToWorld.x - screenSize.x / 2), int(characterScreenToWorld.y - screenSize.y / 2));
-	Vector2i worldBottomRight(int(characterScreenToWorld.x + screenSize.x / 2), int(characterScreenToWorld.y + screenSize.y / 2));
+	Vector2i worldUpperLeft(int(characterPosition.x - screenCenter.x + characterHalfSize.x), int(characterPosition.y - screenCenter.y + characterHalfSize.y));
+	Vector2i worldBottomRight(int(characterPosition.x + screenCenter.x - characterHalfSize.x), int(characterPosition.y + screenCenter.y - characterHalfSize.y));
 
 	auto staticItems = staticGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
 	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
@@ -97,11 +140,11 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 	for (auto worldItem : visibleItems)
 	{
-		auto worldItemPosition = worldItem->position;
+		auto worldItemPosition = worldItem->getTexturePosition();
 		auto spriteItem = &spriteMap[worldItem->getSpriteName(elapsedTime)];
 
-		auto spriteX = worldItemPosition.x - characterPosition.x + characterScreen.x;
-		auto spriteY = worldItemPosition.y - characterPosition.y + characterScreen.y;
+		auto spriteX = float(worldItemPosition.x - characterPosition.x + screenCenter.x - characterHalfSize.x);
+		auto spriteY = float(worldItemPosition.y - characterPosition.y + screenCenter.y - characterHalfSize.y);
 		spriteItem->sprite.setPosition(Vector2f(spriteX, spriteY));
 
 		window.draw(spriteItem->sprite);
@@ -111,11 +154,21 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)
 {
 	auto angle = dynamicObject.direction * M_PI / 180;
-	auto position = dynamicObject.position;
+	auto position = dynamicObject.getPosition();
 
 	position.x = float(position.x + dynamicObject.speed * cos(angle) * elapsedTime);
 	position.y = float(position.y - dynamicObject.speed * sin(angle) * elapsedTime);
 
 	return position;
+}
+
+bool World::isIntersect(Vector2f position, const DynamicObject& dynamic, const WorldObject& other)
+{ 
+	return false;
+	Rect<float> first(position.x, position.y, dynamic.getSize().x, dynamic.getSize().y);
+	Rect<float> second = other.getBoundingBox();
+	return (first.left <= second.left && first.left + first.width >= second.left || second.left <= first.left && second.left + second.width >= first.left)
+		&& (first.top <= second.top && first.top + first.height >= second.top || second.top <= first.top && second.top + second.height >= first.top);
+	//return dynamic.getBoundingBox().intersects(other.getBoundingBox());
 }
 

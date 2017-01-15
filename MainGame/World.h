@@ -24,6 +24,7 @@ class World
 	int screenSizeY;
 	int width, height;
 	static Vector2f move(const DynamicObject& dynamicObject, long long elapsedTime);
+	bool isIntersect(Vector2f position, const DynamicObject& dynamic, const WorldObject& other);
 public:
 	GridList<StaticObject> staticGrid;
 	GridList<DynamicObject> dynamicGrid;
@@ -34,7 +35,7 @@ public:
 	
 	void initSpriteMap();
 	void generate(int objCount);
-	void interact(long long elapsedTime) const;
+	void interact(RenderWindow& window, long long elapsedTime);
 	void draw(RenderWindow& window, long long elapsedTime);	
 };
 
