@@ -71,7 +71,7 @@ std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottom
 	if (upperLeftY < 0)
 		upperLeftY = 0;
 	if (bottomRightX > width)
-		upperLeftX = width;
+		bottomRightX = width;
 	if (bottomRightY > height)
 		bottomRightY = height;
 
@@ -87,6 +87,20 @@ std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottom
 		}
 	}
 	return result;
+}
+
+template <class T>
+void GridList<T>::updateItemPosition(const std::string& name, int x, int y)
+{
+	auto position = items.at(name);	
+	auto item = cells[position.first][position.second];
+	cells[position.first].erase(cells[position.first].begin()+position.second);
+
+	auto index = getIndexByPoint(x, y);
+	position = std::make_pair(index, int(cells[index].size()));
+	cells[index].push_back(item);
+	items[name] = position;
+
 }
 
 #endif

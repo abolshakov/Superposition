@@ -15,10 +15,12 @@ public:
 	GridList();
 	GridList(int width, int height, int size);
 	~GridList();
+	int getBlockSize() { return size; };
 	int getIndexByPoint(int x, int y) const;
 	void addItem(T* item, const std::string& name, int x, int y);
 	T* getItemByName(std::string& name);
 	std::vector<T*> getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY);
+	void updateItemPosition(const std::string& name, int x, int y);
 };
 
 // ReSharper disable once CppUnusedIncludeDirective
