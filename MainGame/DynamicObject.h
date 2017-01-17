@@ -11,7 +11,6 @@ class DynamicObject : public WorldObject
 public:
 	float speed;
 	Direction direction;
-	Vector2f motion;
 	int ellipseSize;
 
 	DynamicObject(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize);

@@ -50,8 +50,8 @@ void World::generate(int objCount)
 	auto s = int(sqrt(objCount));
 
 	auto stoneTextureSize = Vector2f(spriteMap["stone.png"].texture.getSize());
-	auto stoneSize = Vector2f(stoneTextureSize.x, stoneTextureSize.y / 2);
-	auto stoneTextureOffset = Vector2f(0, stoneTextureSize.y - stoneSize.y);
+	auto stoneSize = Vector2f(stoneTextureSize.x/1.25, stoneTextureSize.y / 4);
+	auto stoneTextureOffset = Vector2f(stoneTextureSize.x / 4-40, stoneTextureSize.y - stoneSize.y-30);
 
 	for (auto i = 0; i < s; i++)
 	{
@@ -65,8 +65,8 @@ void World::generate(int objCount)
 
 	std::string heroName = "hero";
 	auto heroTextureSize = Vector2f(spriteMap["heroF_0.png"].texture.getSize());
-	auto heroSize = Vector2f(heroTextureSize.x, heroTextureSize.y / 5);
-	auto heroTextureOffset = Vector2f(0, heroTextureSize.y - heroSize.y);
+	auto heroSize = Vector2f(heroTextureSize.x/2, heroTextureSize.y / 5);
+	auto heroTextureOffset = Vector2f(heroTextureSize.x / 4, heroTextureSize.y - heroSize.y);
 	auto heroPosition = Vector2f(200, 200);
 	dynamicGrid.addItem(new Deerchant(heroName, FloatRect(heroPosition, heroSize), heroTextureOffset, heroTextureSize), heroName, int(heroPosition.x), int(heroPosition.y));
 
@@ -95,6 +95,43 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 			{
 				if (isIntersect(newPosition, *dynamicItem, *staticItem))
 				{
+					if (dynamicItem->direction == UP || dynamicItem->direction == DOWN)
+					{
+						if (dynamicItem->getPosition().x + dynamicItem->getSize().x - staticItem->getPosition().x <= staticItem->getSmoothBorderX().x)
+						{
+							newPosition = Vector2f(dynamicItem->getPosition().x - dynamicItem->speed*500, dynamicItem->getPosition().y);
+							dynamicItem->setPosition(newPosition);
+							dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
+							continue;
+						}
+						else
+						if (dynamicItem->getPosition().x - staticItem->getPosition().x >= staticItem->getSmoothBorderX().y)
+						{
+							newPosition = Vector2f(dynamicItem->getPosition().x + dynamicItem->speed * 500, dynamicItem->getPosition().y);
+							dynamicItem->setPosition(newPosition);
+							dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
+							continue;
+						}
+					}
+					if (dynamicItem->direction == LEFT || dynamicItem->direction == RIGHT)
+					{
+						if (dynamicItem->getPosition().y + dynamicItem->getSize().y - staticItem->getPosition().y <= staticItem->getSmoothBorderY().x)
+						{
+							newPosition = Vector2f(dynamicItem->getPosition().x, dynamicItem->getPosition().y - dynamicItem->speed*500);
+							dynamicItem->setPosition(newPosition);
+							dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
+							continue;
+						}
+						else
+						if (dynamicItem->getPosition().y - staticItem->getPosition().y >= staticItem->getSmoothBorderY().y)
+						{
+							newPosition = Vector2f(dynamicItem->getPosition().x, dynamicItem->getPosition().y + dynamicItem->speed*500);
+							dynamicItem->setPosition(newPosition);
+							dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
+							continue;
+						}
+					}
+
 					intersects = true;
 					break;
 				}
@@ -139,7 +176,8 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 	visibleItems.insert(visibleItems.end(), visibleDynamicItems.begin(), visibleDynamicItems.end());
 	sort(visibleItems.begin(), visibleItems.end(), cmpImgDraw);
-
+	//WorldObject* worldItem = visibleItems[0];
+	//Vector2f test = worldItem->getSmoothBorderX();
 	for (auto worldItem : visibleItems)
 	{
 		auto worldItemPosition = worldItem->getTexturePosition();
@@ -151,14 +189,14 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 		window.draw(spriteItem->sprite);
 
-		auto box = worldItem->getBoundingBox();
+		/*auto box = worldItem->getBoundingBox();
 		auto rectangle = sf::RectangleShape();
 		rectangle.setSize(sf::Vector2f(box.width, box.height));
 		rectangle.setOutlineColor(sf::Color::Red);
 		rectangle.setFillColor(sf::Color::Transparent);
 		rectangle.setOutlineThickness(1);
 		rectangle.setPosition(box.left - characterPosition.x + screenCenter.x - characterHalfSize.x, box.top - characterPosition.y + screenCenter.y - characterHalfSize.y);
-		window.draw(rectangle);
+		window.draw(rectangle);*/
 	}
 	auto rectangle = sf::RectangleShape();
 	rectangle.setSize(sf::Vector2f(width, height));

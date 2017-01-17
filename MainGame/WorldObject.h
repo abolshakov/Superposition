@@ -14,12 +14,15 @@ protected:
 	Vector2f textureBoxOffset;
 	FloatRect box;
 	IntRect textureBox;
+	Vector2f smoothBorderX, smoothBorderY;
 public:
 	WorldObject(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize);
 	virtual ~WorldObject();
 
 	const std::string& getName() const { return name; }
 	Vector2f getPosition() const { return Vector2f(box.left, box.top); }
+	Vector2f getSmoothBorderX() const { return smoothBorderX; }
+	Vector2f getSmoothBorderY() const { return smoothBorderY; }
 	void setPosition(Vector2f newPosition)
 	{
 		box.left = newPosition.x;
