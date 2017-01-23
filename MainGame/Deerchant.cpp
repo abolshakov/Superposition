@@ -3,12 +3,17 @@
 
 using namespace sf;
 
-Deerchant::Deerchant(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize) : DynamicObject(name, boundingBox, textureOffset, textureBoxSize)
+Deerchant::Deerchant(std::string objectName, Vector2f ellipseCenterPosition) : DynamicObject(objectName, ellipseCenterPosition)
 {
 	currentSprite = 1;
 	timeForNewSprite = 0;
 	speed = 0.0005f;
 	animationLength = 8;
+}
+
+Vector2f Deerchant::calculateTextureOffset()
+{
+	return Vector2f(textureBox.width / 2, textureBox.height * 7 / 8);
 }
 
 void Deerchant::handleInput()
@@ -40,9 +45,9 @@ void Deerchant::handleInput()
 									direction = STAND;
 
 	if (Keyboard::isKeyPressed(Keyboard::LControl))
-		speed += 1;
+		speed /= 2;
 	else if (Keyboard::isKeyPressed(Keyboard::LShift) && speed > 1)
-		speed -= 1;
+		speed *= 2;
 }
 
 const std::string Deerchant::getSpriteName(long long elapsedTime)

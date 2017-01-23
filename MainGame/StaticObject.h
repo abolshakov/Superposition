@@ -4,6 +4,6 @@
 class StaticObject : public WorldObject
 {
 public:
-	StaticObject(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize);
+	StaticObject(std::string objectName, Vector2f ellipseCenterPosition);
 };
 

@@ -24,7 +24,9 @@ class World
 	int screenSizeY;
 	int width, height;
 	static Vector2f move(const DynamicObject& dynamicObject, long long elapsedTime);
-	bool isIntersect(Vector2f position, const DynamicObject& dynamic, const WorldObject& other);
+	bool isIntersectTerrain(Vector2f position, const DynamicObject& dynamic, const TerrainObject& other);
+	bool isIntersectDynamic(Vector2f position, const DynamicObject& dynamic, const DynamicObject& other);
+	Vector2f newSlippingPosition(DynamicObject *dynamicItem, TerrainObject *terrain, Vector2f newPosition, float elapsedTime);
 public:
 	GridList<StaticObject> staticGrid;
 	GridList<DynamicObject> dynamicGrid;

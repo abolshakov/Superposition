@@ -1,6 +1,6 @@
 #include "StaticObject.h"
 
-StaticObject::StaticObject(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize) : WorldObject(name, boundingBox, textureOffset, textureBoxSize)
+StaticObject::StaticObject(std::string objectName, Vector2f ellipseCenterPosition) : WorldObject(objectName, ellipseCenterPosition)
 {	
 }
 

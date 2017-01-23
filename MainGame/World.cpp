@@ -22,7 +22,7 @@ World::World(int width, int height) : screenSizeX(0), screenSizeY(0), focusedObj
 
 bool cmpImgDraw(const WorldObject* first, const WorldObject* second)
 {
-	return first->getPosition().y + first->getTextureSize().y < second->getPosition().y + second->getTextureSize().y;
+	return first->getTexturePosition().y + first->getTextureSize().y < second->getTexturePosition().y + second->getTextureSize().y;
 }
 
 void World::initSpriteMap()
@@ -50,8 +50,8 @@ void World::generate(int objCount)
 	auto s = int(sqrt(objCount));
 
 	auto stoneTextureSize = Vector2f(spriteMap["stone.png"].texture.getSize());
-	auto stoneSize = Vector2f(stoneTextureSize.x/1.25, stoneTextureSize.y / 4);
-	auto stoneTextureOffset = Vector2f(stoneTextureSize.x / 4-40, stoneTextureSize.y - stoneSize.y-30);
+	//auto stoneSize = Vector2f(stoneTextureSize.x/1.25, stoneTextureSize.y / 2);
+	//auto stoneTextureOffset = Vector2f(stoneTextureSize.x / 2, stoneTextureSize.y / 1.5);
 
 	for (auto i = 0; i < s; i++)
 	{
@@ -59,20 +59,142 @@ void World::generate(int objCount)
 		{
 			auto name = "stone" + std::to_string(i * s + j);
 			auto position = Vector2f(i * (width / s), j * (height / s));
-			staticGrid.addItem(new Stone(name, FloatRect(position, stoneSize), stoneTextureOffset, stoneTextureSize), name, position.x, position.y);
+			staticGrid.addItem(new Stone(name, position), name, position.x, position.y);
+			auto stone = staticGrid.getItemByName(name);
+			stone->setTextureSize(stoneTextureSize);
 		}
 	}
 
 	std::string heroName = "hero";
 	auto heroTextureSize = Vector2f(spriteMap["heroF_0.png"].texture.getSize());
-	auto heroSize = Vector2f(heroTextureSize.x/2, heroTextureSize.y / 5);
-	auto heroTextureOffset = Vector2f(heroTextureSize.x / 4, heroTextureSize.y - heroSize.y);
+	//auto heroSize = Vector2f(heroTextureSize.x/2, heroTextureSize.y / 8);
+	//auto heroTextureOffset = Vector2f(heroTextureSize.x / 2, heroTextureSize.y - heroSize.y);
 	auto heroPosition = Vector2f(200, 200);
-	dynamicGrid.addItem(new Deerchant(heroName, FloatRect(heroPosition, heroSize), heroTextureOffset, heroTextureSize), heroName, int(heroPosition.x), int(heroPosition.y));
-
+	dynamicGrid.addItem(new Deerchant(heroName, heroPosition), heroName, int(heroPosition.x), int(heroPosition.y));
+	
 	focusedObject = dynamicGrid.getItemByName(heroName);
+	focusedObject->setTextureSize(heroTextureSize);
 }
-
+Vector2f World::newSlippingPosition(DynamicObject *dynamicItem, TerrainObject *terrain, Vector2f newPosition, float elapsedTime)
+{
+	Vector2f motion;
+	if (dynamicItem->direction == LEFT || dynamicItem->direction == RIGHT)
+	{
+		if (newPosition.y <= terrain->getellipsePosition().y)
+		{
+			motion = Vector2f(0, -dynamicItem->speed * elapsedTime);
+			return motion;
+		}
+		else
+		{
+			motion = Vector2f(0, dynamicItem->speed * elapsedTime);
+			return motion;
+		}
+	}
+	else
+		if (dynamicItem->direction == UP || dynamicItem->direction == DOWN)
+		{
+			if (newPosition.x <= terrain->getellipsePosition().x)
+			{
+				motion = Vector2f(-dynamicItem->speed * elapsedTime, 0);
+				return motion;
+			}
+			else
+			{
+				motion = Vector2f(dynamicItem->speed * elapsedTime, 0);
+				return motion;
+			}
+		}
+		else
+			if (dynamicItem->direction == UPLEFT)
+			{
+				if (newPosition.x <= terrain->getellipsePosition().x)
+				{
+					motion = Vector2f(-dynamicItem->speed * elapsedTime, 0);
+					return motion;
+				}
+				else
+				{
+					if (newPosition.x <= (terrain->getFocus2().x + terrain->getellipsePosition().x) * 3 / 4)
+					{
+						motion = Vector2f(-dynamicItem->speed * elapsedTime, dynamicItem->speed * elapsedTime);
+						return motion;
+					}
+					else
+					{
+						motion = Vector2f(dynamicItem->speed * 2 * elapsedTime, 0);
+						return motion;
+					}
+				}
+			}
+			else
+				if (dynamicItem->direction == DOWNLEFT)
+				{
+					if (newPosition.x <= terrain->getellipsePosition().x)
+					{
+						motion = Vector2f(-dynamicItem->speed * elapsedTime, 0);
+						return motion;
+					}
+					else
+					{
+						if (newPosition.x <= (terrain->getFocus2().x + terrain->getellipsePosition().x) * 3 / 4)
+						{
+							motion = Vector2f(-dynamicItem->speed * elapsedTime, -dynamicItem->speed * elapsedTime);
+							return motion;
+						}
+						else
+						{
+							motion = Vector2f(dynamicItem->speed * 2 * elapsedTime, 0);
+							return motion;
+						}
+					}
+				}
+				else
+					if (dynamicItem->direction == UPRIGHT)
+					{
+						if (newPosition.x >= terrain->getellipsePosition().x)
+						{
+							motion = Vector2f(dynamicItem->speed * elapsedTime, 0);
+							return motion;
+						}
+						else
+						{
+							if (newPosition.x >= (terrain->getFocus1().x + terrain->getellipsePosition().x) / 2)
+							{
+								motion = Vector2f(dynamicItem->speed * elapsedTime, dynamicItem->speed * elapsedTime);
+								return motion;
+							}
+							else
+							{
+								motion = Vector2f(-dynamicItem->speed * 2 * elapsedTime, 0);
+								return motion;
+							}
+						}
+					}
+					else
+						if (dynamicItem->direction == DOWNRIGHT)
+						{
+							if (newPosition.x >= terrain->getellipsePosition().x)
+							{
+								motion = Vector2f(dynamicItem->speed * elapsedTime, 0);
+								return motion;
+							}
+							else
+							{
+								if (newPosition.x >= (terrain->getFocus1().x + terrain->getellipsePosition().x) / 2)
+								{
+									motion = Vector2f(dynamicItem->speed * elapsedTime, -dynamicItem->speed * elapsedTime);
+									return motion;
+								}
+								else
+								{
+									motion = Vector2f(-dynamicItem->speed * 2 * elapsedTime, 0);
+									return motion;
+								}
+							}
+						}
+	return Vector2f(-1000000, -1000000);
+}
 void World::interact(RenderWindow& window, long long elapsedTime)
 {
 	const auto extra = 600;
@@ -91,47 +213,23 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 		if (dynamicItem->direction != STAND)
 		{
 			auto newPosition = move(*dynamicItem, elapsedTime);
+
 			for (auto staticItem : staticItems)
 			{
-				if (isIntersect(newPosition, *dynamicItem, *staticItem))
+				TerrainObject* terrain = dynamic_cast<TerrainObject*>(staticItem);
+				if (!terrain)
+					continue;
+					
+				if (isIntersectTerrain(newPosition, *dynamicItem, *terrain))
 				{
-					if (dynamicItem->direction == UP || dynamicItem->direction == DOWN)
+					Vector2f motionAfterSlipping = newSlippingPosition(dynamicItem, terrain, newPosition, elapsedTime);
+					if (motionAfterSlipping.x != -1000000 && motionAfterSlipping.y != -1000000)
 					{
-						if (dynamicItem->getPosition().x + dynamicItem->getSize().x - staticItem->getPosition().x <= staticItem->getSmoothBorderX().x)
-						{
-							newPosition = Vector2f(dynamicItem->getPosition().x - dynamicItem->speed*500, dynamicItem->getPosition().y);
-							dynamicItem->setPosition(newPosition);
-							dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
-							continue;
-						}
-						else
-						if (dynamicItem->getPosition().x - staticItem->getPosition().x >= staticItem->getSmoothBorderX().y)
-						{
-							newPosition = Vector2f(dynamicItem->getPosition().x + dynamicItem->speed * 500, dynamicItem->getPosition().y);
-							dynamicItem->setPosition(newPosition);
-							dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
-							continue;
-						}
+						dynamicItem->setPosition(Vector2f(dynamicItem->getellipsePosition().x+motionAfterSlipping.x, dynamicItem->getellipsePosition().y + motionAfterSlipping.y));
+						dynamicGrid.updateItemPosition(dynamicItem->getName(), motionAfterSlipping.x, motionAfterSlipping.y);
+						return;
 					}
-					if (dynamicItem->direction == LEFT || dynamicItem->direction == RIGHT)
-					{
-						if (dynamicItem->getPosition().y + dynamicItem->getSize().y - staticItem->getPosition().y <= staticItem->getSmoothBorderY().x)
-						{
-							newPosition = Vector2f(dynamicItem->getPosition().x, dynamicItem->getPosition().y - dynamicItem->speed*500);
-							dynamicItem->setPosition(newPosition);
-							dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
-							continue;
-						}
-						else
-						if (dynamicItem->getPosition().y - staticItem->getPosition().y >= staticItem->getSmoothBorderY().y)
-						{
-							newPosition = Vector2f(dynamicItem->getPosition().x, dynamicItem->getPosition().y + dynamicItem->speed*500);
-							dynamicItem->setPosition(newPosition);
-							dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
-							continue;
-						}
-					}
-
+					
 					intersects = true;
 					break;
 				}
@@ -142,7 +240,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 			{
 				if (otherDynamicItem == dynamicItem)
 					continue;
-				if (isIntersect(newPosition, *dynamicItem, *otherDynamicItem))
+				if (isIntersectDynamic(newPosition, *dynamicItem, *otherDynamicItem))
 				{
 					intersects = true;
 					break;
@@ -189,41 +287,58 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 		window.draw(spriteItem->sprite);
 
-		/*auto box = worldItem->getBoundingBox();
-		auto rectangle = sf::RectangleShape();
-		rectangle.setSize(sf::Vector2f(box.width, box.height));
-		rectangle.setOutlineColor(sf::Color::Red);
-		rectangle.setFillColor(sf::Color::Transparent);
-		rectangle.setOutlineThickness(1);
-		rectangle.setPosition(box.left - characterPosition.x + screenCenter.x - characterHalfSize.x, box.top - characterPosition.y + screenCenter.y - characterHalfSize.y);
-		window.draw(rectangle);*/
+		TerrainObject* terrain = dynamic_cast<TerrainObject*>(worldItem);
+		if (terrain)
+		{
+			auto rectangle0 = sf::RectangleShape();
+			rectangle0.setPosition(sf::Vector2f(focusedObject->getellipsePosition().x - characterPosition.x + screenCenter.x - characterHalfSize.x - 10, focusedObject->getellipsePosition().y - characterPosition.y + screenCenter.y - characterHalfSize.y - 10));
+			rectangle0.setOutlineColor(sf::Color::Green);
+			rectangle0.setFillColor(sf::Color::Red);
+			//rectangle.setOutlineThickness(1);
+			rectangle0.setSize(Vector2f(20, 20));
+			window.draw(rectangle0);
+			auto rectangle = sf::RectangleShape();
+			rectangle.setPosition(sf::Vector2f(terrain->getFocus1().x - characterPosition.x + screenCenter.x - characterHalfSize.x - 10, terrain->getFocus1().y - characterPosition.y + screenCenter.y - characterHalfSize.y - 10));
+			rectangle.setOutlineColor(sf::Color::Red);
+			rectangle.setFillColor(sf::Color::Red);
+			//rectangle.setOutlineThickness(1);
+			rectangle.setSize(Vector2f(20, 20));
+			window.draw(rectangle);
+			auto rectangle2 = sf::RectangleShape();
+			rectangle2.setPosition(sf::Vector2f(terrain->getFocus2().x - characterPosition.x + screenCenter.x - characterHalfSize.x - 10, terrain->getFocus2().y - characterPosition.y + screenCenter.y - characterHalfSize.y - 10));
+			rectangle2.setOutlineColor(sf::Color::Red);
+			rectangle2.setFillColor(sf::Color::Red);
+			//rectangle.setOutlineThickness(1);
+			rectangle2.setSize(Vector2f(20, 20));
+			window.draw(rectangle2);
+		}
 	}
-	auto rectangle = sf::RectangleShape();
-	rectangle.setSize(sf::Vector2f(width, height));
-	rectangle.setOutlineColor(sf::Color::Green);
-	rectangle.setFillColor(sf::Color::Transparent);
-	rectangle.setOutlineThickness(2);
-	rectangle.setPosition(0 - characterPosition.x + screenCenter.x - characterHalfSize.x, 0 - characterPosition.y + screenCenter.y - characterHalfSize.y);
-	window.draw(rectangle);
+	auto rectangle3 = sf::RectangleShape();
+	rectangle3.setSize(sf::Vector2f(width, height));
+	rectangle3.setOutlineColor(sf::Color::Green);
+	rectangle3.setFillColor(sf::Color::Transparent);
+	rectangle3.setOutlineThickness(2);
+	rectangle3.setPosition(0 - characterPosition.x + screenCenter.x - characterHalfSize.x, 0 - characterPosition.y + screenCenter.y - characterHalfSize.y);
+	window.draw(rectangle3);
 
 	auto blockSize = staticGrid.getBlockSize();
 	for (auto x = 0; x < width; x += blockSize)
 		for (auto y = 0; y < height; y += blockSize)
 		{
-			auto rectangle = sf::RectangleShape();
-			rectangle.setSize(sf::Vector2f(blockSize, blockSize));
-			rectangle.setOutlineColor(sf::Color::Blue);
-			rectangle.setFillColor(sf::Color::Transparent);
-			rectangle.setOutlineThickness(1);
-			rectangle.setPosition(x - characterPosition.x + screenCenter.x - characterHalfSize.x, y - characterPosition.y + screenCenter.y - characterHalfSize.y);
-			window.draw(rectangle);
+			auto rectangle4 = sf::RectangleShape();
+			rectangle4.setSize(sf::Vector2f(blockSize, blockSize));
+			rectangle4.setOutlineColor(sf::Color::Blue);
+			rectangle4.setFillColor(sf::Color::Transparent);
+			rectangle4.setOutlineThickness(1);
+			rectangle4.setPosition(x - characterPosition.x + screenCenter.x - characterHalfSize.x, y - characterPosition.y + screenCenter.y - characterHalfSize.y);
+			window.draw(rectangle4);
 		}
 }
 
 Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)
 {
 	auto angle = dynamicObject.direction * M_PI / 180;
-	auto position = dynamicObject.getPosition();
+	auto position = dynamicObject.getellipsePosition();
 
 	position.x = float(position.x + dynamicObject.speed * cos(angle) * elapsedTime);
 	position.y = float(position.y - dynamicObject.speed * sin(angle) * elapsedTime);
@@ -231,11 +346,19 @@ Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)
 	return position;
 }
 
-bool World::isIntersect(Vector2f position, const DynamicObject& dynamic, const WorldObject& other)
+bool World::isIntersectTerrain(Vector2f position, const DynamicObject& dynamic, const TerrainObject& other)
 {
-	Rect<float> first(position.x, position.y, dynamic.getSize().x, dynamic.getSize().y);
-	Rect<float> second = other.getBoundingBox();
-	return (first.left <= second.left && first.left + first.width >= second.left || second.left <= first.left && second.left + second.width >= first.left)
-		&& (first.top <= second.top && first.top + first.height >= second.top || second.top <= first.top && second.top + second.height >= first.top);
+	Vector2f dynPos = position;
+	Vector2f f1 = other.getFocus1();
+	Vector2f f2 = other.getFocus2();
+	return (sqrt((dynPos.x - f1.x)*(dynPos.x - f1.x) + (dynPos.y - f1.y)*(dynPos.y - f1.y)) + sqrt((dynPos.x - f2.x)*(dynPos.x - f2.x) + (dynPos.y - f2.y)*(dynPos.y - f2.y)) <= other.getellipseSize());
+}
+
+bool World::isIntersectDynamic(Vector2f position, const DynamicObject& dynamic, const DynamicObject& other)
+{
+	Vector2f dynPos = position;
+	Vector2f f1 = other.getFocus1();
+	Vector2f f2 = other.getFocus2();
+	return (sqrt((dynPos.x - f1.x)*(dynPos.x - f1.x) + (dynPos.y - f1.y)*(dynPos.y - f1.y)) + sqrt((dynPos.x - f2.x)*(dynPos.x - f2.x) + (dynPos.y - f2.y)*(dynPos.y - f2.y)) <= other.getellipseSize());
 }
 

@@ -1,10 +1,19 @@
 #include "Stone.h"
 
-Stone::Stone(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize) : TerrainObject(name, boundingBox, textureOffset, textureBoxSize)
+Stone::Stone(std::string objectName, Vector2f ellipseCenterPosition) : TerrainObject(objectName, ellipseCenterPosition)
 {
-	strength = 100;
-	smoothBorderX = Vector2f(box.width * 3 / 5, box.width * 2 / 5);
-	smoothBorderY = Vector2f(box.height * 3 / 2, box.height * 2 / 5);
+}
+
+Vector2f Stone::calculateTextureOffset()
+{
+	return Vector2f(textureBox.width / 2, textureBox.height / 1.5);
+}
+
+void Stone::initEllipse()
+{
+	ellipseSize = textureBox.width*1.125;
+	focus1 = Vector2f(textureBox.left + textureBox.width / 25, ellipseCenterPosition.y);
+	focus2 = Vector2f(textureBox.left + textureBox.width - textureBox.width / 25, ellipseCenterPosition.y);
 }
 
 const std::string Stone::getSpriteName(long long elapsedTime)

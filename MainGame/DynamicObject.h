@@ -8,13 +8,21 @@ enum Direction { RIGHT = 0, UPRIGHT = 45, UP = 90, UPLEFT = 135, LEFT = 180, DOW
 
 class DynamicObject : public WorldObject
 {
+protected:
+	Vector2f focus1, focus2, ellipseCenterPosition;
+	int ellipseSize;
 public:
 	float speed;
 	Direction direction;
-	int ellipseSize;
 
-	DynamicObject(std::string name, FloatRect boundingBox, Vector2f textureOffset, Vector2f textureBoxSize);
+	DynamicObject(std::string objectName, Vector2f ellipseCenterPosition);
+
 	virtual void handleInput();
+	Vector2f getellipsePosition() const { return Vector2f(ellipseCenterPosition.x, ellipseCenterPosition.y); }
+	Vector2f getFocus1() const { return focus1; }
+	Vector2f getFocus2() const { return focus2; }
+	void setPosition(Vector2f newPosition);
+	int getellipseSize() const { return ellipseSize; }
 };
 
 #endif
