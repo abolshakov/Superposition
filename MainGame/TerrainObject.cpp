@@ -1,8 +1,7 @@
 #include "TerrainObject.h"
 
-TerrainObject::TerrainObject(std::string objectName, Vector2f ellipseCenterPosition) : StaticObject(objectName, ellipseCenterPosition)
-{
-	this->ellipseCenterPosition = ellipseCenterPosition;
+TerrainObject::TerrainObject(std::string objectName, Vector2f centerPosition) : StaticObject(objectName, centerPosition)
+{	
 }
 
 

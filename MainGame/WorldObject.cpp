@@ -1,10 +1,10 @@
 #include "WorldObject.h"
 
-WorldObject::WorldObject(std::string objectName, Vector2f ellipseCenterPosition)
+WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 {
 	name = objectName;
-	position = ellipseCenterPosition;
-	initEllipse();
+	position = centerPosition;
+	initPedestal();
 }
 
 void WorldObject::setTextureSize(Vector2f textureSize)
@@ -17,7 +17,7 @@ void WorldObject::setTextureSize(Vector2f textureSize)
 	textureBox.left = position.x - textureBoxOffset.x;
 	textureBox.top = position.y - textureBoxOffset.y;
 
-	initEllipse();	
+	initPedestal();	
 }
 
 Vector2f WorldObject::calculateTextureOffset()
@@ -25,8 +25,15 @@ Vector2f WorldObject::calculateTextureOffset()
 	return Vector2f();
 }
 
-void WorldObject::initEllipse()
+void WorldObject::initPedestal()
 {
+}
+
+void WorldObject::setPosition(Vector2f newPosition)
+{
+	position = newPosition;
+	textureBox.left = newPosition.x - textureBoxOffset.x;
+	textureBox.top = newPosition.y - textureBoxOffset.y;
 }
 
 WorldObject::~WorldObject()

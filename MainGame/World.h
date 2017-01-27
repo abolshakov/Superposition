@@ -6,6 +6,7 @@
 #include "GridList.h"
 #include "DynamicObject.h"
 #include "Stone.h"
+#include "RoseTree.h"
 
 using namespace sf;
 

@@ -1,17 +1,9 @@
 #include "DynamicObject.h"
 
-DynamicObject::DynamicObject(std::string objectName, Vector2f ellipseCenterPosition) : WorldObject(objectName, ellipseCenterPosition)
+DynamicObject::DynamicObject(std::string objectName, Vector2f centerPosition) : WorldObject(objectName, centerPosition)
 {
 	speed = 0;
-	direction = STAND;
-	this->ellipseCenterPosition = ellipseCenterPosition;	
-}
-
-void DynamicObject::setPosition(Vector2f newPosition)
-{
-	ellipseCenterPosition = newPosition;
-	textureBox.left = newPosition.x - textureBoxOffset.x;
-	textureBox.top = newPosition.y - textureBoxOffset.y;
+	direction = STAND;	
 }
 
 void DynamicObject::handleInput()

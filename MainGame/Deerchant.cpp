@@ -3,7 +3,7 @@
 
 using namespace sf;
 
-Deerchant::Deerchant(std::string objectName, Vector2f ellipseCenterPosition) : DynamicObject(objectName, ellipseCenterPosition)
+Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicObject(objectName, centerPosition)
 {
 	currentSprite = 1;
 	timeForNewSprite = 0;

@@ -1,4 +1,7 @@
-67
+70
+roseTree1.png obj
+roseTree2.png obj
+roseTree3.png obj
 stone.png obj
 tree.png obj
 grass.png bg 

@@ -5,9 +5,9 @@ using namespace sf;
 
 int main() {
 
-	World world(5000, 5000);
+	World world(50000, 50000);
 	world.initSpriteMap();
-	world.generate(20);
+	world.generate(1000);
 
 	auto screenSize = Helper::GetScreenSize();
 	RenderWindow mainWindow(VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y)), "game");

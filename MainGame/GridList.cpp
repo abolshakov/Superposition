@@ -76,9 +76,12 @@ std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottom
 		bottomRightY = height;
 
 	std::vector<T*> result;
-	for (auto i = 0; i < ceil(double(bottomRightY - upperLeftY) / size); i++)
+	for (auto i = 0; i <= ceil(double(bottomRightY)/size) - ceil(double(upperLeftY) / size); i++)
 	{
-		for (auto j = getIndexByPoint(upperLeftX, upperLeftY + i*size); j < getIndexByPoint(bottomRightX, upperLeftY + i*size); j++)
+		int border = upperLeftY + i*size;
+		if (border > height)
+			border = height;
+		for (auto j = getIndexByPoint(upperLeftX, border); j <= getIndexByPoint(bottomRightX, border); j++)
 		{
 			for (auto k = 0; k < cells[j].size(); k++)
 			{

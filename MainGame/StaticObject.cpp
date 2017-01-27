@@ -1,6 +1,6 @@
 #include "StaticObject.h"
 
-StaticObject::StaticObject(std::string objectName, Vector2f ellipseCenterPosition) : WorldObject(objectName, ellipseCenterPosition)
+StaticObject::StaticObject(std::string objectName, Vector2f centerPosition) : WorldObject(objectName, centerPosition)
 {	
 }
 

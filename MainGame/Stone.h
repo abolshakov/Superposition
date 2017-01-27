@@ -4,9 +4,9 @@
 class Stone : public TerrainObject
 {	
 public:	
-	Stone(std::string objectName, Vector2f ellipseCenterPosition);
+	Stone(std::string objectName, Vector2f centerPosition);
 	Vector2f calculateTextureOffset() override;
-	void initEllipse() override;
+	void initPedestal() override;
 	const std::string getSpriteName(long long elapsedTime) override;	
 	int strength;
 };

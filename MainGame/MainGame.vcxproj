@@ -138,6 +138,7 @@
     <ClCompile Include="GridList.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RoseTree.cpp" />
     <ClCompile Include="StaticObject.cpp" />
     <ClCompile Include="Stone.cpp" />
     <ClCompile Include="TerrainObject.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="DynamicObject.h" />
     <ClInclude Include="GridList.h" />
     <ClInclude Include="Helper.h" />
+    <ClInclude Include="RoseTree.h" />
     <ClInclude Include="StaticObject.h" />
     <ClInclude Include="Stone.h" />
     <ClInclude Include="Structs.h" />
