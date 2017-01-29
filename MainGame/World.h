@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include "GridList.h"
 #include "DynamicObject.h"
-#include "Stone.h"
 #include "RoseTree.h"
 
 using namespace sf;
@@ -24,10 +23,11 @@ class World
 	int screenSizeX;
 	int screenSizeY;
 	int width, height;
+
 	static Vector2f move(const DynamicObject& dynamicObject, long long elapsedTime);
-	bool isIntersectTerrain(Vector2f position, const DynamicObject& dynamic, const TerrainObject& other);
-	bool isIntersectDynamic(Vector2f position, const DynamicObject& dynamic, const DynamicObject& other);
-	Vector2f newSlippingPosition(DynamicObject *dynamicItem, TerrainObject *terrain, Vector2f newPosition, float elapsedTime);
+	bool isIntersectTerrain(Vector2f position, const TerrainObject& other) const;
+	bool isIntersectDynamic(Vector2f position, const DynamicObject& other) const;
+	static Vector2f newSlippingPosition(DynamicObject *dynamicItem, TerrainObject *terrain, Vector2f newPosition, long long elapsedTime);
 public:
 	GridList<StaticObject> staticGrid;
 	GridList<DynamicObject> dynamicGrid;
@@ -35,11 +35,11 @@ public:
 	std::unordered_map<std::string, boardSprite> spriteMap;
 
 	World(int width, int height);
-	
+
 	void initSpriteMap();
 	void generate(int objCount);
 	void interact(RenderWindow& window, long long elapsedTime);
-	void draw(RenderWindow& window, long long elapsedTime);	
+	void draw(RenderWindow& window, long long elapsedTime);
 };
 
 #endif

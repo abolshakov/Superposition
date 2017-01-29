@@ -11,9 +11,9 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	animationLength = 8;
 }
 
-Vector2f Deerchant::calculateTextureOffset()
+Vector2i Deerchant::calculateTextureOffset()
 {
-	return Vector2f(textureBox.width / 2, textureBox.height * 7 / 8);
+	return Vector2i(textureBox.width / 2, textureBox.height * 7 / 8);
 }
 
 void Deerchant::handleInput()
@@ -50,7 +50,7 @@ void Deerchant::handleInput()
 		speed *= 2;
 }
 
-const std::string Deerchant::getSpriteName(long long elapsedTime)
+std::string Deerchant::getSpriteName(long long elapsedTime)
 {
 	if (direction != STAND)
 	{
@@ -59,7 +59,7 @@ const std::string Deerchant::getSpriteName(long long elapsedTime)
 		if (timeForNewSprite >= 150000000 * speed)
 		{
 			timeForNewSprite = 0;
-			
+
 			if (++currentSprite > animationLength)
 				currentSprite = 1;
 		}
