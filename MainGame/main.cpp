@@ -12,8 +12,6 @@ int main() {
 	auto screenSize = Helper::GetScreenSize();
 	RenderWindow mainWindow(VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y), 32), "game", Style::Fullscreen);
 	
-	mainWindow.setVerticalSyncEnabled(true);
-	
 	Clock interactClock;
 	Clock drawClock;
 
