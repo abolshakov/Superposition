@@ -8,23 +8,23 @@
 #include "GridList.h"
 
 template <class T>
-GridList<T>::GridList() : width(0), height(0), size(0)
+GridList<T>::GridList() : width(0), height(0), size(0, 0)
 {
 }
 
 template <class T>
-int GridList<T>::getBlockSize() const
+Vector2i GridList<T>::getBlockSize() const
 {
 	return size;
 }
 
 template <class T>
-GridList<T>::GridList(int width, int height, int size)
+GridList<T>::GridList(int width, int height, Vector2i size)
 {
 	this->width = width;
 	this->height = height;
 	this->size = size;
-	auto vectorSize = int(ceil(double(height) / size) * ceil(double(width) / size));
+	auto vectorSize = int(ceil(double(height) / size.y) * ceil(double(width) / size.x));
 	cells.resize(vectorSize);
 }
 
@@ -45,9 +45,9 @@ GridList<T>::~GridList()
 template <class T>
 int GridList<T>::getIndexByPoint(int x, int y) const
 {
-	auto y1 = y / size;
-	auto x1 = ceil(double(width) / size);
-	auto result = x1 * y1 + x / size;
+	auto y1 = y / size.y;
+	auto x1 = ceil(double(width) / size.x);
+	auto result = x1 * y1 + x / size.x;
 	return int(result);
 }
 
@@ -64,7 +64,7 @@ void GridList<T>::addItem(T* item, const std::string& name, int x, int y)
 }
 
 template <class T>
-T* GridList<T>::getItemByName(std::string& name)
+T* GridList<T>::getItemByName(const std::string& name)
 {
 	auto position = items.at(name);
 	return cells[position.first][position.second];
@@ -84,10 +84,10 @@ std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottom
 
 	std::vector<T*> result;
 
-	auto rowsCount = int(ceil(double(bottomRightY - upperLeftY) / size));
+	auto rowsCount = int(ceil(double(bottomRightY - upperLeftY) / size.y));
 	auto firstColumn = getIndexByPoint(upperLeftX, upperLeftY);
 	auto lastColumn = getIndexByPoint(bottomRightX, upperLeftY);
-	auto columnsPerRow = int(ceil(double(width) / size));
+	auto columnsPerRow = int(ceil(double(width) / size.x));
 	auto maxColumn = int(cells.size()) - 1;
 
 	for (auto i = 0; i <= rowsCount; i++)

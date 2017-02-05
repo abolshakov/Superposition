@@ -9,17 +9,25 @@
 #include "World.h"
 #include "Deerchant.h"
 #include "RoseTree.h"
+#include "Helper.h"
 
 using namespace sf;
 
-World::World(int width, int height) : screenSizeX(0), screenSizeY(0), focusedObject(nullptr)
+World::World(int width, int height) : focusedObject(nullptr)
 {
+	auto blockSize = initSpriteMap();
+	scaleFactor = getScaleFactor();
+
 	this->width = width;
 	this->height = height;
-	auto blockSize = 1550;
 
-	staticGrid = GridList<StaticObject>(width, height, blockSize);
-	dynamicGrid = GridList<DynamicObject>(width, height, blockSize);
+	//scaleSpriteMap(factor);
+
+	blockSize.x = blockSize.x;
+	blockSize.y = blockSize.y;
+
+	staticGrid = GridList<StaticObject>(this->width, this->height, blockSize);
+	dynamicGrid = GridList<DynamicObject>(this->width, this->height, blockSize);
 }
 
 bool cmpImgDraw(const WorldObject* first, const WorldObject* second)
@@ -27,12 +35,14 @@ bool cmpImgDraw(const WorldObject* first, const WorldObject* second)
 	return first->getPosition().y < second->getPosition().y;
 }
 
-void World::initSpriteMap()
+Vector2i World::initSpriteMap()
 {
 	std::ifstream fin("World/objects.txt");
 
 	int objectsNumber;
 	fin >> objectsNumber;
+
+	Vector2i maxSize;
 
 	for (auto i = 0; i < objectsNumber; i++)
 	{
@@ -40,11 +50,28 @@ void World::initSpriteMap()
 		fin >> name;
 		spriteMap.insert({ name, boardSprite{} });
 		auto sprite = &spriteMap[name];
-		fin >> sprite->type;
 		sprite->texture.loadFromFile("World/" + name);
 		sprite->sprite.setTexture(sprite->texture);
+
+		auto size = Vector2i(sprite->texture.getSize());
+		if (size.x > maxSize.x)
+			maxSize.x = size.x;
+
+		if (size.y > maxSize.y)
+			maxSize.y = size.y;
 	}
 	fin.close();
+
+	return maxSize;
+}
+
+float World::getScaleFactor()
+{
+	auto heroHeight = Vector2i(spriteMap[heroTextureName].texture.getSize()).y;
+	auto screenHeight = Helper::GetScreenSize().y;
+	auto ratio = heroHeight / float(screenHeight);
+
+	return heroToScreenRatio / ratio;
 }
 
 void World::generate(int objCount)
@@ -56,26 +83,33 @@ void World::generate(int objCount)
 		for (auto j = 0; j < s; j++)
 		{
 			auto roseTreeType = rand() % 3 + 1;
-			auto nameOfImage = "roseTree" + std::to_string(roseTreeType);
-			nameOfImage += ".png";
-			auto textureSize = Vector2i(spriteMap[nameOfImage].texture.getSize());
+			auto nameOfImage = "roseTree" + std::to_string(roseTreeType) + ".png";
+
 			auto name = "roseTree" + std::to_string(i * int(ceil(s)) + j);
 			auto position = Vector2f(i * (width / s), j * (height / s));
+
 			staticGrid.addItem(new RoseTree(name, position), name, int(position.x), int(position.y));
+
 			auto tree = staticGrid.getItemByName(name);
 			tree->setTypeOfImage(std::to_string(roseTreeType));
+
+			auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
+			auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
 			tree->setTextureSize(textureSize);
 		}
 	}
 
-	std::string heroName = "hero";
-	auto heroTextureSize = Vector2i(spriteMap["heroF_0.png"].texture.getSize());
-	auto heroPosition = Vector2f(2000, 2000);
+	auto heroPosition = Vector2f(0, 0);
 	dynamicGrid.addItem(new Deerchant(heroName, heroPosition), heroName, int(heroPosition.x), int(heroPosition.y));
 
 	focusedObject = dynamicGrid.getItemByName(heroName);
-	focusedObject->setTextureSize(heroTextureSize);
+
+	auto textureBounds = spriteMap[heroTextureName].sprite.getGlobalBounds();
+	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
+
+	focusedObject->setTextureSize(textureSize);
 }
+
 Vector2f World::newSlippingPosition(DynamicObject *dynamicItem, TerrainObject *terrain, Vector2f newPosition, long long elapsedTime)
 {
 	Vector2f motion;
@@ -171,8 +205,8 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 	Vector2i worldUpperLeft(int(characterPosition.x - screenSize.x / 2), int(characterPosition.y - screenSize.y / 2));
 	Vector2i worldBottomRight(int(characterPosition.x + screenSize.x / 2), int(characterPosition.y + screenSize.y / 2));
 
-	auto staticItems = staticGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
-	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
+	auto staticItems = staticGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y);
+	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y);
 
 	for (auto dynamicItem : dynamicItems)
 	{
@@ -230,63 +264,65 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 void World::draw(RenderWindow& window, long long elapsedTime)
 {
 	const auto extra = staticGrid.getBlockSize();
+
 	auto screenSize = window.getSize();
 	auto screenCenter = Vector2i(screenSize.x / 2, screenSize.y / 2);
 	auto characterPosition = focusedObject->getPosition();
 
-	Vector2i worldUpperLeft(int(characterPosition.x - screenCenter.x), int(characterPosition.y - screenCenter.y));
-	Vector2i worldBottomRight(int(characterPosition.x + screenCenter.x), int(characterPosition.y + screenCenter.y));
+	Vector2i worldUpperLeft(int(characterPosition.x - (screenCenter.x + extra.x) / scaleFactor), int(characterPosition.y - (screenCenter.y + extra.x) / scaleFactor));
+	Vector2i worldBottomRight(int(characterPosition.x + (screenCenter.x + extra.x) / scaleFactor), int(characterPosition.y + (screenCenter.y + extra.x) / scaleFactor));
 
-	auto staticItems = staticGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
-	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra, worldUpperLeft.y - extra, worldBottomRight.x + extra, worldBottomRight.y + extra);
+	auto staticItems = staticGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y);
+	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y);
 	auto visibleItems = std::vector<WorldObject*>(staticItems.begin(), staticItems.end());
 	auto visibleDynamicItems = std::vector<WorldObject*>(dynamicItems.begin(), dynamicItems.end());
 
 	visibleItems.insert(visibleItems.end(), visibleDynamicItems.begin(), visibleDynamicItems.end());
 	sort(visibleItems.begin(), visibleItems.end(), cmpImgDraw);
-	
+
 	for (auto worldItem : visibleItems)
 	{
 		auto worldItemPosition = worldItem->getPosition();
 		auto worldTextureOffset = worldItem->getTextureOffset();
 		auto worldTextureSize = worldItem->getTextureSize();
 
-		auto spriteLeft = float(worldItemPosition.x - characterPosition.x + screenCenter.x - worldTextureOffset.x);
-		auto spriteTop = float(worldItemPosition.y - characterPosition.y + screenCenter.y - worldTextureOffset.y);
-		auto spriteRight = float(spriteLeft + worldTextureSize.x);
-		auto spriteBottom = float(spriteTop + worldTextureSize.y);
-		
+		auto spriteLeft = float((worldItemPosition.x - characterPosition.x - worldTextureOffset.x) * scaleFactor + screenCenter.x);
+		auto spriteTop = float((worldItemPosition.y - characterPosition.y - worldTextureOffset.y) * scaleFactor + screenCenter.y);
+		auto spriteRight = float(spriteLeft + worldTextureSize.x * scaleFactor);
+		auto spriteBottom = float(spriteTop + worldTextureSize.y * scaleFactor);
+
 		if (spriteRight > 0 && spriteLeft < screenSize.x && spriteBottom > 0 && spriteTop < screenSize.y)
 		{
-			auto spriteItem = &spriteMap[worldItem->getSpriteName(elapsedTime)];
-			spriteItem->sprite.setPosition(Vector2f(spriteLeft, spriteTop));
-
-			window.draw(spriteItem->sprite);
+			auto sprite = (&spriteMap[worldItem->getSpriteName(elapsedTime)])->sprite;
+			sprite.setPosition(Vector2f(spriteLeft, spriteTop));
+			sprite.setScale(scaleFactor, scaleFactor);
+			window.draw(sprite);
 		}
-		
-		/*auto terrain = dynamic_cast<TerrainObject*>(worldItem);
-		if (terrain)
-		{
-		auto rectangle0 = RectangleShape();
-		rectangle0.setPosition(Vector2f(focusedObject->getPosition().x - characterPosition.x + screenCenter.x - 10, focusedObject->getPosition().y - characterPosition.y + screenCenter.y - 10));
-		rectangle0.setOutlineColor(Color::Green);
-		rectangle0.setFillColor(Color::Red);
-		rectangle0.setSize(Vector2f(20, 20));
-		window.draw(rectangle0);
-		auto rectangle = RectangleShape();
-		rectangle.setPosition(Vector2f(terrain->getFocus1().x - characterPosition.x + screenCenter.x - 10, terrain->getFocus1().y - characterPosition.y + screenCenter.y - 10));
-		rectangle.setOutlineColor(Color::Red);
-		rectangle.setFillColor(Color::Red);
-		rectangle.setSize(Vector2f(20, 20));
-		window.draw(rectangle);
-		auto rectangle2 = RectangleShape();
-		rectangle2.setPosition(Vector2f(terrain->getFocus2().x - characterPosition.x + screenCenter.x - 10, terrain->getFocus2().y - characterPosition.y + screenCenter.y - 10));
-		rectangle2.setOutlineColor(Color::Red);
-		rectangle2.setFillColor(Color::Red);
-		rectangle2.setSize(Vector2f(20, 20));
-		window.draw(rectangle2);
-		}*/
 	}
+
+	/*auto terrain = dynamic_cast<TerrainObject*>(worldItem);
+	if (terrain)
+	{
+	auto rectangle0 = RectangleShape();
+	rectangle0.setPosition(Vector2f(focusedObject->getPosition().x - characterPosition.x + screenCenter.x - 10, focusedObject->getPosition().y - characterPosition.y + screenCenter.y - 10));
+	rectangle0.setOutlineColor(Color::Green);
+	rectangle0.setFillColor(Color::Red);
+	rectangle0.setSize(Vector2f(20, 20));
+	window.draw(rectangle0);
+	auto rectangle = RectangleShape();
+	rectangle.setPosition(Vector2f(terrain->getFocus1().x - characterPosition.x + screenCenter.x - 10, terrain->getFocus1().y - characterPosition.y + screenCenter.y - 10));
+	rectangle.setOutlineColor(Color::Red);
+	rectangle.setFillColor(Color::Red);
+	rectangle.setSize(Vector2f(20, 20));
+	window.draw(rectangle);
+	auto rectangle2 = RectangleShape();
+	rectangle2.setPosition(Vector2f(terrain->getFocus2().x - characterPosition.x + screenCenter.x - 10, terrain->getFocus2().y - characterPosition.y + screenCenter.y - 10));
+	rectangle2.setOutlineColor(Color::Red);
+	rectangle2.setFillColor(Color::Red);
+	rectangle2.setSize(Vector2f(20, 20));
+	window.draw(rectangle2);
+	}*/
+
 	/*auto rectangle3 = RectangleShape();
 	rectangle3.setSize(Vector2f(float(width), float(height)));
 	rectangle3.setOutlineColor(Color::Green);

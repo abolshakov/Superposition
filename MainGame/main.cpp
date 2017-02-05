@@ -6,7 +6,6 @@ using namespace sf;
 int main() {
 
 	World world(100000, 100000);
-	world.initSpriteMap();
 	world.generate(15000);
 
 	auto screenSize = Helper::GetScreenSize();

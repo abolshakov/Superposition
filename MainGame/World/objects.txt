@@ -1,78 +1,78 @@
 77
-roseTree1.png obj
-roseTree2.png obj
-roseTree3.png obj
-stone.png obj
-grass.png bg 
-heroF_0.png character
-heroF_1.png character
-heroF_2.png character
-heroF_3.png character
-heroF_4.png character
-heroF_5.png character
-heroF_6.png character
-heroF_7.png character
-heroF_8.png character
-heroB_0.png character
-heroB_1.png character
-heroB_2.png character
-heroB_3.png character
-heroB_4.png character
-heroB_5.png character
-heroB_6.png character
-heroB_7.png character
-heroB_8.png character
-heroL_0.png character
-heroL_1.png character
-heroL_2.png character
-heroL_3.png character
-heroL_4.png character
-heroL_5.png character
-heroL_6.png character
-heroL_7.png character
-heroL_8.png character
-heroR_0.png character
-heroR_1.png character
-heroR_2.png character
-heroR_3.png character
-heroR_4.png character
-heroR_5.png character
-heroR_6.png character
-heroR_7.png character
-heroR_8.png character
-heroFL_0.png character
-heroFL_1.png character
-heroFL_2.png character
-heroFL_3.png character
-heroFL_4.png character
-heroFL_5.png character
-heroFL_6.png character
-heroFL_7.png character
-heroFL_8.png character
-heroFR_0.png character
-heroFR_1.png character
-heroFR_2.png character
-heroFR_3.png character
-heroFR_4.png character
-heroFR_5.png character
-heroFR_6.png character
-heroFR_7.png character
-heroFR_8.png character
-heroBL_0.png character
-heroBL_1.png character
-heroBL_2.png character
-heroBL_3.png character
-heroBL_4.png character 
-heroBL_5.png character
-heroBL_6.png character
-heroBL_7.png character
-heroBL_8.png character
-heroBR_0.png character
-heroBR_1.png character
-heroBR_2.png character
-heroBR_3.png character
-heroBR_4.png character
-heroBR_5.png character
-heroBR_6.png character
-heroBR_7.png character
-heroBR_8.png character
+roseTree1.png
+roseTree2.png
+roseTree3.png
+stone.png
+grass.png
+heroF_0.png
+heroF_1.png
+heroF_2.png
+heroF_3.png
+heroF_4.png
+heroF_5.png
+heroF_6.png
+heroF_7.png
+heroF_8.png
+heroB_0.png
+heroB_1.png
+heroB_2.png
+heroB_3.png
+heroB_4.png
+heroB_5.png
+heroB_6.png
+heroB_7.png
+heroB_8.png
+heroL_0.png
+heroL_1.png
+heroL_2.png
+heroL_3.png
+heroL_4.png
+heroL_5.png
+heroL_6.png
+heroL_7.png
+heroL_8.png
+heroR_0.png
+heroR_1.png
+heroR_2.png
+heroR_3.png
+heroR_4.png
+heroR_5.png
+heroR_6.png
+heroR_7.png
+heroR_8.png
+heroFL_0.png
+heroFL_1.png
+heroFL_2.png
+heroFL_3.png
+heroFL_4.png
+heroFL_5.png
+heroFL_6.png
+heroFL_7.png
+heroFL_8.png
+heroFR_0.png
+heroFR_1.png
+heroFR_2.png
+heroFR_3.png
+heroFR_4.png
+heroFR_5.png
+heroFR_6.png
+heroFR_7.png
+heroFR_8.png
+heroBL_0.png
+heroBL_1.png
+heroBL_2.png
+heroBL_3.png
+heroBL_4.png 
+heroBL_5.png
+heroBL_6.png
+heroBL_7.png
+heroBL_8.png
+heroBR_0.png
+heroBR_1.png
+heroBR_2.png
+heroBR_3.png
+heroBR_4.png
+heroBR_5.png
+heroBR_6.png
+heroBR_7.png
+heroBR_8.png

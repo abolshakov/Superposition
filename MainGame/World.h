@@ -11,19 +11,21 @@ using namespace sf;
 
 struct boardSprite
 {
-	std::string type;
-	std::string name;
 	Texture texture;
 	Sprite sprite;
 };
 
 class World
 {
-	std::string nameOfFile;
-	int screenSizeX;
-	int screenSizeY;
+	const std::string heroName = "hero";
+	const std::string heroTextureName = "heroF_0.png";
+	const float heroToScreenRatio = 0.25f;
+
+	std::string nameOfFile;	
 	int width, height;
 
+	Vector2i initSpriteMap();
+	float World::getScaleFactor();
 	static Vector2f move(const DynamicObject& dynamicObject, long long elapsedTime);
 	bool isIntersectTerrain(Vector2f position, const TerrainObject& other) const;
 	bool isIntersectDynamic(Vector2f position, const DynamicObject& other) const;
@@ -33,10 +35,10 @@ public:
 	GridList<DynamicObject> dynamicGrid;
 	DynamicObject* focusedObject;
 	std::unordered_map<std::string, boardSprite> spriteMap;
+	float scaleFactor;
 
 	World(int width, int height);
 
-	void initSpriteMap();
 	void generate(int objCount);
 	void interact(RenderWindow& window, long long elapsedTime);
 	void draw(RenderWindow& window, long long elapsedTime);
