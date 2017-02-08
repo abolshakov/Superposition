@@ -32,6 +32,8 @@ World::World(int width, int height) : focusedObject(nullptr)
 
 bool cmpImgDraw(const WorldObject* first, const WorldObject* second)
 {
+	if (first->getPosition().y == second->getPosition().y)
+		return first->getPosition().x < second->getPosition().x;
 	return first->getPosition().y < second->getPosition().y;
 }
 
@@ -205,8 +207,8 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 	Vector2i worldUpperLeft(int(characterPosition.x - screenSize.x / 2), int(characterPosition.y - screenSize.y / 2));
 	Vector2i worldBottomRight(int(characterPosition.x + screenSize.x / 2), int(characterPosition.y + screenSize.y / 2));
 
-	auto staticItems = staticGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y);
-	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y);
+	auto staticItems = staticGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y, width);
+	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y, width);
 
 	for (auto dynamicItem : dynamicItems)
 	{
@@ -215,6 +217,10 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 
 		auto intersects = false;
 		auto newPosition = move(*dynamicItem, elapsedTime);
+		if (newPosition.x < 0)
+			newPosition.x = width - abs(newPosition.x);
+		if (newPosition.x > width)
+			newPosition.x = int(newPosition.x) % width;
 
 		for (auto staticItem : staticItems)
 		{
@@ -272,8 +278,8 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	Vector2i worldUpperLeft(int(characterPosition.x - (screenCenter.x + extra.x) / scaleFactor), int(characterPosition.y - (screenCenter.y + extra.x) / scaleFactor));
 	Vector2i worldBottomRight(int(characterPosition.x + (screenCenter.x + extra.x) / scaleFactor), int(characterPosition.y + (screenCenter.y + extra.x) / scaleFactor));
 
-	auto staticItems = staticGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y);
-	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y);
+	auto staticItems = staticGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y, width);
+	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y, width);
 	auto visibleItems = std::vector<WorldObject*>(staticItems.begin(), staticItems.end());
 	auto visibleDynamicItems = std::vector<WorldObject*>(dynamicItems.begin(), dynamicItems.end());
 
@@ -291,13 +297,18 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		auto spriteRight = float(spriteLeft + worldTextureSize.x * scaleFactor);
 		auto spriteBottom = float(spriteTop + worldTextureSize.y * scaleFactor);
 
-		if (spriteRight > 0 && spriteLeft < screenSize.x && spriteBottom > 0 && spriteTop < screenSize.y)
-		{
+		//if (spriteRight > 0 && spriteLeft < screenSize.x && spriteBottom > 0 && spriteTop < screenSize.y)
+		//{
 			auto sprite = (&spriteMap[worldItem->getSpriteName(elapsedTime)])->sprite;
 			sprite.setPosition(Vector2f(spriteLeft, spriteTop));
 			sprite.setScale(scaleFactor, scaleFactor);
 			window.draw(sprite);
-		}
+			sprite.setPosition(Vector2f((worldItemPosition.x - width - characterPosition.x - worldTextureOffset.x) * scaleFactor + screenCenter.x, spriteTop));
+			window.draw(sprite);
+			sprite.setPosition(Vector2f((worldItemPosition.x + width - characterPosition.x - worldTextureOffset.x) * scaleFactor + screenCenter.x, spriteTop));
+			window.draw(sprite);
+		//}
+
 	}
 
 	/*auto terrain = dynamic_cast<TerrainObject*>(worldItem);

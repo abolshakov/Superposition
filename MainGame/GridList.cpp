@@ -6,6 +6,7 @@
 #include <cmath>
 // ReSharper disable once CppUnusedIncludeDirective
 #include "GridList.h"
+#include <iostream>
 
 template <class T>
 GridList<T>::GridList() : width(0), height(0), size(0, 0)
@@ -71,14 +72,16 @@ T* GridList<T>::getItemByName(const std::string& name)
 }
 
 template <class T>
-std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY)
+std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY, int width)
 {
 	if (upperLeftX < 0)
-		upperLeftX = 0;
+		//upperLeftX = 0;
+		upperLeftX = width - abs(upperLeftX);
 	if (upperLeftY < 0)
 		upperLeftY = 0;
 	if (bottomRightX > width)
-		bottomRightX = width;
+		//bottomRightX = width;
+		bottomRightX = bottomRightX % width;
 	if (bottomRightY > height)
 		bottomRightY = height;
 
@@ -92,18 +95,37 @@ std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottom
 
 	for (auto i = 0; i <= rowsCount; i++)
 	{
+		
 		if (lastColumn >= maxColumn)
 			lastColumn = maxColumn;
-
-		for (auto j = firstColumn; j <= lastColumn; j++)
+		if (firstColumn <= lastColumn)
 		{
-			for (auto k = 0; k < cells[j].size(); k++)
+			for (int j = firstColumn; j <= lastColumn; j++)
 			{
-				result.push_back(cells[j][k]);
+				for (auto k = 0; k < cells[j].size(); k++)
+				{
+					result.push_back(cells[j][k]);
+				}
 			}
 		}
+		else
+		{
+			int j = firstColumn;
+			while (j != lastColumn)
+			{
+				if (j % columnsPerRow == 0)
+					j -= columnsPerRow;
+				for (auto k = 0; k < cells[j].size(); k++)
+				{
+					result.push_back(cells[j][k]);
+				}
+				j++;
+			}
+		}
+
 		firstColumn += columnsPerRow;
 		lastColumn += columnsPerRow;
+		
 	}
 	return result;
 }

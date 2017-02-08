@@ -23,7 +23,7 @@ public:
 	int getIndexByPoint(int x, int y) const;
 	void addItem(T* item, const std::string& name, int x, int y);
 	T* getItemByName(const std::string& name);
-	std::vector<T*> getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY);
+	std::vector<T*> getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY, int width);
 	void updateItemPosition(const std::string& name, int x, int y);
 };
 
