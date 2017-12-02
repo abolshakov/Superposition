@@ -11,10 +11,15 @@ class WorldObject
 protected:
 	std::string name;
 	Vector2i textureBoxOffset;
-	IntRect textureBox;
+	IntRect textureBox, originalTextureBox;
 	Vector2f position;
 	std::string typeOfImage;
+	std::string currentWorld;
 public:
+	std::string getCurrentWorldName() { return currentWorld; }
+	bool isTransparent = false;
+	bool isTerrain = false;
+	bool visited = false;
 	WorldObject(std::string objectName, Vector2f centerPosition);
 	virtual ~WorldObject();
 
@@ -29,6 +34,9 @@ public:
 	Vector2i getTextureOffset() const { return Vector2i(int(textureBoxOffset.x), int(textureBoxOffset.y)); }
 	virtual std::string getSpriteName(long long elapsedTime) = 0;
 	void setTypeOfImage(std::string newType) { typeOfImage = newType; }
+	Vector2i getTextureBoxOffset() { return textureBoxOffset; };
+	Vector2i getTextureBoxSize() { return Vector2i(textureBox.width, textureBox.height); }
+	virtual Vector2f getScaleRatio() = 0;
 };
 
 #endif

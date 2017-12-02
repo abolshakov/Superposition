@@ -10,4 +10,5 @@ public:
 	void initPedestal() override;
 	std::string getSpriteName(long long elapsedTime) override;
 	int strength;
+	Vector2f getScaleRatio() override;
 };

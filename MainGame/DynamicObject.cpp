@@ -10,6 +10,12 @@ void DynamicObject::handleInput()
 {
 }
 
+void DynamicObject::takeDamage(float damage)
+{
+	this->timeForNewHitself = 0;
+	this->healthPoint -= damage / this->armor;
+}
+
 
 
 

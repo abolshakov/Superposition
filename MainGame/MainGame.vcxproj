@@ -133,12 +133,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Builder.cpp" />
     <ClCompile Include="Deerchant.cpp" />
     <ClCompile Include="DynamicObject.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Grass.cpp" />
     <ClCompile Include="GridList.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="RoseTree.cpp" />
+    <ClCompile Include="Spawn.cpp" />
     <ClCompile Include="StaticObject.cpp" />
     <ClCompile Include="Stone.cpp" />
     <ClCompile Include="TerrainObject.cpp" />
@@ -146,11 +151,16 @@
     <ClCompile Include="WorldObject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Builder.h" />
     <ClInclude Include="Deerchant.h" />
     <ClInclude Include="DynamicObject.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Grass.h" />
     <ClInclude Include="GridList.h" />
     <ClInclude Include="Helper.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="RoseTree.h" />
+    <ClInclude Include="Spawn.h" />
     <ClInclude Include="StaticObject.h" />
     <ClInclude Include="Stone.h" />
     <ClInclude Include="Structs.h" />

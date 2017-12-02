@@ -11,13 +11,13 @@ void WorldObject::setTextureSize(Vector2i textureSize)
 {
 	textureBox.width = textureSize.x;
 	textureBox.height = textureSize.y;
-
+	originalTextureBox = textureBox;
 	textureBoxOffset = calculateTextureOffset();
 
 	textureBox.left = int(position.x) - textureBoxOffset.x;
 	textureBox.top = int(position.y) - textureBoxOffset.y;
-
-	initPedestal();	
+	
+	initPedestal();
 }
 
 Vector2i WorldObject::calculateTextureOffset()

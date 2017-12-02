@@ -41,6 +41,7 @@ GridList<T>::~GridList()
 		cell.clear();
 	}
 	cells.clear();
+	items.clear();
 }
 
 template <class T>
@@ -74,19 +75,23 @@ T* GridList<T>::getItemByName(const std::string& name)
 template <class T>
 std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY, int width)
 {
-	if (upperLeftX < 0)
-		//upperLeftX = 0;
-		upperLeftX = width - abs(upperLeftX);
-	if (upperLeftY < 0)
-		upperLeftY = 0;
-	if (bottomRightX > width)
-		//bottomRightX = width;
-		bottomRightX = bottomRightX % width;
-	if (bottomRightY > height)
-		bottomRightY = height;
-
 	std::vector<T*> result;
-
+	if (upperLeftX <= 0)
+	{
+		upperLeftX = 0;
+	}
+	if (bottomRightX >= width)
+	{
+		bottomRightX = width;
+	}
+	if (upperLeftY <= 0)
+	{
+		upperLeftY = 0;
+	}
+	if (bottomRightY >= height)
+	{
+		bottomRightY = height;
+	}
 	auto rowsCount = int(ceil(double(bottomRightY - upperLeftY) / size.y));
 	auto firstColumn = getIndexByPoint(upperLeftX, upperLeftY);
 	auto lastColumn = getIndexByPoint(bottomRightX, upperLeftY);
@@ -98,29 +103,10 @@ std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottom
 		
 		if (lastColumn >= maxColumn)
 			lastColumn = maxColumn;
-		if (firstColumn <= lastColumn)
+
+		for (int j = firstColumn; j <= lastColumn; j++)
 		{
-			for (int j = firstColumn; j <= lastColumn; j++)
-			{
-				for (auto k = 0; k < cells[j].size(); k++)
-				{
-					result.push_back(cells[j][k]);
-				}
-			}
-		}
-		else
-		{
-			int j = firstColumn;
-			while (j != lastColumn)
-			{
-				if (j % columnsPerRow == 0)
-					j -= columnsPerRow;
-				for (auto k = 0; k < cells[j].size(); k++)
-				{
-					result.push_back(cells[j][k]);
-				}
-				j++;
-			}
+			result.insert(result.end(), cells[j].begin(), cells[j].end());
 		}
 
 		firstColumn += columnsPerRow;
@@ -131,16 +117,22 @@ std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottom
 }
 
 template <class T>
-void GridList<T>::updateItemPosition(const std::string& name, int x, int y)
+void GridList<T>::updateItemPosition(const std::string name, int x, int y)
 {
 	auto position = items.at(name);
 	auto item = cells[position.first][position.second];
 	cells[position.first].erase(cells[position.first].begin() + position.second);
 
+	for (int i = position.second; i < cells[position.first].size(); i++)
+	{
+		auto itemToUpdate = dynamic_cast<WorldObject*>(cells[position.first][i]);
+		auto itemName = itemToUpdate->getName();
+		items.at(itemName).second -= 1;
+	}
 	auto index = getIndexByPoint(x, y);
 	position = std::make_pair(index, int(cells[index].size()));
+	items.at(name) = position;
 	cells[index].push_back(item);
-	items[name] = position;
 }
 
 #endif
