@@ -22,7 +22,7 @@ enum VictimSide { upSide = 1, rightSide = 2, downSide = 3, leftSide = 4 };
 class World
 {
 	//hero
-	const std::string heroTextureName = "heroF_0.png";
+	const std::string heroTextureName = "hero/heroF_0.png";
 	//world base
 	float width, height;
 	Vector2i blockSize;
@@ -63,6 +63,7 @@ public:
 	Vector2i getWorldSize() { return Vector2i(width, height); }
 	GridList<StaticObject> getStaticGrid() { return staticGrid; }
 	GridList<DynamicObject> getDynamicGrid() { return dynamicGrid; }
+	Vector2f getCameraPosition() { return cameraPosition; }
 	//save-load logic
 	void ClearWorld();
 	void Load();

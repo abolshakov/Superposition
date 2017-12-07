@@ -25,6 +25,7 @@ public:
 	void interact();
 	void setCharacterBuildActivity(Deerchant& hero);
 private:	
+	Vector2f currentSpritePos, currentSpriteOffset, currentSpriteSize, currentSpriteScale;
 	void inicializeObjectsInfo();
 	void animator(float elapsedTime);
 	void inicialize(Vector2f position, World& world);

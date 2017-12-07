@@ -33,6 +33,7 @@ void Builder::draw(RenderWindow &window, World& world, float elapsedTime)
 		animator(elapsedTime);
 		auto sprite = (&world.spriteMap[builtObjects[currentObject].image])->sprite;
 		auto terrain = dynamic_cast<TerrainObject*>(world.staticGrid.getItemByName(builtObjects[currentObject].type));
+
 		Helper::drawText(to_string(sprite.getTextureRect().height), 50, 200, 100, &window);		
 		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
 		sprite.setScale(terrain->getScaleRatio().x*world.scaleFactor, terrain->getScaleRatio().y*world.scaleFactor*sqrt(sqrt(world.scaleFactor)));
@@ -42,10 +43,11 @@ void Builder::draw(RenderWindow &window, World& world, float elapsedTime)
 			(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + world.focusedObject->getPosition().y*world.scaleFactor) / world.scaleFactor);
 		for (auto item : world.visibleItems)
 		{
-			auto terrain = dynamic_cast<TerrainObject*>(item);
-			if (terrain)
-				if (Helper::isIntersectTerrain(mouseWorldPos, *terrain, terrain->intersectsRadius))
+			auto currentTerrain = dynamic_cast<TerrainObject*>(item);
+			if (currentTerrain)
+				if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->intersectsRadius))
 				{
+					Helper::drawText(currentTerrain->getName(), 50, 200, 200, &window);
 					sprite.setColor(Color::Red);
 					buildingAvaliable = false;
 					break;

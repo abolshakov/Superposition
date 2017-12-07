@@ -153,13 +153,13 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (hitDirection)
 		{
 		case up: 
-			spriteName = "heroL_";
+			spriteName = "hero/heroL_";
 		case right:
-			spriteName = "heroL_";
+			spriteName = "hero/heroL_";
 		case down:
-			spriteName = "heroL_";
+			spriteName = "hero/heroL_";
 		case left:
-			spriteName = "heroL_";
+			spriteName = "hero/heroL_";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";		
@@ -169,13 +169,13 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (hitDirection)
 		{
 		case up:
-			spriteName = "heroR_";
+			spriteName = "hero/heroR_";
 		case right:
-			spriteName = "heroR_";
+			spriteName = "hero/heroR_";
 		case down:
-			spriteName = "heroR_";
+			spriteName = "hero/heroR_";
 		case left:
-			spriteName = "heroR_";
+			spriteName = "hero/heroR_";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
@@ -185,20 +185,20 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (hitDirection)
 		{
 		case up:
-			spriteName = "heroF_";
+			spriteName = "hero/heroF_";
 		case right:
-			spriteName = "heroF_";
+			spriteName = "hero/heroF_";
 		case down:
-			spriteName = "heroF_";
+			spriteName = "hero/heroF_";
 		case left:
-			spriteName = "heroF_";
+			spriteName = "hero/heroF_";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case transitionToEnotherWorld:
 		animationLength = 6;
-		spriteName = "heroF_";
+		spriteName = "hero/heroF_";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
@@ -207,32 +207,32 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (hitDirection)
 		{
 		case up:
-			spriteName = "heroB_";
+			spriteName = "hero/heroB_";
 		case right:
-			spriteName = "heroB_";
+			spriteName = "hero/heroB_";
 		case down:
-			spriteName = "heroB_";
+			spriteName = "hero/heroB_";
 		case left:
-			spriteName = "heroB_";
+			spriteName = "hero/heroB_";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case evasionDown:
 		animationLength = 5;
-		spriteName = "heroF_";
+		spriteName = "hero/heroF_";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case evasionUp:
 		animationLength = 5;
-		spriteName = "heroF_";
+		spriteName = "hero/heroF_";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case relax:
 		animationLength = 1;
-		spriteName = "heroF_0.png";
+		spriteName = "hero/heroF_0.png";
 		currentSprite = 0;
 		break;
 	}
@@ -243,42 +243,42 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (direction)
 		{
 		case LEFT:
-			spriteName = "heroL_";
+			spriteName = "hero/heroL_";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case RIGHT:
-			spriteName = "heroR_";
+			spriteName = "hero/heroR_";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UP:
-			spriteName = "heroB_";
+			spriteName = "hero/heroB_";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWN:
-			spriteName = "heroF_";
+			spriteName = "hero/heroF_";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UPLEFT:
-			spriteName = "heroBL_";
+			spriteName = "hero/heroBL_";
 			//spriteName += to_string(currentSprite);
 			spriteName += "0.png";
 			break;
 		case UPRIGHT:
-			spriteName = "heroBR_";
+			spriteName = "hero/heroBR_";
 			//spriteName += to_string(currentSprite);
 			spriteName += "0.png";
 			break;
 		case DOWNLEFT:
-			spriteName = "heroFL_";
+			spriteName = "hero/heroFL_";
 			//spriteName += to_string(currentSprite);
 			spriteName += "0.png";
 			break;
 		case DOWNRIGHT:
-			spriteName = "heroFR_";
+			spriteName = "hero/heroFR_";
 			//spriteName += to_string(currentSprite);
 			spriteName += "0.png";
 			break;

@@ -162,7 +162,7 @@ void World::initializeRoseTree(Vector2f position, int typeOfImage, std::string i
 {
 	int roseTreeType;
 	if (typeOfImage == 0)
-		roseTreeType = rand() % 4 + 1;
+		roseTreeType = rand() % 3 + 1;
 	else
 		roseTreeType = typeOfImage;
 	std::string nameOfImage = "roseTree" + std::to_string(roseTreeType) + ".png";
@@ -265,6 +265,7 @@ void World::Load()
 				initializeGrass(Vector2f(posX, posY), int(curName[5]-48));
 	}
 	fin.close();
+	Save();
 }
 
 void World::Save()
@@ -339,7 +340,7 @@ void World::generate(int objCount)
 	initializeHero(Vector2f(9000, 9000));
 	initializeRoseTree(Vector2f(9500, 9500), 1, "testTree");
 	initializeSpawn(Vector2f(10000, 10800), 1);
-	//Save();
+	Save();
 }
 
 void World::ClearWorld()
@@ -908,13 +909,13 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	window.draw(rectangle2);
 	}*/
 
-	/*auto rectangle3 = RectangleShape();
+	auto rectangle3 = RectangleShape();
 	rectangle3.setSize(Vector2f(float(width), float(height)));
 	rectangle3.setOutlineColor(Color::Green);
 	rectangle3.setFillColor(Color::Transparent);
 	rectangle3.setOutlineThickness(2);
-	rectangle3.setPosition(0 - characterPosition.x + screenCenter.x, 0 - characterPosition.y + screenCenter.y);
-	window.draw(rectangle3);*/
+	rectangle3.setPosition(0 - cameraPosition.x + screenCenter.x, 0 - cameraPosition.y + screenCenter.y);
+	window.draw(rectangle3);
 
 	/*auto blockSize = staticGrid.getBlockSize();
 	for (auto x = 0; x < width; x += blockSize.x)
