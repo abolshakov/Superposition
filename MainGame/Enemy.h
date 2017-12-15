@@ -28,6 +28,5 @@ public:
 	std::string getSpriteName(long long elapsedTime) override;
 	void behavior(DynamicObject& target);
 	void moveToTarget(Vector2f ptargetPosition, float targetRadius);
-	Vector2f Enemy::getScaleRatio();
 };
 

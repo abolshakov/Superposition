@@ -29,7 +29,6 @@ public:
 	std::string nameOfFile;
 	Vector2i calculateTextureOffset() override;
 	std::string getSpriteName(long long elapsedTime) override;
-	Vector2f getScaleRatio();
 	//control
 	void handleInput() override;		
 };

@@ -36,6 +36,7 @@ class World
 	Clock timer;
 	float timeForNewSave, timeAfterSave;	
 	//move logic
+	bool isClimbBeyond(Vector2f pos);
 	static Vector2f move(const DynamicObject& dynamicObject, long long elapsedTime);
 	bool isIntersectTerrain(DynamicObject& dynamic1, Vector2f newPosition, const TerrainObject& other) const;
 	bool isIntersectDynamic(DynamicObject& position, Vector2f newPosition, const DynamicObject& other) const;
@@ -52,10 +53,12 @@ class World
 	sf::Texture distortionMap;
 	void initShaders();
 public:
+	//test
+	Vector2f positioning, lastPosition;
 	//adding to the grid
 	void initializeRoseTree(Vector2f position, int typeOfImage, std::string itemName);
 	void initializeSpawn(Vector2f position, int typeOfImage);
-	void initializeGrass(Vector2f position, int typeOfImage);
+	void initializeGrass(Vector2f position, int typeOfImage, std::string itemName);
 	void initializeEnemy(Vector2f position);
 	void initializeHero(Vector2f position);
 	//getters

@@ -7,6 +7,7 @@ Stone::Stone(std::string objectName, Vector2f centerPosition) : TerrainObject(ob
 
 Vector2i Stone::calculateTextureOffset()
 {
+	conditionalSizeUnits = Vector2f(200, 400);
 	return Vector2i(textureBox.width / 2, int(textureBox.height / 1.5));
 }
 

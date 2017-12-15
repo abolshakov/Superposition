@@ -155,7 +155,7 @@ int main() {
 		energyRect.setFillColor(Color::Yellow);
 		mainWindow.draw(energyRect);
 		//map.draw(mainWindow, world);
-		//Helper::drawText(to_string(Helper::getSpriteName(item->getName())))		
+		Helper::drawText(to_string(world.positioning.x), 50, 100, 100, &mainWindow);
 
 		/*for (int ci = 3000; ci <= 4000; ci+= 10)
 		{

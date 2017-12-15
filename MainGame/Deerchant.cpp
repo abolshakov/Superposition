@@ -22,16 +22,11 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 
 Vector2i Deerchant::calculateTextureOffset()
 {
+	conditionalSizeUnits = Vector2f(200, 250);
 	textureBox.width *= getScaleRatio().x;
 	textureBox.height *= getScaleRatio().y;
 	return Vector2i(textureBox.width / 2, textureBox.height * 7 / 8);
 }
-
-Vector2f Deerchant::getScaleRatio()
-{
-	return Vector2f(Helper::GetScreenSize().x / (originalTextureBox.width * 10), Helper::GetScreenSize().y / (originalTextureBox.height * 5));
-}
-
 
 void Deerchant::handleInput()
 {	

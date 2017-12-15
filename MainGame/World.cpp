@@ -171,9 +171,8 @@ void World::initializeRoseTree(Vector2f position, int typeOfImage, std::string i
 		name = nameOfImage + std::to_string(staticGrid.getSize());
 	else
 		name = itemName;
-	staticGrid.addItem(new RoseTree(name, position), name, int(position.x), int(position.y));
+	staticGrid.addItem(new RoseTree(name, position, roseTreeType), name, int(position.x), int(position.y));
 
-	staticGrid.getItemByName(name)->setTypeOfImage(std::to_string(roseTreeType));
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
 	staticGrid.getItemByName(name)->setTextureSize(textureSize);
@@ -189,12 +188,12 @@ void World::initializeSpawn(Vector2f position, int typeOfImage)
 	std::string name = nameOfImage + std::to_string(staticGrid.getSize());
 	staticGrid.addItem(new Spawn(name, position), name, int(position.x), int(position.y));
 
-	staticGrid.getItemByName(name)->setTypeOfImage(std::to_string(spawnType));
+	staticGrid.getItemByName(name)->setTypeOfImage(spawnType);
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
 	staticGrid.getItemByName(name)->setTextureSize(textureSize);
 }
-void World::initializeGrass(Vector2f position, int typeOfImage)
+void World::initializeGrass(Vector2f position, int typeOfImage, std::string itemName)
 {	
 	int grassType;
 	if (typeOfImage == 0)
@@ -202,10 +201,12 @@ void World::initializeGrass(Vector2f position, int typeOfImage)
 	else
 		grassType = typeOfImage;
 	std::string nameOfImage = "grass" + std::to_string(grassType) + ".png";
-	std::string name = nameOfImage + std::to_string(staticGrid.getSize());
-	staticGrid.addItem(new Grass(name, position), name, int(position.x), int(position.y));
-
-	staticGrid.getItemByName(name)->setTypeOfImage(std::to_string(grassType));
+	std::string name;
+	if (itemName == "")
+		name = nameOfImage + std::to_string(staticGrid.getSize());
+	else
+		name = itemName;		
+	staticGrid.addItem(new Grass(name, position, grassType), name, int(position.x), int(position.y));
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
 	staticGrid.getItemByName(name)->setTextureSize(textureSize);
@@ -262,7 +263,7 @@ void World::Load()
 			initializeRoseTree(Vector2f(posX, posY), int(curName[8]-48), "");
 		else
 			if (Helper::withoutNums(curName) == "grass")
-				initializeGrass(Vector2f(posX, posY), int(curName[5]-48));
+				initializeGrass(Vector2f(posX, posY), int(curName[5]-48), "");
 	}
 	fin.close();
 	Save();
@@ -293,7 +294,7 @@ void World::generate(int objCount)
 	dynamicGrid = GridList<DynamicObject>(this->width, this->height, blockSize);
 	bossSpawnPosition = Vector2f(width/2, height/2);
 	auto s = float(sqrt(objCount));
-
+	
 	for (auto i = 0; i < s; i++)
 	{
 		for (auto j = 0; j < s; j++)
@@ -306,9 +307,9 @@ void World::generate(int objCount)
 	initializeRoseTree(Vector2f(-1000, -1000), 3, "roseTree");
 	//--
 
-	for (double i = 0; i < width; i += 450)
+	for (double i = 0; i < width; i += Grass("test", Vector2f(0,0), 1).conditionalSizeUnits.x / 2)
 	{
-		for (double j = 0; j < height; j += 150)
+		for (double j = 0; j < height; j += Grass("test", Vector2f(0, 0), 1).conditionalSizeUnits.y / 2)
 		{
 			int curType = 0;
 			auto position = Vector2f(i, j);
@@ -327,19 +328,19 @@ void World::generate(int objCount)
 						else
 							curType = 5;
 							
-			initializeGrass(position, curType);
+			initializeGrass(position, curType, "");
 		}
 	}
 	//none target object
 	dynamicGrid.addItem(new Enemy("none", Vector2f(width, height)), "none", int(width), int(height));
 	//-----------------------------------------
 	//test enemy
-	initializeEnemy(Vector2f(10000, 10500));
-	initializeEnemy(Vector2f(10800, 10600));
+	initializeEnemy(Vector2f(5000, 5500));
+	initializeEnemy(Vector2f(5800, 5600));
 	//------------------------------------------
-	initializeHero(Vector2f(9000, 9000));
-	initializeRoseTree(Vector2f(9500, 9500), 1, "testTree");
-	initializeSpawn(Vector2f(10000, 10800), 1);
+	initializeHero(Vector2f(3000, 3000));
+	initializeRoseTree(Vector2f(3500, 3500), 1, "testTree");
+	initializeSpawn(Vector2f(3000, 3800), 1);
 	Save();
 }
 
@@ -695,6 +696,22 @@ void World::hitInteract(DynamicObject& currentItem, float elapsedTime)
 	}
 }
 
+bool World::isClimbBeyond(Vector2f pos)
+{
+	auto screenSize = Helper::GetScreenSize();
+	const auto extra = staticGrid.getBlockSize();
+
+	if (pos.x < screenSize.x / 2 + extra.x)
+		return false;
+	if (pos.x > width - screenSize.x / 2 - extra.x)
+		return false;
+	if (pos.y < screenSize.y / 2 + extra.y)
+		return false;
+	if (pos.y > height - screenSize.y / 2 - extra.y)
+		return false;
+	return true;
+}
+
 void World::interact(RenderWindow& window, long long elapsedTime)
 {
 	scaleSmoothing();
@@ -743,7 +760,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 			{
 				Vector2f terrainPos = Vector2f((terrain->getFocus1().x + terrain->getFocus2().x) / 2, (terrain->getFocus1().y + terrain->getFocus2().y) / 2);
 				auto motionAfterSlipping = newSlippingPosition(dynamicItem, terrainPos, elapsedTime);
-				if (motionAfterSlipping.x != -1000000 && motionAfterSlipping.y != -1000000)
+				if (motionAfterSlipping.x != -1000000 && motionAfterSlipping.y != -1000000 && isClimbBeyond(Vector2f(newPosition.x + motionAfterSlipping.x, newPosition.y + motionAfterSlipping.y)))
 				{
 					newPosition = Vector2f(dynamicItem->getPosition().x + motionAfterSlipping.x, dynamicItem->getPosition().y + motionAfterSlipping.y);
 					continue;
@@ -866,7 +883,19 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		auto sprite = (&spriteMap[worldItem->getSpriteName(elapsedTime)])->sprite;
 
 		sprite.setPosition(Vector2f(spriteLeft, spriteTop));
+		worldItem->bias.x = worldItem->lastPosition.x - (sprite.getPosition().x - screenCenter.x)/scaleFactor;
+		worldItem->bias.y = worldItem->lastPosition.y - (sprite.getPosition().y - screenCenter.y)/scaleFactor;
+		//if (scaleDecrease == 0)
+			worldItem->lastPosition = Vector2f((sprite.getPosition().x - screenCenter.x)/scaleFactor, (sprite.getPosition().y - screenCenter.y) / scaleFactor);
+				
+
+		Vector2f biasOffset = worldItem->getBias(focusedObject->getPosition(), elapsedTime/100);
+		sprite.setPosition(Vector2f(sprite.getPosition().x + biasOffset.x, sprite.getPosition().y + biasOffset.y));
 		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);		
+		
+		if (worldItem->isTransparent)
+			//positioning.x = focusedObject->getPosition().x - lastPosition.x;
+			positioning.x = scaleDecrease;
 
 		if (!worldItem->isTerrain)				
 			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
@@ -875,7 +904,7 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 		//sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor);
 		if (worldItem->isTransparent)					
-			sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, 128));		
+			sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, 128));				
 
 		if (focusedObject->getCurrentWorldName() == "spirit" && !worldItem->isTransparent)				
 			window.draw(sprite, &spiritWorldShader);		
@@ -883,7 +912,7 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 			window.draw(sprite);
 		
 		if (worldItem->isTransparent)		
-			Helper::drawText(mouseDisplayName, 30, Mouse::getPosition().x + 20, Mouse::getPosition().y + 20, &window);		
+			Helper::drawText(mouseDisplayName, 30, Mouse::getPosition().x + 20, Mouse::getPosition().y + 20, &window);				
 	}
 
 	/*auto terrain = dynamic_cast<TerrainObject*>(worldItem);
@@ -909,13 +938,13 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	window.draw(rectangle2);
 	}*/
 
-	auto rectangle3 = RectangleShape();
+	/*auto rectangle3 = RectangleShape();
 	rectangle3.setSize(Vector2f(float(width), float(height)));
 	rectangle3.setOutlineColor(Color::Green);
 	rectangle3.setFillColor(Color::Transparent);
 	rectangle3.setOutlineThickness(2);
 	rectangle3.setPosition(0 - cameraPosition.x + screenCenter.x, 0 - cameraPosition.y + screenCenter.y);
-	window.draw(rectangle3);
+	window.draw(rectangle3);*/
 
 	/*auto blockSize = staticGrid.getBlockSize();
 	for (auto x = 0; x < width; x += blockSize.x)
@@ -929,6 +958,7 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	rectangle4.setPosition(x - characterPosition.x + screenCenter.x, y - characterPosition.y + screenCenter.y);
 	window.draw(rectangle4);
 	}*/
+	lastPosition = focusedObject->getPosition();
 }
 
 Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)

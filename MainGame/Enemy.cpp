@@ -5,6 +5,7 @@ using namespace sf;
 
 Enemy::Enemy(std::string objectName, Vector2f centerPosition) : DynamicObject(objectName, centerPosition)
 {
+	conditionalSizeUnits = Vector2f(200, 400);
 	currentSprite = 1;
 	timeForNewSprite = 0;
 	speed = 0.0004f;
@@ -18,15 +19,10 @@ Enemy::Enemy(std::string objectName, Vector2f centerPosition) : DynamicObject(ob
 }
 
 Vector2i Enemy::calculateTextureOffset()
-{
+{	
 	textureBox.width *= getScaleRatio().x;
 	textureBox.height *= getScaleRatio().y;
 	return Vector2i(textureBox.width / 2, textureBox.height * 7 / 8);
-}
-
-Vector2f Enemy::getScaleRatio()
-{
-	return Vector2f(Helper::GetScreenSize().x / (originalTextureBox.width * 10), Helper::GetScreenSize().y / (originalTextureBox.height * 6));
 }
 
 void Enemy::behavior(DynamicObject& target)

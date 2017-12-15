@@ -13,9 +13,12 @@ protected:
 	Vector2i textureBoxOffset;
 	IntRect textureBox, originalTextureBox;
 	Vector2f position;
-	std::string typeOfImage;
+	int typeOfObject;
 	std::string currentWorld;
 public:
+	Vector2f biasOffset, bias, lastPosition;	
+	Vector2f getBias(Vector2f focusedObjectPos, double elapsedTime);
+	Vector2f conditionalSizeUnits;
 	std::string getCurrentWorldName() { return currentWorld; }
 	bool isTransparent = false;
 	bool isTerrain = false;
@@ -33,10 +36,10 @@ public:
 	Vector2i getTextureSize() const { return Vector2i(textureBox.width, textureBox.height); }
 	Vector2i getTextureOffset() const { return Vector2i(int(textureBoxOffset.x), int(textureBoxOffset.y)); }
 	virtual std::string getSpriteName(long long elapsedTime) = 0;
-	void setTypeOfImage(std::string newType) { typeOfImage = newType; }
+	void setTypeOfImage(int newType) { typeOfObject = newType; }
 	Vector2i getTextureBoxOffset() { return textureBoxOffset; };
 	Vector2i getTextureBoxSize() { return Vector2i(textureBox.width, textureBox.height); }
-	virtual Vector2f getScaleRatio() = 0;
+	Vector2f getScaleRatio();
 };
 
 #endif
