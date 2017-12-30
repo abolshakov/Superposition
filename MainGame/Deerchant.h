@@ -25,11 +25,12 @@ public:
 	HitDirection hitDirection;
 	void doKick(std::vector<DynamicObject>& dynamicItems, Vector2i mousePos, float scaleFactor);
 	//draw
-	int getCurrentSprite() { return currentSprite; }
 	std::string nameOfFile;
 	Vector2i calculateTextureOffset() override;
+	int getSpriteNumber() override { return currentSprite; }
 	std::string getSpriteName(long long elapsedTime) override;
 	//control
-	void handleInput() override;		
+	void handleInput() override;	
+	//inventory
 };
 

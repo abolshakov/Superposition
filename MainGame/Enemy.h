@@ -21,7 +21,7 @@ public:
 	int currentSprite;
 	Vector2f targetPosition;
 	//!
-
+	int getSpriteNumber() override { return currentSprite; }
 	std::string nameOfFile;
 	Enemy(std::string objectName, Vector2f centerPosition);
 	Vector2i calculateTextureOffset() override;

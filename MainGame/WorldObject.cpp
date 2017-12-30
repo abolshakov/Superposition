@@ -6,6 +6,8 @@ WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 	name = objectName;
 	position = centerPosition;
 	WorldObject::initPedestal();
+	inventory.resize(0);
+	isVisibleInventory = false;
 }
 
 void WorldObject::setTextureSize(Vector2i textureSize)
@@ -23,7 +25,8 @@ void WorldObject::setTextureSize(Vector2i textureSize)
 
 Vector2f WorldObject::getBias(Vector2f focusedObjectPos, double elapsedTime)
 {
-	biasOffset.x = bias.x*(focusedObjectPos.y - position.y)/elapsedTime;
+	biasOffset.x = bias.x*(focusedObjectPos.y - position.y) / elapsedTime;
+	//biasOffset.x = bias.x*(focusedObjectPos.y - position.y)/elapsedTime;
 	biasOffset.y = bias.y*(focusedObjectPos.y - position.y)/elapsedTime;
 
 	return Vector2f(biasOffset.x, biasOffset.y);

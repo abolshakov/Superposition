@@ -15,7 +15,10 @@ protected:
 	Vector2f position;
 	int typeOfObject;
 	std::string currentWorld;
+	std::vector<std::pair <int, int>> inventory;
 public:
+	bool isVisibleInventory;
+	std::vector<std::pair <int, int>> getInventory() { return inventory; }
 	Vector2f biasOffset, bias, lastPosition;	
 	Vector2f getBias(Vector2f focusedObjectPos, double elapsedTime);
 	Vector2f conditionalSizeUnits;
@@ -36,6 +39,7 @@ public:
 	Vector2i getTextureSize() const { return Vector2i(textureBox.width, textureBox.height); }
 	Vector2i getTextureOffset() const { return Vector2i(int(textureBoxOffset.x), int(textureBoxOffset.y)); }
 	virtual std::string getSpriteName(long long elapsedTime) = 0;
+	virtual int getSpriteNumber() = 0;
 	void setTypeOfImage(int newType) { typeOfObject = newType; }
 	Vector2i getTextureBoxOffset() { return textureBoxOffset; };
 	Vector2i getTextureBoxSize() { return Vector2i(textureBox.width, textureBox.height); }

@@ -24,14 +24,17 @@ public:
 	void onMouseDownInteract(World& world);
 	void interact();
 	void setCharacterBuildActivity(Deerchant& hero);
+	int getCurrentObject() { return currentObject; }
+	Sprite recipeFrame;
+	bool isRecipeFrame = false;
 private:	
 	Vector2f currentSpritePos, currentSpriteOffset, currentSpriteSize, currentSpriteScale;
 	void inicializeObjectsInfo();
 	void animator(float elapsedTime);
 	void inicialize(Vector2f position, World& world);
 	float originalAnimationSpeed = 0.001, animationSpeed = 0.001;
-	bool isBuilding = false, isPressed = false, buildingAvaliable = false, isRecipeFrame = false;
-	Sprite buildStartButton, buildStopButton, recipeFrame;
+	bool isBuilding = false, isPressed = false, buildingAvaliable = false;
+	Sprite buildStartButton, buildStopButton;
 	objectInfo builtObjects[10];
 	Texture buildStartButtonTexture, buildStopButtonTexture, recipeFrameTexture;
 	int currentObject = 0;

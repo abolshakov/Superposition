@@ -13,6 +13,7 @@
 #include "Helper.h"
 #include "TerrainObject.h"
 #include "Spawn.h"
+#include "InventoryMaker.h"
 
 using namespace sf;
 float pi = 3.14159265358979323846;
@@ -31,6 +32,7 @@ World::World(int width, int height) : focusedObject(nullptr)
 	blockSize.x = blockSize.x;
 	blockSize.y = blockSize.y;
 	initShaders();
+	inventorySystem.initSpriteList();
 }
 
 void World::initShaders()
@@ -146,6 +148,42 @@ Vector2i World::initSpriteMap()
 	}
 	fin.close();
 	return maxSize;
+}
+
+void World::initLightSystem(RenderWindow &window)
+{
+	contextSettings.antialiasingLevel = 8;// Включить сглаживание.
+
+	penumbraTexture.loadFromFile("data/penumbraTexture.png");
+	penumbraTexture.setSmooth(true);
+
+	pointLightTexture.loadFromFile("data/pointLightTexture.png");
+	pointLightTexture.setSmooth(true);
+
+	ConeLightTexture.loadFromFile("data/spotLightTexture.png");
+	ConeLightTexture.setSmooth(true);
+
+	unshadowShader.loadFromFile("data/unshadowShader.vert", "data/unshadowShader.frag");
+	lightOverShapeShader.loadFromFile("data/lightOverShapeShader.vert", "data/lightOverShapeShader.frag");
+	ls.create(ltbl::rectFromBounds(Vector2f(-1000.0f, -1000.0f), Vector2f(1000.0f, 1000.0f)), window.getSize(), penumbraTexture, unshadowShader, lightOverShapeShader);
+
+	std::shared_ptr<ltbl::LightPointEmission> light1 = std::make_shared<ltbl::LightPointEmission>();
+	light1->_emissionSprite.setOrigin(Vector2f(pointLightTexture.getSize().x * 0.5f, pointLightTexture.getSize().y * 0.5f));
+	light1->_emissionSprite.setTexture(pointLightTexture);
+	light1->_emissionSprite.setScale(Vector2f(15, 15));
+	light1->_emissionSprite.setColor(commonWorldColorOutfill);
+	light1->_sourceRadius = 10;
+	ls.addLight(light1);
+	ls._ambientColor = commonWorldColor;
+	light1->_emissionSprite.setPosition(Vector2f(Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2));
+}
+
+void World::renderLightSystem(View view, RenderWindow &window)
+{
+	ls.render(view, unshadowShader, lightOverShapeShader);
+	Lsprite.setTexture(ls.getLightingTexture());
+	lightRenderStates.blendMode = sf::BlendMultiply;
+	window.draw(Lsprite, lightRenderStates);
 }
 
 float World::getScaleFactor()
@@ -338,9 +376,9 @@ void World::generate(int objCount)
 	initializeEnemy(Vector2f(5000, 5500));
 	initializeEnemy(Vector2f(5800, 5600));
 	//------------------------------------------
-	initializeHero(Vector2f(3000, 3000));
+	initializeHero(Vector2f(3800, 3000));
 	initializeRoseTree(Vector2f(3500, 3500), 1, "testTree");
-	initializeSpawn(Vector2f(3000, 3800), 1);
+	initializeSpawn(Vector2f(3800, 2800), 1);
 	Save();
 }
 
@@ -616,40 +654,48 @@ VictimSide World::getVictimSide(DynamicObject& hero, DynamicObject& victim)
 	return answer;
 }
 
-void World::heroHit(DynamicObject& heroObject, DynamicObject& victim, float elapsedTime)
+void World::heroInteractWithMobs(DynamicObject &victim, float elapsedTime)
 {
 	auto hero = dynamic_cast<Deerchant*>(dynamicGrid.getItemByName(heroName));
-	if (hero && victim.currentAction != dead)
+	if (!hero)
+		return;
+	if (victim.currentAction == dead)
 	{
-		if (victim.getName() != heroName && isIntersectDynamic(*hero, hero->getPosition(), victim) && victim.isTransparent/* getVictimSide(heroObject, victim) == hero->hitDirection*/)
+		if (isIntersectDynamic(*hero, hero->getPosition(), victim) && hero->lastAction == openInventory)
+			victim.isVisibleInventory = true;
+		else
+			victim.isVisibleInventory = false;
+		return;
+	}
+
+	if (isIntersectDynamic(*hero, hero->getPosition(), victim) && victim.isTransparent/* getVictimSide(heroObject, victim) == hero->hitDirection*/)
+	{	
+		if (victim.timeForNewHitself >= victim.timeAfterHitself)
 		{	
-			if (victim.timeForNewHitself >= victim.timeAfterHitself)
+			if (hero->currentAction == commonHit && hero->getSpriteNumber() == 4)
 			{
-				
-				if (hero->currentAction == commonHit && hero->getCurrentSprite() == 4)
-				{
-					hero->addEnergy(5);
-					victim.takeDamage(hero->getStrength());
-					victim.timeForNewHitself = 0;
-				}
-				else
-				if (hero->currentAction == hardHit && hero->getCurrentSprite() == 6)
-				{
-					hero->addEnergy(15);
-					victim.takeDamage(hero->getStrength()*1.5);
-					victim.timeForNewHitself = 0;
-				}
-				else
-				if (hero->currentAction == specialHit && hero->getCurrentSprite() == 5)
-				{					
-					victim.takeDamage(hero->getStrength()*2);
-					victim.timeForNewHitself = 0;
-				}
-				
+				hero->addEnergy(5);
+				victim.takeDamage(hero->getStrength());
+				victim.timeForNewHitself = 0;
+			}
+			else
+			if (hero->currentAction == hardHit && hero->getSpriteNumber() == 6)
+			{
+				hero->addEnergy(15);
+				victim.takeDamage(hero->getStrength()*1.5);
+				victim.timeForNewHitself = 0;
+			}
+			else
+			if (hero->currentAction == specialHit && hero->getSpriteNumber() == 5)
+			{					
+				victim.takeDamage(hero->getStrength()*2);
+				victim.timeForNewHitself = 0;
 			}
 				
 		}
+				
 	}
+	
 	if (victim.getHealthPoint() <= 0)
 		victim.currentAction = dead;
 	victim.timeForNewHitself += elapsedTime;
@@ -686,7 +732,7 @@ void World::hitInteract(DynamicObject& currentItem, float elapsedTime)
 	if (currentItem.getName() == "none")
 		return;
 	if (currentItem.getName() != heroName)
-		heroHit(*dynamicGrid.getItemByName(heroName), currentItem, elapsedTime);
+		heroInteractWithMobs(currentItem, elapsedTime);
 
 	auto enemy = dynamic_cast<Enemy*>(&currentItem);
 	if (enemy)
@@ -726,17 +772,18 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 	Vector2i worldBottomRight(int(characterPosition.x + screenSize.x / 2), int(characterPosition.y + screenSize.y / 2));
 
 	auto localStaticItems = staticGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y, width);
-	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y, width);
+	auto localDynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y, width);
 
 	auto hero = dynamic_cast<Deerchant*>(dynamicGrid.getItemByName(heroName));
 
-	for (auto dynamicItem : dynamicItems)
+	for (auto dynamicItem : localDynamicItems)
 	{		
 		hitInteract(*dynamicItem, elapsedTime);
 
 		if (dynamicItem->direction == STAND)
 			continue;
 
+		//slipping
 		auto intersects = false;
 		auto newPosition = move(*dynamicItem, elapsedTime);
 		if (newPosition.x < screenSize.x / 2 + extra.x)
@@ -774,7 +821,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 
 		if (dynamicItem->getName() != heroName)
 		{
-			for (auto otherDynamicItem : dynamicItems)
+			for (auto otherDynamicItem : localDynamicItems)
 			{
 				if (otherDynamicItem == dynamicItem || otherDynamicItem->getName() == heroName) 
 					continue;
@@ -815,26 +862,17 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 			}			
 		}
 
-		//if (intersects)
-			//continue;
-
-		//auto currentPosition = dynamicItem->getPosition();
-		//auto newX = int(newPosition.x);
-		//auto newY = int(newPosition.y);		
-
-		//if (newX != int(currentPosition.x) || newY != int(currentPosition.y))
-		{
-			dynamicItem->setPosition(newPosition);
-			dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
-		}
+		dynamicItem->setPosition(newPosition);
+		dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
 	}	
 
+	//saving world
 	timeForNewSave += elapsedTime;
 	if (timeForNewSave >= timeAfterSave)
 	{
 		timeForNewSave = 0;
 		Save();		
-	}
+	}	
 }
 
 void World::draw(RenderWindow& window, long long elapsedTime)
@@ -842,6 +880,32 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	//shaders logic
 	spiritWorldShader.setUniform("time", timer.getElapsedTime().asSeconds() / 5);
 	spiritWorldShader.setUniform("level", 0);
+
+	//light changes
+	Color currentColor;
+	if (focusedObject->getCurrentWorldName() == "common")
+		currentColor = commonWorldColor;
+	else
+		currentColor = spiritWorldColor;
+	if (focusedObject->currentAction == transitionToEnotherWorld)
+	{
+		if (ls._ambientColor.r > 0)
+			ls._ambientColor.r = currentColor.r - currentColor.r/6*focusedObject->getSpriteNumber();
+		if (ls._ambientColor.g > 0)
+			ls._ambientColor.g = currentColor.g - currentColor.g / 6 * focusedObject->getSpriteNumber();
+		if (ls._ambientColor.b > 0)
+			ls._ambientColor.b = currentColor.b - currentColor.b / 6 * focusedObject->getSpriteNumber();
+	}
+	if (focusedObject->currentAction != transitionToEnotherWorld && ls._ambientColor != currentColor)
+	{
+		if (ls._ambientColor.r < currentColor.r)
+			ls._ambientColor.r++;
+		if (ls._ambientColor.g < currentColor.g)
+			ls._ambientColor.g++;
+		if (ls._ambientColor.b < currentColor.b)
+			ls._ambientColor.b++;
+	}
+
 
 	const auto extra = staticGrid.getBlockSize();
 
@@ -861,13 +925,15 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		worldBottomRight.y = height;
 
 	auto localStaticItems = staticGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y, width);
-	auto dynamicItems = dynamicGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y, width);
+	auto localDynamicItems = dynamicGrid.getItems(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y, width);
 	visibleItems = std::vector<WorldObject*>(localStaticItems.begin(), localStaticItems.end());
-	auto visibleDynamicItems = std::vector<WorldObject*>(dynamicItems.begin(), dynamicItems.end());
+	auto visibleDynamicItems = std::vector<WorldObject*>(localDynamicItems.begin(), localDynamicItems.end());
 
 	visibleItems.insert(visibleItems.end(), visibleDynamicItems.begin(), visibleDynamicItems.end());
 	setTransparent(visibleItems);
 	sort(visibleItems.begin(), visibleItems.end(), cmpImgDraw);
+
+	std::vector<std::pair<int, int>> dropInventory;
 
 	for (auto worldItem : visibleItems)
 	{
@@ -883,19 +949,15 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		auto sprite = (&spriteMap[worldItem->getSpriteName(elapsedTime)])->sprite;
 
 		sprite.setPosition(Vector2f(spriteLeft, spriteTop));
-		worldItem->bias.x = worldItem->lastPosition.x - (sprite.getPosition().x - screenCenter.x)/scaleFactor;
-		worldItem->bias.y = worldItem->lastPosition.y - (sprite.getPosition().y - screenCenter.y)/scaleFactor;
-		//if (scaleDecrease == 0)
-			worldItem->lastPosition = Vector2f((sprite.getPosition().x - screenCenter.x)/scaleFactor, (sprite.getPosition().y - screenCenter.y) / scaleFactor);
-				
 
+		//bias positioning
+		worldItem->bias.x = worldItem->lastPosition.x - (sprite.getPosition().x - screenCenter.x)/scaleFactor;
+		worldItem->bias.y = worldItem->lastPosition.y - (sprite.getPosition().y - screenCenter.y)/scaleFactor;		
+		worldItem->lastPosition = Vector2f((sprite.getPosition().x - screenCenter.x)/scaleFactor, (sprite.getPosition().y - screenCenter.y) / scaleFactor);				
 		Vector2f biasOffset = worldItem->getBias(focusedObject->getPosition(), elapsedTime/100);
 		sprite.setPosition(Vector2f(sprite.getPosition().x + biasOffset.x, sprite.getPosition().y + biasOffset.y));
+
 		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);		
-		
-		if (worldItem->isTransparent)
-			//positioning.x = focusedObject->getPosition().x - lastPosition.x;
-			positioning.x = scaleDecrease;
 
 		if (!worldItem->isTerrain)				
 			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
@@ -911,8 +973,15 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		else
 			window.draw(sprite);
 		
-		if (worldItem->isTransparent)		
-			Helper::drawText(mouseDisplayName, 30, Mouse::getPosition().x + 20, Mouse::getPosition().y + 20, &window);				
+		if (worldItem->isVisibleInventory)
+		{
+			//dropInventory.insert(dropInventory.end(), worldItem->getInventory().begin(), worldItem->getInventory().end());
+			for (int cnt = 0; cnt < worldItem->getInventory().size(); cnt++)
+				dropInventory.push_back(worldItem->getInventory()[cnt]);
+		}
+			
+		//if (worldItem->isTransparent)		
+			//Helper::drawText(mouseDisplayName, 30, Mouse::getPosition().x + 20, Mouse::getPosition().y + 20, &window);
 	}
 
 	/*auto terrain = dynamic_cast<TerrainObject*>(worldItem);
@@ -959,6 +1028,15 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	window.draw(rectangle4);
 	}*/
 	lastPosition = focusedObject->getPosition();
+	if (focusedObject->isVisibleInventory)
+		inventorySystem.drawInventory(focusedObject->getInventory(), Vector2f(screenCenter), elapsedTime, window);
+	if (dropInventory.size() != 0)
+	{
+		inventorySystem.drawInventory(dropInventory, Vector2f(screenCenter), elapsedTime, window);
+		//Helper::drawText(std::to_string(dropInventory.size()), 30, 100, 100, &window);
+	}
+	else
+		inventorySystem.resetAnimationValues();
 }
 
 Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)

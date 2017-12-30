@@ -150,6 +150,7 @@
     <ClCompile Include="Grass.cpp" />
     <ClCompile Include="GridList.cpp" />
     <ClCompile Include="Helper.cpp" />
+    <ClCompile Include="InventoryMaker.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="RoseTree.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="Grass.h" />
     <ClInclude Include="GridList.h" />
     <ClInclude Include="Helper.h" />
+    <ClInclude Include="InventoryMaker.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="RoseTree.h" />
     <ClInclude Include="Spawn.h" />

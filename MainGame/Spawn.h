@@ -9,6 +9,5 @@ public:
 	Vector2i calculateTextureOffset() override;
 	void initPedestal() override;
 	std::string getSpriteName(long long elapsedTime) override;
-
-	int strength;
+	int getSpriteNumber() override { return 0; }
 };

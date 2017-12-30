@@ -1,4 +1,3 @@
-#include <ltbl/lighting/LightSystem.h>
 #include "Helper.h"
 #include "World.h"
 #include "Deerchant.h"
@@ -43,38 +42,6 @@ private:
 int main() {	
 	auto screenSize = Helper::GetScreenSize();
 	RenderWindow mainWindow(VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y), 32), "game", Style::Fullscreen);
-
-	ContextSettings contextSettings;
-	sf::RenderStates lightRenderStates;
-	sf::Sprite Lsprite;//Спрайт света.
-	Texture pointLightTexture, ConeLightTexture;// Текстура света.
-	Texture  penumbraTexture;// Текстура полутени.
-	Shader unshadowShader, lightOverShapeShader;// Шейдеры для рендера света.
-	ltbl::LightSystem ls;//Глобальная система света и тени.
-
-	contextSettings.antialiasingLevel = 8;// Включить сглаживание.
-
-	penumbraTexture.loadFromFile("data/penumbraTexture.png");
-	penumbraTexture.setSmooth(true);
-
-	pointLightTexture.loadFromFile("data/pointLightTexture.png");
-	pointLightTexture.setSmooth(true);
-
-	ConeLightTexture.loadFromFile("data/spotLightTexture.png");
-	ConeLightTexture.setSmooth(true);
-
-	unshadowShader.loadFromFile("data/unshadowShader.vert", "data/unshadowShader.frag");
-	lightOverShapeShader.loadFromFile("data/lightOverShapeShader.vert", "data/lightOverShapeShader.frag");
-	ls.create(ltbl::rectFromBounds(sf::Vector2f(-1000.0f, -1000.0f), sf::Vector2f(1000.0f, 1000.0f)), mainWindow.getSize(), penumbraTexture, unshadowShader, lightOverShapeShader);
-
-	std::shared_ptr<ltbl::LightPointEmission> light1 = std::make_shared<ltbl::LightPointEmission>();
-	light1->_emissionSprite.setOrigin(sf::Vector2f(pointLightTexture.getSize().x * 0.5f, pointLightTexture.getSize().y * 0.5f));
-	light1->_emissionSprite.setTexture(pointLightTexture);
-	light1->_emissionSprite.setScale(sf::Vector2f(15, 15));
-	light1->_emissionSprite.setColor(sf::Color(229.5, 178, 178, 255));
-	light1->_sourceRadius = 10;
-	ls.addLight(light1);
-	ls._ambientColor = Color(140, 90, 90, 255);
 	
 	sf::View view = mainWindow.getDefaultView();
 
@@ -86,7 +53,7 @@ int main() {
 	float pi = 3.14159265358979323846;
 	bool isGenerate = false;	
 
-	
+	world.initLightSystem(mainWindow);
 	
 	
 	//Map  map(mainWindow, world);
@@ -139,7 +106,7 @@ int main() {
 		builder.setCharacterBuildActivity(*hero);
 		world.focusedObject->handleInput();
 		world.interact(mainWindow, interactTime);	
-		light1->_emissionSprite.setPosition(Vector2f(Helper::GetScreenSize().x/2, Helper::GetScreenSize().y/2));
+		
 		mainWindow.clear(Color::White);
 		builder.interact();
 				
@@ -155,7 +122,6 @@ int main() {
 		energyRect.setFillColor(Color::Yellow);
 		mainWindow.draw(energyRect);
 		//map.draw(mainWindow, world);
-		Helper::drawText(to_string(world.positioning.x), 50, 100, 100, &mainWindow);
 
 		/*for (int ci = 3000; ci <= 4000; ci+= 10)
 		{
@@ -176,11 +142,10 @@ int main() {
 				}
 			}
 		}*/
-		ls.render(view, unshadowShader, lightOverShapeShader);
-		Lsprite.setTexture(ls.getLightingTexture());
-		lightRenderStates.blendMode = sf::BlendMultiply;
-		mainWindow.setView(mainWindow.getDefaultView());
-		mainWindow.draw(Lsprite, lightRenderStates);
+		
+		world.renderLightSystem(view, mainWindow);
+		//Helper::drawText(to_string(hero->lastAction), 30, 100, 100, &mainWindow);
+		//Helper::drawText(to_string(hero->getHealthPoint()), 30, 100, 200, &mainWindow);
 		builder.draw(mainWindow, world, interactTime);
 		mainWindow.display();
 	}

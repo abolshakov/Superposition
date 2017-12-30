@@ -18,6 +18,7 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	energy = 50; maxEnergyValue = 100; energyForSpecial = 20;
 	currentAction = relax;
 	currentWorld = "common";
+	inventory.resize(8);
 }
 
 Vector2i Deerchant::calculateTextureOffset()
@@ -30,6 +31,13 @@ Vector2i Deerchant::calculateTextureOffset()
 
 void Deerchant::handleInput()
 {	
+	if (currentAction == move)
+		lastAction = move;
+	if (Keyboard::isKeyPressed(Keyboard::E))
+	{
+		currentAction = openInventory;
+	}
+
 	if (currentAction != evasionDown && currentAction != evasionUp)
 	{
 		if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::S) || Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::D))
@@ -125,17 +133,20 @@ void Deerchant::setHitDirection()
 					hitDirection = left;
 }
 
-void Deerchant::doKick(std::vector<DynamicObject>& dynamicItems, Vector2i mousePos, float scaleFactor)
+/*void Deerchant::doKick(std::vector<DynamicObject>& dynamicItems, Vector2i mousePos, float scaleFactor)
 {
 	for (DynamicObject& victim : dynamicItems)
 	{
 		Vector2f victimPos = Vector2f((victim.getPosition().x - position.x)*scaleFactor + Helper::GetScreenSize().x / 2, (victim.getPosition().y - position.y)*scaleFactor + Helper::GetScreenSize().y / 2);
 		if (sqrt(pow(position.x - victimPos.x, 2) + pow(position.y - victimPos.y, 2)) <= this->radius + victim.radius)
 		{
-			victim.takeDamage(this->strength);
+			if (victim.currentAction != dead)
+				victim.takeDamage(this->strength);
+			else
+				victim.isVisibleInventory = true;
 		}
 	}
-}
+}*/
 
 std::string Deerchant::getSpriteName(long long elapsedTime)
 {
@@ -225,6 +236,12 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
+	case openInventory:
+		animationLength = 5;
+		spriteName = "hero/heroF_";
+		spriteName += std::to_string(currentSprite);
+		spriteName += ".png";
+		break;
 	case relax:
 		animationLength = 1;
 		spriteName = "hero/heroF_0.png";
@@ -301,6 +318,11 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 			{
 				lastAction = relax;
 				currentAction = relax;
+			}
+			if (currentAction == openInventory)
+			{
+				currentAction = relax;
+				lastAction = openInventory;
 			}
 			currentSprite = 1;
 		}

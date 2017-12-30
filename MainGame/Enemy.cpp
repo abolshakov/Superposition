@@ -5,7 +5,7 @@ using namespace sf;
 
 Enemy::Enemy(std::string objectName, Vector2f centerPosition) : DynamicObject(objectName, centerPosition)
 {
-	conditionalSizeUnits = Vector2f(200, 400);
+	conditionalSizeUnits = Vector2f(200, 250);
 	currentSprite = 1;
 	timeForNewSprite = 0;
 	speed = 0.0004f;
@@ -16,6 +16,7 @@ Enemy::Enemy(std::string objectName, Vector2f centerPosition) : DynamicObject(ob
 	currentAction = relax;
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
+	inventory.resize(5);
 }
 
 Vector2i Enemy::calculateTextureOffset()
@@ -31,60 +32,59 @@ void Enemy::behavior(DynamicObject& target)
 	{
 		currentAction = dead;
 		direction = STAND;
+		return;
 	}
-	else
-	{
-		srand(time(0));
-		Vector2f curPos = this->getPosition();
-		Vector2f tarPos = target.getPosition();
-		this->targetPosition = target.getPosition();
 
-		if (sqrt(pow(curPos.x - tarPos.x, 2) + pow(curPos.y - tarPos.y, 2)) <= (this->radius + target.radius))
+	srand(time(0));
+	Vector2f curPos = this->getPosition();
+	Vector2f tarPos = target.getPosition();
+	this->targetPosition = target.getPosition();
+
+	if (sqrt(pow(curPos.x - tarPos.x, 2) + pow(curPos.y - tarPos.y, 2)) <= (this->radius + target.radius))
+	{
+		if (currentAction == move)
 		{
-			if (currentAction == move)
-			{
-				currentAction = combatState;
-				timeAfterHit = timeForNewHit;
-			}
-			else
-			{
-				if (currentAction >= 0 && currentAction < 3 && currentSprite == strikingSprite && wasHit == false)
-				{
-					if ((target.currentAction != evasionDown && currentAction != upperHit) || (target.currentAction != evasionUp && currentAction != bottomHit))
-					{
-						target.takeDamage(10);
-						wasHit = true;
-					}
-				}
-			}
-			direction = STAND;
-			if (currentAction == combatState)
-			{
-				wasHit = false;
-				timeAfterHit += timer.getElapsedTime().asMilliseconds();
-				if (timeAfterHit >= timeForNewHit)
-				{
-					while (true)
-					{
-						currentAction = (Actions)(rand() % 3);
-						if (currentAction != lastAction)
-							break;
-					}
-					currentSprite = 0;
-					timeAfterHit = 0;
-					timer.restart();
-				}
-			}
+			currentAction = combatState;
+			timeAfterHit = timeForNewHit;
 		}
 		else
 		{
-			if (currentAction != upperHit && currentAction != bottomHit && currentAction != directHit)
+			if (currentAction >= 0 && currentAction < 3 && currentSprite == strikingSprite && wasHit == false)
 			{
+				if ((target.currentAction != evasionDown && currentAction != upperHit) || (target.currentAction != evasionUp && currentAction != bottomHit))
+				{
+					target.takeDamage(10);
+					wasHit = true;
+				}
+			}
+		}
+		direction = STAND;
+		if (currentAction == combatState)
+		{
+			wasHit = false;
+			timeAfterHit += timer.getElapsedTime().asMilliseconds();
+			if (timeAfterHit >= timeForNewHit)
+			{
+				while (true)
+				{
+					currentAction = (Actions)(rand() % 3);
+					if (currentAction != lastAction)
+						break;
+				}
+				currentSprite = 0;
 				timeAfterHit = 0;
 				timer.restart();
-				currentAction = move;
-				moveToTarget(tarPos, target.radius);
 			}
+		}
+	}
+	else
+	{
+		if (currentAction != upperHit && currentAction != bottomHit && currentAction != directHit)
+		{
+			timeAfterHit = 0;
+			timer.restart();
+			currentAction = move;
+			moveToTarget(tarPos, target.radius);
 		}
 	}
 }

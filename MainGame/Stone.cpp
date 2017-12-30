@@ -2,7 +2,6 @@
 
 Stone::Stone(std::string objectName, Vector2f centerPosition) : TerrainObject(objectName, centerPosition)
 {
-	strength = 0;
 }
 
 Vector2i Stone::calculateTextureOffset()

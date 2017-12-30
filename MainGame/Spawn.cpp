@@ -3,12 +3,11 @@
 
 Spawn::Spawn(std::string objectName, Vector2f centerPosition) : TerrainObject(objectName, centerPosition)
 {
-	strength = 0;
 }
 
 Vector2i Spawn::calculateTextureOffset()
 {
-	conditionalSizeUnits = Vector2f(800, 800);
+	conditionalSizeUnits = Vector2f(1000, 1000);
 	textureBox.width *= getScaleRatio().x;
 	textureBox.height *= getScaleRatio().y;
 	return Vector2i(textureBox.width / 2, int(textureBox.height / 1.6));

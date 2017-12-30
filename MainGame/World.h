@@ -8,6 +8,8 @@
 #include "RoseTree.h"
 #include "Enemy.h"
 #include "Deerchant.h"
+#include "InventoryMaker.h"
+#include <ltbl/lighting/LightSystem.h>
 
 using namespace sf;
 
@@ -21,6 +23,15 @@ enum VictimSide { upSide = 1, rightSide = 2, downSide = 3, leftSide = 4 };
 
 class World
 {
+	//lightSystem
+	Color commonWorldColor = Color(140, 90, 90, 255), commonWorldColorOutfill = Color(229.5, 178, 178, 255), spiritWorldColor = Color(73, 193, 214, 255), spiritWorldColorOutfill = Color(12, 78, 89, 255);
+	ContextSettings contextSettings;
+	sf::RenderStates lightRenderStates;
+	sf::Sprite Lsprite;//Спрайт света.
+	Texture pointLightTexture, ConeLightTexture;// Текстура света.
+	Texture  penumbraTexture;// Текстура полутени.
+	Shader unshadowShader, lightOverShapeShader;// Шейдеры для рендера света.
+	ltbl::LightSystem ls;//Глобальная система света и тени.	
 	//hero
 	const std::string heroTextureName = "hero/heroF_0.png";
 	//world base
@@ -52,9 +63,14 @@ class World
 	sf::Shader spiritWorldShader;
 	sf::Texture distortionMap;
 	void initShaders();
+	//inventorySystem
+	InventoryMaker inventorySystem;
 public:
 	//test
 	Vector2f positioning, lastPosition;
+	//lightSystem
+	void initLightSystem(RenderWindow &window);
+	void renderLightSystem(View view, RenderWindow &window);
 	//adding to the grid
 	void initializeRoseTree(Vector2f position, int typeOfImage, std::string itemName);
 	void initializeSpawn(Vector2f position, int typeOfImage);
@@ -90,7 +106,7 @@ public:
 	float scaleDecrease, timeForScaleDecrease = 0;
 	Clock scaleDecreaseClock;
 	//fight logic
-	void heroHit(DynamicObject& heroObject, DynamicObject& victim, float elapsedTime);
+	void heroInteractWithMobs(DynamicObject& victim, float elapsedTime);
 	void hitInteract(DynamicObject& currentItem, float elapsedTime);
 	Vector2f currentTransparentPos = Vector2f(0, 0);
 	VictimSide victimSide;

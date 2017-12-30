@@ -30,7 +30,7 @@ void Helper::drawText(std::string text, int size, int Posx, int Posy, RenderWind
 	Font font;
 	font.loadFromFile("fonts/Bebas.ttf");
 	Text result(text, font, size);
-	result.setFillColor(Color::Black);
+	result.setFillColor(Color::White);
 	Vector2f pos(static_cast<float>(Posx),static_cast<float>(Posy));
 	result.setPosition(pos);
 	window->draw(result);
