@@ -1,8 +1,11 @@
 #include "Spawn.h"
 #include "Helper.h"
 
-Spawn::Spawn(std::string objectName, Vector2f centerPosition) : TerrainObject(objectName, centerPosition)
+Spawn::Spawn(std::string objectName, Vector2f centerPosition, int typeOfObject) : TerrainObject(objectName, centerPosition)
 {
+	varietyOfTypes = 1;
+	this->typeOfObject = typeOfObject;
+	intersectsRadius = 200;
 }
 
 Vector2i Spawn::calculateTextureOffset()

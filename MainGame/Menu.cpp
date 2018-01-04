@@ -3,7 +3,7 @@
 Menu::Menu()
 {
 	screenSize = Helper::GetScreenSize();
-	loadingImageTexture.loadFromFile("World/Loading.png");
+	loadingImageTexture.loadFromFile("World/Menu/Loading.png");
 	loadingImage.setTexture(loadingImageTexture);
 	loadingImage.setPosition(screenSize.x, screenSize.y);
 
@@ -12,13 +12,13 @@ Menu::Menu()
 	settingsButtonPosition = Vector2f(screenSize.x / 16, screenSize.y * 3 / 8);
 	continueButtonPosition = Vector2f(screenSize.x / 16, screenSize.y * 2 / 8);
 
-	newRunButtonTexture.loadFromFile("World/newRun.png");
+	newRunButtonTexture.loadFromFile("World/Menu/newRun.png");
 	newRunButton.setTexture(newRunButtonTexture);
-	exitButtonTexture.loadFromFile("World/exit.png");
+	exitButtonTexture.loadFromFile("World/Menu/exit.png");
 	exitButton.setTexture(exitButtonTexture);
-	settingsButtonTexture.loadFromFile("World/settings.png");
+	settingsButtonTexture.loadFromFile("World/Menu/settings.png");
 	settingsButton.setTexture(settingsButtonTexture);
-	continueButtonTexture.loadFromFile("World/continue.png");
+	continueButtonTexture.loadFromFile("World/Menu/continue.png");
 	continueButton.setTexture(continueButtonTexture);
 
 	newRunButton.setPosition(newRunButtonPosition);

@@ -11,34 +11,6 @@
 using namespace sf;
 using namespace std;
 
-/*class Map {
-public:
-	Map(RenderWindow& window, World& world)
-	{
-		frameTexture.loadFromFile("World/Map/mapBackground.png");
-		frame.setTexture(frameTexture);
-		frame.setPosition(window.getSize().x - world.getWorldSize().x/100, 0);
-	}
-	void draw(RenderWindow& window, World& world)
-	{
-		window.draw(frame);		
-
-		for (auto item : world.staticItems)
-		{
-			//Helper::drawText(item->getName(), 50, 100, 100, &window);
-			if (item->getName()[0] != 'g')
-			{
-				Sprite sprite = world.spriteMap["Map/" + Helper::getSpriteName(item->getName())].sprite;
-				sprite.setPosition(item->getPosition().x / 100 + frame.getPosition().x, item->getPosition().y / 100);
-				window.draw(sprite);
-			}
-		}
-	}
-private:
-	Sprite frame;
-	Texture frameTexture;
-};*/
-
 int main() {	
 	auto screenSize = Helper::GetScreenSize();
 	RenderWindow mainWindow(VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y), 32), "game", Style::Fullscreen);
@@ -47,16 +19,13 @@ int main() {
 
 	Menu menu;
 	World world(40000, 40000);
-	Builder builder;	
+	Builder builder(world.getInventorySystem().getSpriteList());	
 	float scaleDecrease = 0;
 	float timeForScaleDecrease = 0;
 	float pi = 3.14159265358979323846;
 	bool isGenerate = false;	
 
 	world.initLightSystem(mainWindow);
-	
-	
-	//Map  map(mainWindow, world);
 
 	Clock interactClock;
 	Clock drawClock;
@@ -121,30 +90,13 @@ int main() {
 		energyRect.setPosition(Vector2f(screenSize.x / 2 - 250, screenSize.y - 100));
 		energyRect.setFillColor(Color::Yellow);
 		mainWindow.draw(energyRect);
-		//map.draw(mainWindow, world);
-
-		/*for (int ci = 3000; ci <= 4000; ci+= 10)
-		{
-			for (int cj = 3000; cj <= 4000; cj+= 10)
-			{
-				RectangleShape req(Vector2f(5, 5));				
-				auto item = world.staticGrid.getItemByName("testTree");
-				auto tree = dynamic_cast<TerrainObject*>(item);
-				if (!tree)
-					continue;
-				Vector2i f1 = tree->getFocus1();
-				Vector2i f2 = tree->getFocus2();
-				if (sqrt((ci - f1.x)*(ci - f1.x) + (cj - f1.y)*(cj - f1.y)) + sqrt((ci - f2.x)*(ci - f2.x) + (cj - f2.y)*(cj - f2.y)) <= tree->getEllipseSize())
-				{
-					req.setPosition((ci - world.dynamicGrid.getItemByName("hero")->getPosition().x)*world.scaleFactor + screenSize.x/2, (cj - world.dynamicGrid.getItemByName("hero")->getPosition().y)*world.scaleFactor + screenSize.y/2);
-					req.setFillColor(Color::Red);
-					mainWindow.draw(req);
-				}
-			}
-		}*/
+		RectangleShape healthRect(Vector2f(int(hero->getHealthPoint() / hero->getMaxHealthPointValue() * 500), 40));
+		healthRect.setPosition(Vector2f(screenSize.x / 2 - 250, screenSize.y - 200));
+		healthRect.setFillColor(Color::Red);
+		mainWindow.draw(healthRect);
 		
 		world.renderLightSystem(view, mainWindow);
-		//Helper::drawText(to_string(hero->lastAction), 30, 100, 100, &mainWindow);
+		Helper::drawText(to_string(Actions(hero->currentAction)), 30, 100, 100, &mainWindow);
 		//Helper::drawText(to_string(hero->getHealthPoint()), 30, 100, 200, &mainWindow);
 		builder.draw(mainWindow, world, interactTime);
 		mainWindow.display();

@@ -23,7 +23,6 @@ public:
 	void setEnergy(float energy) { this->energy = energy; }
 	void addEnergy(float energy) { this->energy += energy; if (this->energy > this->maxEnergyValue) this->energy = this->maxEnergyValue; }
 	HitDirection hitDirection;
-	void doKick(std::vector<DynamicObject>& dynamicItems, Vector2i mousePos, float scaleFactor);
 	//draw
 	std::string nameOfFile;
 	Vector2i calculateTextureOffset() override;

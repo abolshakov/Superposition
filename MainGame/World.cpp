@@ -8,12 +8,14 @@
 
 #include "World.h"
 #include "DynamicObject.h"
-#include "RoseTree.h"
+#include "TreeOfGreatness.h"
 #include "Grass.h"
 #include "Helper.h"
 #include "TerrainObject.h"
 #include "Spawn.h"
 #include "InventoryMaker.h"
+#include "BonefireOfInsight.h"
+#include "HomeCosiness.h"
 
 using namespace sf;
 float pi = 3.14159265358979323846;
@@ -131,20 +133,13 @@ Vector2i World::initSpriteMap()
 		auto sprite = &spriteMap[name];
 		sprite->texture.loadFromFile("World/" + name);
 		sprite->sprite.setTexture(sprite->texture);
-		if (Helper::getObjectName(Helper::withoutNums(name)) == "shader")
-		{
-			sprite->sprite.setScale(Helper::GetScreenSize().x / sprite->texture.getSize().x, Helper::GetScreenSize().y / sprite->texture.getSize().y);
-			sprite->sprite.setColor(Color(sprite->sprite.getColor().r, sprite->sprite.getColor().g, sprite->sprite.getColor().b, 10));
-		}
-		else
-		{
-			auto size = Vector2i(sprite->texture.getSize());
-			if (size.x > maxSize.x)
-				maxSize.x = size.x;
+		
+		auto size = Vector2i(sprite->texture.getSize());
+		if (size.x > maxSize.x)
+			maxSize.x = size.x;
 
-			if (size.y > maxSize.y)
-				maxSize.y = size.y;
-		}
+		if (size.y > maxSize.y)
+			maxSize.y = size.y;
 	}
 	fin.close();
 	return maxSize;
@@ -170,7 +165,7 @@ void World::initLightSystem(RenderWindow &window)
 	std::shared_ptr<ltbl::LightPointEmission> light1 = std::make_shared<ltbl::LightPointEmission>();
 	light1->_emissionSprite.setOrigin(Vector2f(pointLightTexture.getSize().x * 0.5f, pointLightTexture.getSize().y * 0.5f));
 	light1->_emissionSprite.setTexture(pointLightTexture);
-	light1->_emissionSprite.setScale(Vector2f(15, 15));
+	light1->_emissionSprite.setScale(Vector2f(25, 25));
 	light1->_emissionSprite.setColor(commonWorldColorOutfill);
 	light1->_sourceRadius = 10;
 	ls.addLight(light1);
@@ -196,26 +191,95 @@ float World::getScaleFactor()
 }
 
 //initialize items
-void World::initializeRoseTree(Vector2f position, int typeOfImage, std::string itemName)
+void World::initializeItem(staticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName)
 {
-	int roseTreeType;
-	if (typeOfImage == 0)
-		roseTreeType = rand() % 3 + 1;
+	StaticObject* item;
+	std::string nameOfImage;
+	
+	switch (itemClass)
+	{
+		case 1:
+		{
+			item = dynamic_cast<StaticObject*>(&TreeOfGreatness("item", Vector2f(0, 0), 1));
+			nameOfImage = "treeOfGreatness";
+			break;
+		}
+		case 2:
+		{	
+			item = dynamic_cast<StaticObject*>(&Grass("item", Vector2f(0, 0), 1));
+			nameOfImage = "grass";
+			break;
+		}
+		case 3:
+		{
+			item = dynamic_cast<StaticObject*>(&Spawn("item", Vector2f(0, 0), 1));
+			nameOfImage = "spawn";
+			break;
+		}
+		case 4:
+		{
+			item = dynamic_cast<StaticObject*>(&BonefireOfInsight("item", Vector2f(0, 0), 1));
+			nameOfImage = "bonefireOfInsight";
+			break;
+		}
+		case 5:
+		{
+			item = dynamic_cast<StaticObject*>(&HomeCosiness("item", Vector2f(0, 0), 1));
+			nameOfImage = "homeCosiness";
+			break;
+		}
+		default:
+		{
+			item = dynamic_cast<StaticObject*>(&Spawn("item", Vector2f(0, 0), 1));
+			nameOfImage = "spawn";
+			break;
+		}
+	}
+	
+	int currentType;
+	if (itemType == 0)
+		currentType = rand() % 4 + 1;
 	else
-		roseTreeType = typeOfImage;
-	std::string nameOfImage = "roseTree" + std::to_string(roseTreeType) + ".png";
+		currentType = itemType;
+	nameOfImage += std::to_string(currentType) + ".png";
+	std::string name;
+	if (itemName == "")
+		name = nameOfImage + std::to_string(staticGrid.getSize());
+	else
+		name = itemName;
+	item->setName(name);
+	item->setPosition(itemPosition);
+	item->setType(currentType);
+	staticGrid.addItem(new Spawn(item->getName(), item->getPosition(), item->getType()), name, int(itemPosition.x), int(itemPosition.y));
+
+	staticGrid.getItemByName(name)->setType(currentType);
+	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
+	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
+	staticGrid.getItemByName(name)->setTextureSize(textureSize);
+
+	//staticGrid.getItemByName(name)->setType(currentType);
+	//new Spawn(name, itemPosition, 1)
+}
+void World::initializeTreeOfGreatness(Vector2f position, int typeOfImage, std::string itemName)
+{
+	int treeOfGreatnessType;
+	if (typeOfImage == 0)
+		treeOfGreatnessType = rand() % 3 + 1;
+	else
+		treeOfGreatnessType = typeOfImage;
+	std::string nameOfImage = "treeOfGreatness" + std::to_string(treeOfGreatnessType) + ".png";
 	std::string name;
 	if (itemName == "")	
 		name = nameOfImage + std::to_string(staticGrid.getSize());
 	else
 		name = itemName;
-	staticGrid.addItem(new RoseTree(name, position, roseTreeType), name, int(position.x), int(position.y));
+	staticGrid.addItem(new TreeOfGreatness(name, position, treeOfGreatnessType), name, int(position.x), int(position.y));
 
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
 	staticGrid.getItemByName(name)->setTextureSize(textureSize);
 }
-void World::initializeSpawn(Vector2f position, int typeOfImage)
+void World::initializeSpawn(Vector2f position, int typeOfImage, std::string itemName)
 {
 	int spawnType;
 	if (typeOfImage == 0)
@@ -223,10 +287,14 @@ void World::initializeSpawn(Vector2f position, int typeOfImage)
 	else
 		spawnType = typeOfImage;
 	std::string nameOfImage = "spawn" + std::to_string(spawnType) + ".png";
-	std::string name = nameOfImage + std::to_string(staticGrid.getSize());
-	staticGrid.addItem(new Spawn(name, position), name, int(position.x), int(position.y));
+	std::string name;
+	if (itemName == "")
+		name = nameOfImage + std::to_string(staticGrid.getSize());
+	else
+		name = itemName;
+	staticGrid.addItem(new Spawn(name, position, 1), name, int(position.x), int(position.y));
 
-	staticGrid.getItemByName(name)->setTypeOfImage(spawnType);
+	staticGrid.getItemByName(name)->setType(spawnType);
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
 	staticGrid.getItemByName(name)->setTextureSize(textureSize);
@@ -243,19 +311,35 @@ void World::initializeGrass(Vector2f position, int typeOfImage, std::string item
 	if (itemName == "")
 		name = nameOfImage + std::to_string(staticGrid.getSize());
 	else
+		name = itemName;
+	if (itemName == "")
+		name = nameOfImage + std::to_string(staticGrid.getSize());
+	else
 		name = itemName;		
 	staticGrid.addItem(new Grass(name, position, grassType), name, int(position.x), int(position.y));
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
 	staticGrid.getItemByName(name)->setTextureSize(textureSize);
 }
-void World::initializeEnemy(Vector2f position)
+void World::initializeEnemy(Vector2f position, std::string enemyName)
 {
-	std::string enemyName = "enemy" + std::to_string(dynamicGrid.getSize());
+	std::string nameOfImage = "enemy/enemyF_0.png";
+	std::string name;
+	if (enemyName == "")
+		name = nameOfImage + std::to_string(staticGrid.getSize());
+	else
+		name = enemyName;
+	dynamicGrid.addItem(new Enemy(name, position), name, int(position.x), int(position.y));
+
+	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
+	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
+	dynamicGrid.getItemByName(name)->setTextureSize(textureSize);
+
+	/*std::string enemyName = "enemy" + std::to_string(dynamicGrid.getSize());
 	dynamicGrid.addItem(new Enemy(enemyName, position), enemyName, int(position.x), int(position.y));
 	auto enemyTextureBounds = spriteMap[heroTextureName].sprite.getGlobalBounds();
 	auto enemyTextureSize = Vector2i(int(enemyTextureBounds.width), int(enemyTextureBounds.height));
-	dynamicGrid.getItemByName(enemyName)->setTextureSize(enemyTextureSize);
+	dynamicGrid.getItemByName(enemyName)->setTextureSize(enemyTextureSize);*/
 }
 void World::initializeHero(Vector2f position)
 {
@@ -269,13 +353,55 @@ void World::initializeHero(Vector2f position)
 	focusedObject->setTextureSize(textureSize);
 	cameraPosition = focusedObject->getPosition();
 }
+void World::initializeBonefireOfInsight(Vector2f position, int typeOfImage, std::string itemName)
+{
+	int bonefireOfInsightType;
+	if (typeOfImage == 0)
+		bonefireOfInsightType = rand() % 4 + 1;
+	else
+		bonefireOfInsightType = typeOfImage;
+	std::string nameOfImage = "bonefireOfInsight" + std::to_string(bonefireOfInsightType) + ".png";
+	std::string name;
+	if (itemName == "")
+		name = nameOfImage + std::to_string(staticGrid.getSize());
+	else
+		name = itemName;
+	staticGrid.addItem(new BonefireOfInsight(name, position, 1), name, int(position.x), int(position.y));
+
+	staticGrid.getItemByName(name)->setType(bonefireOfInsightType);
+	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
+	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
+	staticGrid.getItemByName(name)->setTextureSize(textureSize);
+}
+void World::initializeHomeCosiness(Vector2f position, int typeOfImage, std::string itemName)
+{
+	int homeCosinessType;
+	if (typeOfImage == 0)
+		homeCosinessType = rand() % 4 + 1;
+	else
+		homeCosinessType = typeOfImage;
+	std::string nameOfImage = "homeCosiness" + std::to_string(homeCosinessType) + ".png";
+	std::string name;
+	if (itemName == "")
+		name = nameOfImage + std::to_string(staticGrid.getSize());
+	else
+		name = itemName;
+	staticGrid.addItem(new HomeCosiness(name, position, 1), name, int(position.x), int(position.y));
+
+	staticGrid.getItemByName(name)->setType(homeCosinessType);
+	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
+	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
+	staticGrid.getItemByName(name)->setTextureSize(textureSize);
+}
 
 void World::Load()
 {
 	staticGrid = GridList<StaticObject>(this->width, this->height, blockSize);
 	dynamicGrid = GridList<DynamicObject>(this->width, this->height, blockSize);
 	//pre-initialize
-	initializeRoseTree(Vector2f(0, 0), 3, "roseTree");
+	initializeTreeOfGreatness(Vector2f(0, 0), 3, "treeOfGreatness");
+	initializeBonefireOfInsight(Vector2f(0, 0), 1, "bonefireOfInsight");
+	initializeHomeCosiness(Vector2f(0, 0), 1, "homeCosiness");
 	//--
 	std::ifstream fin("save.txt");
 	std::string name;
@@ -287,7 +413,7 @@ void World::Load()
 		fin >> name >> posX >> posY;
 		std::string curName = Helper::withoutNums(name);
 		if (curName == "enemy")
-			initializeEnemy(Vector2f(posX, posY));
+			initializeEnemy(Vector2f(posX, posY), "");
 		else
 			if (curName == "hero")
 				initializeHero(Vector2f(posX, posY));
@@ -297,8 +423,8 @@ void World::Load()
 	{
 		fin >> name >> posX >> posY;
 		std::string curName = Helper::getObjectName(name);
-		if (Helper::withoutNums(curName) == "roseTree")
-			initializeRoseTree(Vector2f(posX, posY), int(curName[8]-48), "");
+		if (Helper::withoutNums(curName) == "treeOfGreatness")
+			initializeTreeOfGreatness(Vector2f(posX, posY), 0, "");
 		else
 			if (Helper::withoutNums(curName) == "grass")
 				initializeGrass(Vector2f(posX, posY), int(curName[5]-48), "");
@@ -333,17 +459,19 @@ void World::generate(int objCount)
 	bossSpawnPosition = Vector2f(width/2, height/2);
 	auto s = float(sqrt(objCount));
 	
+	//pre-initialize
+	initializeTreeOfGreatness(Vector2f(0, 0), 3, "treeOfGreatness");
+	initializeBonefireOfInsight(Vector2f(0, 0), 1, "bonefireOfInsight");
+	initializeHomeCosiness(Vector2f(0, 0), 1, "homeCosiness");
+	//--
 	for (auto i = 0; i < s; i++)
 	{
 		for (auto j = 0; j < s; j++)
 		{			
 			auto position = Vector2f(i * (width / s) + rand() % 500, j * (height / s) + rand() % 500);
-			initializeRoseTree(position, 0, "");
+			initializeTreeOfGreatness(position, 0, "");
 		}
 	}
-	//pre-inicialize
-	initializeRoseTree(Vector2f(-1000, -1000), 3, "roseTree");
-	//--
 
 	for (double i = 0; i < width; i += Grass("test", Vector2f(0,0), 1).conditionalSizeUnits.x / 2)
 	{
@@ -373,13 +501,14 @@ void World::generate(int objCount)
 	dynamicGrid.addItem(new Enemy("none", Vector2f(width, height)), "none", int(width), int(height));
 	//-----------------------------------------
 	//test enemy
-	initializeEnemy(Vector2f(5000, 5500));
-	initializeEnemy(Vector2f(5800, 5600));
+	initializeEnemy(Vector2f(5000, 5500), "testEnemy1");
+	initializeEnemy(Vector2f(5800, 5600), "testEnemy2");
 	//------------------------------------------
 	initializeHero(Vector2f(3800, 3000));
-	initializeRoseTree(Vector2f(3500, 3500), 1, "testTree");
-	initializeSpawn(Vector2f(3800, 2800), 1);
+	initializeTreeOfGreatness(Vector2f(3500, 3500), 1, "testTree");
+	initializeItem(spawn, Vector2f(3800, 2800), 1, "testSpawn");
 	Save();
+	return;
 }
 
 void World::ClearWorld()
@@ -951,18 +1080,19 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		sprite.setPosition(Vector2f(spriteLeft, spriteTop));
 
 		//bias positioning
+		sprite.setOrigin(sprite.getTextureRect().left + sprite.getTextureRect().width/2, sprite.getTextureRect().top + sprite.getTextureRect().height/2);
 		worldItem->bias.x = worldItem->lastPosition.x - (sprite.getPosition().x - screenCenter.x)/scaleFactor;
 		worldItem->bias.y = worldItem->lastPosition.y - (sprite.getPosition().y - screenCenter.y)/scaleFactor;		
 		worldItem->lastPosition = Vector2f((sprite.getPosition().x - screenCenter.x)/scaleFactor, (sprite.getPosition().y - screenCenter.y) / scaleFactor);				
-		Vector2f biasOffset = worldItem->getBias(focusedObject->getPosition(), elapsedTime/100);
+		Vector2f biasOffset = worldItem->getBias(focusedObject->getPosition(), elapsedTime/70);
 		sprite.setPosition(Vector2f(sprite.getPosition().x + biasOffset.x, sprite.getPosition().y + biasOffset.y));
 
 		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);		
 
 		if (!worldItem->isTerrain)				
-			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
+			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor*pow(scaleFactor, double(1)/6));
 		else
-			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor);
+			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor/pow(scaleFactor, double(1)/8));
 
 		//sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor);
 		if (worldItem->isTransparent)					
@@ -984,49 +1114,6 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 			//Helper::drawText(mouseDisplayName, 30, Mouse::getPosition().x + 20, Mouse::getPosition().y + 20, &window);
 	}
 
-	/*auto terrain = dynamic_cast<TerrainObject*>(worldItem);
-	if (terrain)
-	{
-	auto rectangle0 = RectangleShape();
-	rectangle0.setPosition(Vector2f(focusedObject->getPosition().x - characterPosition.x + screenCenter.x - 10, focusedObject->getPosition().y - characterPosition.y + screenCenter.y - 10));
-	rectangle0.setOutlineColor(Color::Green);
-	rectangle0.setFillColor(Color::Red);
-	rectangle0.setSize(Vector2f(20, 20));
-	window.draw(rectangle0);
-	auto rectangle = RectangleShape();
-	rectangle.setPosition(Vector2f(terrain->getFocus1().x - characterPosition.x + screenCenter.x - 10, terrain->getFocus1().y - characterPosition.y + screenCenter.y - 10));
-	rectangle.setOutlineColor(Color::Red);
-	rectangle.setFillColor(Color::Red);
-	rectangle.setSize(Vector2f(20, 20));
-	window.draw(rectangle);
-	auto rectangle2 = RectangleShape();
-	rectangle2.setPosition(Vector2f(terrain->getFocus2().x - characterPosition.x + screenCenter.x - 10, terrain->getFocus2().y - characterPosition.y + screenCenter.y - 10));
-	rectangle2.setOutlineColor(Color::Red);
-	rectangle2.setFillColor(Color::Red);
-	rectangle2.setSize(Vector2f(20, 20));
-	window.draw(rectangle2);
-	}*/
-
-	/*auto rectangle3 = RectangleShape();
-	rectangle3.setSize(Vector2f(float(width), float(height)));
-	rectangle3.setOutlineColor(Color::Green);
-	rectangle3.setFillColor(Color::Transparent);
-	rectangle3.setOutlineThickness(2);
-	rectangle3.setPosition(0 - cameraPosition.x + screenCenter.x, 0 - cameraPosition.y + screenCenter.y);
-	window.draw(rectangle3);*/
-
-	/*auto blockSize = staticGrid.getBlockSize();
-	for (auto x = 0; x < width; x += blockSize.x)
-	for (auto y = 0; y < height; y += blockSize.y)
-	{
-	auto rectangle4 = RectangleShape();
-	rectangle4.setSize(Vector2f(float(blockSize.x), float(blockSize.y)));
-	rectangle4.setOutlineColor(Color::Blue);
-	rectangle4.setFillColor(Color::Transparent);
-	rectangle4.setOutlineThickness(1);
-	rectangle4.setPosition(x - characterPosition.x + screenCenter.x, y - characterPosition.y + screenCenter.y);
-	window.draw(rectangle4);
-	}*/
 	lastPosition = focusedObject->getPosition();
 	if (focusedObject->isVisibleInventory)
 		inventorySystem.drawInventory(focusedObject->getInventory(), Vector2f(screenCenter), elapsedTime, window);
@@ -1037,6 +1124,7 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	}
 	else
 		inventorySystem.resetAnimationValues();
+	Helper::drawText(testString, 30, 200, 200, &window);
 }
 
 Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)

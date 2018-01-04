@@ -13,10 +13,11 @@ class DynamicObject : public WorldObject
 protected:
 	Vector2f focus1, focus2;
 	int ellipseSize;
-	float healthPoint, armor = 1, strength = 0;	
+	float healthPoint, armor = 1, strength = 0, maxHealthPointValue;	
 public:
 	Actions currentAction, lastAction;
 	void takeDamage(float damage);
+	float getMaxHealthPointValue() { return maxHealthPointValue; }
 	float getHealthPoint() { return healthPoint; }
 	void setHealthPoint(float healthPoint) { this->healthPoint = healthPoint; }
 	float getStrength() { return strength; }

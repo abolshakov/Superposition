@@ -17,6 +17,8 @@ Enemy::Enemy(std::string objectName, Vector2f centerPosition) : DynamicObject(ob
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
 	inventory.resize(5);
+	inventory[0].first = 1;
+	inventory[0].second = 2;
 }
 
 Vector2i Enemy::calculateTextureOffset()

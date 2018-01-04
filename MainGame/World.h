@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include "GridList.h"
 #include "DynamicObject.h"
-#include "RoseTree.h"
+#include "TreeOfGreatness.h"
 #include "Enemy.h"
 #include "Deerchant.h"
 #include "InventoryMaker.h"
@@ -20,6 +20,7 @@ struct boardSprite
 };
 
 enum VictimSide { upSide = 1, rightSide = 2, downSide = 3, leftSide = 4 };
+enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5};
 
 class World
 {
@@ -33,7 +34,7 @@ class World
 	Shader unshadowShader, lightOverShapeShader;// Шейдеры для рендера света.
 	ltbl::LightSystem ls;//Глобальная система света и тени.	
 	//hero
-	const std::string heroTextureName = "hero/heroF_0.png";
+	const std::string heroTextureName = "Maddox/Maddox1.png";
 	//world base
 	float width, height;
 	Vector2i blockSize;
@@ -68,14 +69,18 @@ class World
 public:
 	//test
 	Vector2f positioning, lastPosition;
+	std::string testString;
 	//lightSystem
 	void initLightSystem(RenderWindow &window);
 	void renderLightSystem(View view, RenderWindow &window);
 	//adding to the grid
-	void initializeRoseTree(Vector2f position, int typeOfImage, std::string itemName);
-	void initializeSpawn(Vector2f position, int typeOfImage);
+	void initializeItem(staticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName);
+	void initializeTreeOfGreatness(Vector2f position, int typeOfImage, std::string itemName);
+	void initializeSpawn(Vector2f position, int typeOfImage, std::string itemName);
 	void initializeGrass(Vector2f position, int typeOfImage, std::string itemName);
-	void initializeEnemy(Vector2f position);
+	void initializeBonefireOfInsight(Vector2f position, int typeOfImage, std::string itemName);
+	void initializeHomeCosiness(Vector2f position, int typeOfImage, std::string itemName);
+	void initializeEnemy(Vector2f position, std::string enemyName);
 	void initializeHero(Vector2f position);
 	//getters
 	Vector2f getBossSpawnPosition() { return bossSpawnPosition; }
@@ -83,6 +88,7 @@ public:
 	GridList<StaticObject> getStaticGrid() { return staticGrid; }
 	GridList<DynamicObject> getDynamicGrid() { return dynamicGrid; }
 	Vector2f getCameraPosition() { return cameraPosition; }
+	InventoryMaker getInventorySystem() { return inventorySystem; }
 	//save-load logic
 	void ClearWorld();
 	void Load();

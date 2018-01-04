@@ -8,6 +8,7 @@ WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 	WorldObject::initPedestal();
 	inventory.resize(0);
 	isVisibleInventory = false;
+	//light = std::make_shared<ltbl::LightPointEmission>();
 }
 
 void WorldObject::setTextureSize(Vector2i textureSize)

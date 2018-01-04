@@ -14,7 +14,8 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	animationLength = 8;
 	radius = 100;
 	strength = 20;
-	healthPoint = 10000000;
+	maxHealthPointValue = 100;
+	healthPoint = maxHealthPointValue;
 	energy = 50; maxEnergyValue = 100; energyForSpecial = 20;
 	currentAction = relax;
 	currentWorld = "common";
@@ -23,7 +24,7 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 
 Vector2i Deerchant::calculateTextureOffset()
 {
-	conditionalSizeUnits = Vector2f(200, 250);
+	conditionalSizeUnits = Vector2f(250, 250);
 	textureBox.width *= getScaleRatio().x;
 	textureBox.height *= getScaleRatio().y;
 	return Vector2i(textureBox.width / 2, textureBox.height * 7 / 8);
@@ -159,13 +160,13 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (hitDirection)
 		{
 		case up: 
-			spriteName = "hero/heroL_";
+			spriteName = "Maddox/MaddoxLeft";
 		case right:
-			spriteName = "hero/heroL_";
+			spriteName = "Maddox/MaddoxLeft";
 		case down:
-			spriteName = "hero/heroL_";
+			spriteName = "Maddox/MaddoxLeft";
 		case left:
-			spriteName = "hero/heroL_";
+			spriteName = "Maddox/MaddoxLeft";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";		
@@ -175,13 +176,13 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (hitDirection)
 		{
 		case up:
-			spriteName = "hero/heroR_";
+			spriteName = "Maddox/MaddoxRight";
 		case right:
-			spriteName = "hero/heroR_";
+			spriteName = "Maddox/MaddoxRight";
 		case down:
-			spriteName = "hero/heroR_";
+			spriteName = "Maddox/MaddoxRight";
 		case left:
-			spriteName = "hero/heroR_";
+			spriteName = "Maddox/MaddoxRight";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
@@ -191,20 +192,20 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (hitDirection)
 		{
 		case up:
-			spriteName = "hero/heroF_";
+			spriteName = "Maddox/MaddoxFront";
 		case right:
-			spriteName = "hero/heroF_";
+			spriteName = "Maddox/MaddoxFront";
 		case down:
-			spriteName = "hero/heroF_";
+			spriteName = "Maddox/MaddoxFront";
 		case left:
-			spriteName = "hero/heroF_";
+			spriteName = "Maddox/MaddoxFront";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case transitionToEnotherWorld:
 		animationLength = 6;
-		spriteName = "hero/heroF_";
+		spriteName = "Maddox/MaddoxFront";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
@@ -213,86 +214,95 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (hitDirection)
 		{
 		case up:
-			spriteName = "hero/heroB_";
+			spriteName = "Maddox/MaddoxBack";
 		case right:
-			spriteName = "hero/heroB_";
+			spriteName = "Maddox/MaddoxBack";
 		case down:
-			spriteName = "hero/heroB_";
+			spriteName = "Maddox/MaddoxBack";
 		case left:
-			spriteName = "hero/heroB_";
+			spriteName = "Maddox/MaddoxBack";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case evasionDown:
 		animationLength = 5;
-		spriteName = "hero/heroF_";
+		spriteName = "Maddox/MaddoxFront";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case evasionUp:
 		animationLength = 5;
-		spriteName = "hero/heroF_";
+		spriteName = "Maddox/MaddoxBack";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case openInventory:
 		animationLength = 5;
-		spriteName = "hero/heroF_";
+		spriteName = "Maddox/MaddoxBack";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case relax:
 		animationLength = 1;
-		spriteName = "hero/heroF_0.png";
-		currentSprite = 0;
+		currentSprite = 1;
+		spriteName = "Maddox/Maddox";
+		spriteName += std::to_string(currentSprite);
+		spriteName += ".png";
 		break;
 	}
 
 	if (currentAction == move)
 	{
-		animationLength = 8;
 		switch (direction)
 		{
 		case LEFT:
-			spriteName = "hero/heroL_";
+			spriteName = "Maddox/MaddoxLeft";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
+			animationLength = 10;
 			break;
 		case RIGHT:
-			spriteName = "hero/heroR_";
+			spriteName = "Maddox/MaddoxRight";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
+			animationLength = 10;
 			break;
 		case UP:
-			spriteName = "hero/heroB_";
+			spriteName = "Maddox/MaddoxBack";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
+			animationLength = 8;
 			break;
 		case DOWN:
-			spriteName = "hero/heroF_";
+			spriteName = "Maddox/MaddoxFront";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
+			animationLength = 8;
 			break;
 		case UPLEFT:
-			spriteName = "hero/heroBL_";
-			//spriteName += to_string(currentSprite);
-			spriteName += "0.png";
+			spriteName = "Maddox/MaddoxLeft";
+			spriteName += std::to_string(currentSprite);
+			spriteName += ".png";
+			animationLength = 10;
 			break;
 		case UPRIGHT:
-			spriteName = "hero/heroBR_";
-			//spriteName += to_string(currentSprite);
-			spriteName += "0.png";
+			spriteName = "Maddox/MaddoxRight";
+			spriteName += std::to_string(currentSprite);
+			spriteName += ".png";
+			animationLength = 10;
 			break;
 		case DOWNLEFT:
-			spriteName = "hero/heroFL_";
-			//spriteName += to_string(currentSprite);
-			spriteName += "0.png";
+			spriteName = "Maddox/MaddoxLeft";
+			spriteName += std::to_string(currentSprite);
+			spriteName += ".png";
+			animationLength = 10;
 			break;
 		case DOWNRIGHT:
-			spriteName = "hero/heroFR_";
-			//spriteName += to_string(currentSprite);
-			spriteName += "0.png";
+			spriteName = "Maddox/MaddoxRight";
+			spriteName += std::to_string(currentSprite);
+			spriteName += ".png";
+			animationLength = 10;
 			break;
 		default:;
 		}

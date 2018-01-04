@@ -3,6 +3,7 @@
 #define WORLDOBJECT_H
 
 #include <SFML/Graphics.hpp>
+#include <ltbl/lighting/LightSystem.h>
 
 using namespace sf;
 
@@ -17,6 +18,7 @@ protected:
 	std::string currentWorld;
 	std::vector<std::pair <int, int>> inventory;
 public:
+	int getType() { return typeOfObject; }
 	bool isVisibleInventory;
 	std::vector<std::pair <int, int>> getInventory() { return inventory; }
 	Vector2f biasOffset, bias, lastPosition;	
@@ -34,16 +36,18 @@ public:
 	virtual void initPedestal();
 	Vector2f getPosition() const { return position; }
 	void setPosition(Vector2f newPosition);
+	void setName(std::string name) { this->name = name; }
 
 	const std::string& getName() const { return name; }
 	Vector2i getTextureSize() const { return Vector2i(textureBox.width, textureBox.height); }
 	Vector2i getTextureOffset() const { return Vector2i(int(textureBoxOffset.x), int(textureBoxOffset.y)); }
 	virtual std::string getSpriteName(long long elapsedTime) = 0;
 	virtual int getSpriteNumber() = 0;
-	void setTypeOfImage(int newType) { typeOfObject = newType; }
+	void setType(int newType) { typeOfObject = newType; }
 	Vector2i getTextureBoxOffset() { return textureBoxOffset; };
 	Vector2i getTextureBoxSize() { return Vector2i(textureBox.width, textureBox.height); }
 	Vector2f getScaleRatio();
+	int varietyOfTypes;
 };
 
 #endif
