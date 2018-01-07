@@ -16,9 +16,12 @@ Enemy::Enemy(std::string objectName, Vector2f centerPosition) : DynamicObject(ob
 	currentAction = relax;
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
-	inventory.resize(5);
-	inventory[0].first = 1;
-	inventory[0].second = 2;
+	inventoryCapacity = 5;
+
+	inventory.push_back(std::make_pair(1, 2));
+	inventory.push_back(std::make_pair(2, 2));
+	inventory.push_back(std::make_pair(1, 1));
+	//healthPoint = 0;
 }
 
 Vector2i Enemy::calculateTextureOffset()

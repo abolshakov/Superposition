@@ -6,7 +6,6 @@ WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 	name = objectName;
 	position = centerPosition;
 	WorldObject::initPedestal();
-	inventory.resize(0);
 	isVisibleInventory = false;
 	//light = std::make_shared<ltbl::LightPointEmission>();
 }

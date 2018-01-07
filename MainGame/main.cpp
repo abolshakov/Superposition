@@ -54,7 +54,13 @@ int main() {
 				world.setScaleFactor(event.mouseWheel.delta);
 			}	
 			if (event.type == Event::MouseButtonPressed)
+			{
 				builder.onMouseDownInteract(world);
+			}
+			if (event.type == Event::MouseButtonReleased)
+			{
+				world.inventorySystem.onMouseDownInteract(mainWindow);
+			}
 		}		
 		auto interactTime = interactClock.getElapsedTime().asMicroseconds();
 		interactClock.restart();
@@ -97,7 +103,7 @@ int main() {
 		
 		world.renderLightSystem(view, mainWindow);
 		Helper::drawText(to_string(Actions(hero->currentAction)), 30, 100, 100, &mainWindow);
-		//Helper::drawText(to_string(hero->getHealthPoint()), 30, 100, 200, &mainWindow);
+		Helper::drawText(to_string(int(hero->hitDirection)), 30, 100, 200, &mainWindow);
 		builder.draw(mainWindow, world, interactTime);
 		mainWindow.display();
 	}

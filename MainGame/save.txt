@@ -1,7 +1,7 @@
 4
-hero 2444.62 4131.38
-testEnemy1 4303.05 4352.28
-testEnemy2 4253.74 4451.77
+testEnemy1 3800 4074.41
+testEnemy2 3844.5 3770.49
+hero 3671.73 5279.78
 none 40000 40000
 45750
 treeOfGreatness 0 0
@@ -3431,8 +3431,8 @@ grass1.png7324 4000 3600
 grass1.png7325 4000 3750
 grass1.png7326 4000 3900
 grass1.png7327 4000 4050
-testTree 3500 3500
-testSpawn 3800 2800
+testTree 3500 3800
+testSpawn 3600 3800
 treeOfGreatness1.png337 4745.78 3100.19
 treeOfGreatness1.png338 4707.78 4056.48
 grass1.png7586 4250 2850

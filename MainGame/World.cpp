@@ -34,7 +34,7 @@ World::World(int width, int height) : focusedObject(nullptr)
 	blockSize.x = blockSize.x;
 	blockSize.y = blockSize.y;
 	initShaders();
-	inventorySystem.initSpriteList();
+	inventorySystem.init();
 }
 
 void World::initShaders()
@@ -45,11 +45,11 @@ void World::initShaders()
 	}
 
 	// Load shaders
-	
+
 	if (!spiritWorldShader.loadFromFile("World/Shaders/water.frag", sf::Shader::Fragment))
 	{
 		std::cerr << "Error while shaders" << std::endl;
-	}	
+	}
 
 	if (!distortionMap.loadFromFile("World/Shaders/noiseWater.png"))
 	{
@@ -70,7 +70,7 @@ void World::initShaders()
 
 void World::setScaleFactor(int delta)
 {
-	if (delta == -1 && scaleFactor > 0.75)	
+	if (delta == -1 && scaleFactor > 0.75)
 	{
 		scaleFactor -= 0.01;
 		scaleDecrease = -0.03;
@@ -128,12 +128,12 @@ Vector2i World::initSpriteMap()
 	Vector2i maxSize;
 	std::string name;
 	while (fin >> name)
-	{				
+	{
 		spriteMap.insert({ name, boardSprite{} });
 		auto sprite = &spriteMap[name];
 		sprite->texture.loadFromFile("World/" + name);
 		sprite->sprite.setTexture(sprite->texture);
-		
+
 		auto size = Vector2i(sprite->texture.getSize());
 		if (size.x > maxSize.x)
 			maxSize.x = size.x;
@@ -195,70 +195,65 @@ void World::initializeItem(staticItemsIdList itemClass, Vector2f itemPosition, i
 {
 	StaticObject* item;
 	std::string nameOfImage;
-	
+
 	switch (itemClass)
 	{
-		case 1:
-		{
-			item = dynamic_cast<StaticObject*>(&TreeOfGreatness("item", Vector2f(0, 0), 1));
-			nameOfImage = "treeOfGreatness";
-			break;
-		}
-		case 2:
-		{	
-			item = dynamic_cast<StaticObject*>(&Grass("item", Vector2f(0, 0), 1));
-			nameOfImage = "grass";
-			break;
-		}
-		case 3:
-		{
-			item = dynamic_cast<StaticObject*>(&Spawn("item", Vector2f(0, 0), 1));
-			nameOfImage = "spawn";
-			break;
-		}
-		case 4:
-		{
-			item = dynamic_cast<StaticObject*>(&BonefireOfInsight("item", Vector2f(0, 0), 1));
-			nameOfImage = "bonefireOfInsight";
-			break;
-		}
-		case 5:
-		{
-			item = dynamic_cast<StaticObject*>(&HomeCosiness("item", Vector2f(0, 0), 1));
-			nameOfImage = "homeCosiness";
-			break;
-		}
-		default:
-		{
-			item = dynamic_cast<StaticObject*>(&Spawn("item", Vector2f(0, 0), 1));
-			nameOfImage = "spawn";
-			break;
-		}
+	case 1:
+	{
+		item = new TreeOfGreatness("item", Vector2f(0, 0), 1);
+		nameOfImage = "treeOfGreatness";
+		break;
 	}
-	
-	int currentType;
-	if (itemType == 0)
-		currentType = rand() % 4 + 1;
-	else
-		currentType = itemType;
+	case 2:
+	{
+		item = new Grass("item", Vector2f(0, 0), 1);
+		nameOfImage = "grass";
+		break;
+	}
+	case 3:
+	{
+		item = new Spawn("item", Vector2f(0, 0), 1);
+		nameOfImage = "spawn";
+		break;
+	}
+	case 4:
+	{
+		item = new BonefireOfInsight("item", Vector2f(0, 0), 1);
+		nameOfImage = "bonefireOfInsight";
+		break;
+	}
+	case 5:
+	{
+		item = new HomeCosiness("item", Vector2f(0, 0), 1);
+		nameOfImage = "homeCosiness";
+		break;
+	}
+	default:
+	{
+		item = new Spawn("item", Vector2f(0, 0), 1);
+		nameOfImage = "spawn";
+		break;
+	}
+	}
+
+	int currentType = itemType == 0 
+		? currentType = rand() % 4 + 1 
+		: currentType = itemType;
+
 	nameOfImage += std::to_string(currentType) + ".png";
-	std::string name;
-	if (itemName == "")
-		name = nameOfImage + std::to_string(staticGrid.getSize());
-	else
-		name = itemName;
+
+	std::string name = itemName == ""
+		? nameOfImage + std::to_string(staticGrid.getSize())
+		: itemName;
+
 	item->setName(name);
 	item->setPosition(itemPosition);
 	item->setType(currentType);
-	staticGrid.addItem(new Spawn(item->getName(), item->getPosition(), item->getType()), name, int(itemPosition.x), int(itemPosition.y));
-
-	staticGrid.getItemByName(name)->setType(currentType);
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
-	staticGrid.getItemByName(name)->setTextureSize(textureSize);
+	item->setTextureSize(textureSize);
 
-	//staticGrid.getItemByName(name)->setType(currentType);
-	//new Spawn(name, itemPosition, 1)
+	staticGrid.addItem(item, name, int(itemPosition.x), int(itemPosition.y));
 }
 void World::initializeTreeOfGreatness(Vector2f position, int typeOfImage, std::string itemName)
 {
@@ -269,7 +264,7 @@ void World::initializeTreeOfGreatness(Vector2f position, int typeOfImage, std::s
 		treeOfGreatnessType = typeOfImage;
 	std::string nameOfImage = "treeOfGreatness" + std::to_string(treeOfGreatnessType) + ".png";
 	std::string name;
-	if (itemName == "")	
+	if (itemName == "")
 		name = nameOfImage + std::to_string(staticGrid.getSize());
 	else
 		name = itemName;
@@ -300,7 +295,7 @@ void World::initializeSpawn(Vector2f position, int typeOfImage, std::string item
 	staticGrid.getItemByName(name)->setTextureSize(textureSize);
 }
 void World::initializeGrass(Vector2f position, int typeOfImage, std::string itemName)
-{	
+{
 	int grassType;
 	if (typeOfImage == 0)
 		grassType = rand() % 5 + 1;
@@ -315,7 +310,7 @@ void World::initializeGrass(Vector2f position, int typeOfImage, std::string item
 	if (itemName == "")
 		name = nameOfImage + std::to_string(staticGrid.getSize());
 	else
-		name = itemName;		
+		name = itemName;
 	staticGrid.addItem(new Grass(name, position, grassType), name, int(position.x), int(position.y));
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
@@ -427,7 +422,7 @@ void World::Load()
 			initializeTreeOfGreatness(Vector2f(posX, posY), 0, "");
 		else
 			if (Helper::withoutNums(curName) == "grass")
-				initializeGrass(Vector2f(posX, posY), int(curName[5]-48), "");
+				initializeGrass(Vector2f(posX, posY), int(curName[5] - 48), "");
 	}
 	fin.close();
 	Save();
@@ -456,9 +451,9 @@ void World::generate(int objCount)
 {
 	staticGrid = GridList<StaticObject>(this->width, this->height, blockSize);
 	dynamicGrid = GridList<DynamicObject>(this->width, this->height, blockSize);
-	bossSpawnPosition = Vector2f(width/2, height/2);
+	bossSpawnPosition = Vector2f(width / 2, height / 2);
 	auto s = float(sqrt(objCount));
-	
+
 	//pre-initialize
 	initializeTreeOfGreatness(Vector2f(0, 0), 3, "treeOfGreatness");
 	initializeBonefireOfInsight(Vector2f(0, 0), 1, "bonefireOfInsight");
@@ -467,13 +462,13 @@ void World::generate(int objCount)
 	for (auto i = 0; i < s; i++)
 	{
 		for (auto j = 0; j < s; j++)
-		{			
+		{
 			auto position = Vector2f(i * (width / s) + rand() % 500, j * (height / s) + rand() % 500);
 			initializeTreeOfGreatness(position, 0, "");
 		}
 	}
 
-	for (double i = 0; i < width; i += Grass("test", Vector2f(0,0), 1).conditionalSizeUnits.x / 2)
+	for (double i = 0; i < width; i += Grass("test", Vector2f(0, 0), 1).conditionalSizeUnits.x / 2)
 	{
 		for (double j = 0; j < height; j += Grass("test", Vector2f(0, 0), 1).conditionalSizeUnits.y / 2)
 		{
@@ -493,7 +488,7 @@ void World::generate(int objCount)
 							curType = 4;
 						else
 							curType = 5;
-							
+
 			initializeGrass(position, curType, "");
 		}
 	}
@@ -501,12 +496,13 @@ void World::generate(int objCount)
 	dynamicGrid.addItem(new Enemy("none", Vector2f(width, height)), "none", int(width), int(height));
 	//-----------------------------------------
 	//test enemy
-	initializeEnemy(Vector2f(5000, 5500), "testEnemy1");
-	initializeEnemy(Vector2f(5800, 5600), "testEnemy2");
+	initializeEnemy(Vector2f(3800, 3900), "testEnemy1");
+	initializeEnemy(Vector2f(3800, 3700), "testEnemy2");
 	//------------------------------------------
-	initializeHero(Vector2f(3800, 3000));
-	initializeTreeOfGreatness(Vector2f(3500, 3500), 1, "testTree");
-	initializeItem(spawn, Vector2f(3800, 2800), 1, "testSpawn");
+	initializeHero(Vector2f(3800, 4000));
+	inventorySystem.inventoryBounding(focusedObject->inventory);
+	initializeTreeOfGreatness(Vector2f(3500, 3800), 1, "testTree");
+	initializeItem(spawn, Vector2f(3600, 3800), 1, "testSpawn");
 	Save();
 	return;
 }
@@ -514,7 +510,7 @@ void World::generate(int objCount)
 void World::ClearWorld()
 {
 	staticGrid.~GridList();
-	dynamicGrid.~GridList();	
+	dynamicGrid.~GridList();
 }
 
 Vector2f World::newSlippingPositionInCircle(DynamicObject *dynamicItem, Vector2f pos, float radius, long long elapsedTime)
@@ -543,7 +539,7 @@ Vector2f World::newSlippingPositionInCircle(DynamicObject *dynamicItem, Vector2f
 		{
 			motion = Vector2f(0, dynamicItem->speed * elapsedTime);
 			return motion;
-		}	
+		}
 	}
 
 	if (dynamicItem->direction == UP || dynamicItem->direction == DOWN)
@@ -578,7 +574,7 @@ Vector2f World::newSlippingPositionInCircle(DynamicObject *dynamicItem, Vector2f
 		}
 		if (pos.y - position.y <= radius / sqrt(2))
 		{
-			motion = Vector2f(dynamicItem->speed * elapsedTime/sqrt(2), -dynamicItem->speed * elapsedTime/sqrt(2));
+			motion = Vector2f(dynamicItem->speed * elapsedTime / sqrt(2), -dynamicItem->speed * elapsedTime / sqrt(2));
 			return motion;
 		}
 		else
@@ -648,7 +644,7 @@ Vector2f World::newSlippingPosition(DynamicObject *dynamicItem, Vector2f pos, lo
 {
 	Vector2f motion;
 	Vector2f position = dynamicItem->getPosition();
-	float speed = dynamicItem->speed/2;
+	float speed = dynamicItem->speed / 2;
 	//Vector2i pos = Vector2i((terrain->getFocus1().x + terrain->getFocus2().x) / 2, (terrain->getFocus1().y + terrain->getFocus2().y) / 2);
 	if (dynamicItem->direction == LEFT || dynamicItem->direction == RIGHT)
 	{
@@ -674,7 +670,7 @@ Vector2f World::newSlippingPosition(DynamicObject *dynamicItem, Vector2f pos, lo
 	float b = abs(pos.x - position.x);
 	float alpha = atan(b / a);
 	if (dynamicItem->direction == UPLEFT)
-	{		
+	{
 		if (alpha <= M_PI / 6 || position.x <= pos.x)
 		{
 			motion = Vector2f(-speed * elapsedTime, speed * elapsedTime);
@@ -702,7 +698,7 @@ Vector2f World::newSlippingPosition(DynamicObject *dynamicItem, Vector2f pos, lo
 		}
 		motion = Vector2f(speed * elapsedTime, 0);
 		return motion;
-	}	
+	}
 	if (dynamicItem->direction == DOWNRIGHT)
 	{
 		if (alpha <= M_PI / 6 || position.x >= pos.x)
@@ -726,7 +722,7 @@ Vector2f World::newSlippingPositionForDynamics(DynamicObject *dynamicItem1, Dyna
 	float left = dynamicItem1->radius + dynamicItem2->radius - (pos2.x - pos1.x);
 
 	if (right <= up && right <= down && right <= left && right >= 0)
-	{		
+	{
 		if (dynamicItem1->direction == LEFT || dynamicItem1->direction == UPLEFT || dynamicItem1->direction == DOWNLEFT)
 		{
 			motion = Vector2f(0, dynamicItem1->speed * elapsedTime);
@@ -738,10 +734,10 @@ Vector2f World::newSlippingPositionForDynamics(DynamicObject *dynamicItem1, Dyna
 	{
 		if (dynamicItem1->direction == UP || dynamicItem1->direction == UPLEFT || dynamicItem1->direction == UPRIGHT || dynamicItem1->direction == RIGHT)
 		{
-			motion = Vector2f(-dynamicItem1->speed * elapsedTime, 0);	
+			motion = Vector2f(-dynamicItem1->speed * elapsedTime, 0);
 			return motion;
 		}
-	}	
+	}
 
 	if (left <= right && left <= down && left <= up && left >= 0)
 	{
@@ -798,9 +794,9 @@ void World::heroInteractWithMobs(DynamicObject &victim, float elapsedTime)
 	}
 
 	if (isIntersectDynamic(*hero, hero->getPosition(), victim) && victim.isTransparent/* getVictimSide(heroObject, victim) == hero->hitDirection*/)
-	{	
+	{
 		if (victim.timeForNewHitself >= victim.timeAfterHitself)
-		{	
+		{
 			if (hero->currentAction == commonHit && hero->getSpriteNumber() == 4)
 			{
 				hero->addEnergy(5);
@@ -808,23 +804,23 @@ void World::heroInteractWithMobs(DynamicObject &victim, float elapsedTime)
 				victim.timeForNewHitself = 0;
 			}
 			else
-			if (hero->currentAction == hardHit && hero->getSpriteNumber() == 6)
-			{
-				hero->addEnergy(15);
-				victim.takeDamage(hero->getStrength()*1.5);
-				victim.timeForNewHitself = 0;
-			}
-			else
-			if (hero->currentAction == specialHit && hero->getSpriteNumber() == 5)
-			{					
-				victim.takeDamage(hero->getStrength()*2);
-				victim.timeForNewHitself = 0;
-			}
-				
+				if (hero->currentAction == hardHit && hero->getSpriteNumber() == 6)
+				{
+					hero->addEnergy(15);
+					victim.takeDamage(hero->getStrength()*1.5);
+					victim.timeForNewHitself = 0;
+				}
+				else
+					if (hero->currentAction == specialHit && hero->getSpriteNumber() == 5)
+					{
+						victim.takeDamage(hero->getStrength() * 2);
+						victim.timeForNewHitself = 0;
+					}
+
 		}
-				
+
 	}
-	
+
 	if (victim.getHealthPoint() <= 0)
 		victim.currentAction = dead;
 	victim.timeForNewHitself += elapsedTime;
@@ -832,11 +828,11 @@ void World::heroInteractWithMobs(DynamicObject &victim, float elapsedTime)
 
 void World::setTransparent(std::vector<WorldObject*> visibleItems)
 {
-	Vector2i mousePos = Vector2i((Mouse::getPosition().x - Helper::GetScreenSize().x/2 + cameraPosition.x*scaleFactor)/scaleFactor,
+	Vector2i mousePos = Vector2i((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + cameraPosition.x*scaleFactor) / scaleFactor,
 		(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + cameraPosition.y*scaleFactor) / scaleFactor);
 	float minDistance = 1000000000;
 	for (auto visibleItem : visibleItems)
-	{		
+	{
 		Vector2f itemSize = (Vector2f)visibleItem->getTextureBoxSize();
 		visibleItem->isTransparent = false;
 		Vector2f itemPos = Vector2f(visibleItem->getPosition().x - visibleItem->getTextureBoxOffset().x, visibleItem->getPosition().y - visibleItem->getTextureBoxOffset().y);
@@ -906,7 +902,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 	auto hero = dynamic_cast<Deerchant*>(dynamicGrid.getItemByName(heroName));
 
 	for (auto dynamicItem : localDynamicItems)
-	{		
+	{
 		hitInteract(*dynamicItem, elapsedTime);
 
 		if (dynamicItem->direction == STAND)
@@ -930,7 +926,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 				continue;
 			auto terrain = dynamic_cast<TerrainObject*>(staticItem);
 			if (!terrain)
-				continue;			
+				continue;
 
 			if (isIntersectTerrain(*dynamicItem, newPosition, *terrain))
 			{
@@ -952,7 +948,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 		{
 			for (auto otherDynamicItem : localDynamicItems)
 			{
-				if (otherDynamicItem == dynamicItem || otherDynamicItem->getName() == heroName) 
+				if (otherDynamicItem == dynamicItem || otherDynamicItem->getName() == heroName)
 					continue;
 
 				if (isIntersectDynamic(*dynamicItem, newPosition, *otherDynamicItem))
@@ -981,31 +977,32 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 						hero->setPosition(newPosition);
 						dynamicGrid.updateItemPosition(heroName, newPosition.x, newPosition.y);
 						continue;
-					}					
+					}
 				}
 			}
 			else
-			if (sqrt(pow(newPosition.x - bossSpawnPosition.x, 2) + pow(newPosition.y - bossSpawnPosition.y, 2)) <= width * 1 / 28)
-			{
-				hero->isFightWithBoss = true;
-			}			
+				if (sqrt(pow(newPosition.x - bossSpawnPosition.x, 2) + pow(newPosition.y - bossSpawnPosition.y, 2)) <= width * 1 / 28)
+				{
+					hero->isFightWithBoss = true;
+				}
 		}
 
 		dynamicItem->setPosition(newPosition);
 		dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
-	}	
+	}
 
 	//saving world
 	timeForNewSave += elapsedTime;
 	if (timeForNewSave >= timeAfterSave)
 	{
 		timeForNewSave = 0;
-		Save();		
-	}	
+		Save();
+	}
 }
 
 void World::draw(RenderWindow& window, long long elapsedTime)
 {
+	bool isDrawInv = false;
 	//shaders logic
 	spiritWorldShader.setUniform("time", timer.getElapsedTime().asSeconds() / 5);
 	spiritWorldShader.setUniform("level", 0);
@@ -1019,7 +1016,7 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	if (focusedObject->currentAction == transitionToEnotherWorld)
 	{
 		if (ls._ambientColor.r > 0)
-			ls._ambientColor.r = currentColor.r - currentColor.r/6*focusedObject->getSpriteNumber();
+			ls._ambientColor.r = currentColor.r - currentColor.r / 6 * focusedObject->getSpriteNumber();
 		if (ls._ambientColor.g > 0)
 			ls._ambientColor.g = currentColor.g - currentColor.g / 6 * focusedObject->getSpriteNumber();
 		if (ls._ambientColor.b > 0)
@@ -1080,51 +1077,66 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		sprite.setPosition(Vector2f(spriteLeft, spriteTop));
 
 		//bias positioning
-		sprite.setOrigin(sprite.getTextureRect().left + sprite.getTextureRect().width/2, sprite.getTextureRect().top + sprite.getTextureRect().height/2);
-		worldItem->bias.x = worldItem->lastPosition.x - (sprite.getPosition().x - screenCenter.x)/scaleFactor;
-		worldItem->bias.y = worldItem->lastPosition.y - (sprite.getPosition().y - screenCenter.y)/scaleFactor;		
-		worldItem->lastPosition = Vector2f((sprite.getPosition().x - screenCenter.x)/scaleFactor, (sprite.getPosition().y - screenCenter.y) / scaleFactor);				
-		Vector2f biasOffset = worldItem->getBias(focusedObject->getPosition(), elapsedTime/70);
+		sprite.setOrigin(sprite.getTextureRect().left + sprite.getTextureRect().width / 2, sprite.getTextureRect().top + sprite.getTextureRect().height / 2);
+		worldItem->bias.x = worldItem->lastPosition.x - (sprite.getPosition().x - screenCenter.x) / scaleFactor;
+		worldItem->bias.y = worldItem->lastPosition.y - (sprite.getPosition().y - screenCenter.y) / scaleFactor;
+		worldItem->lastPosition = Vector2f((sprite.getPosition().x - screenCenter.x) / scaleFactor, (sprite.getPosition().y - screenCenter.y) / scaleFactor);
+		Vector2f biasOffset = worldItem->getBias(focusedObject->getPosition(), elapsedTime / 70);
 		sprite.setPosition(Vector2f(sprite.getPosition().x + biasOffset.x, sprite.getPosition().y + biasOffset.y));
 
-		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);		
+		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
 
-		if (!worldItem->isTerrain)				
-			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor*pow(scaleFactor, double(1)/6));
+		if (!worldItem->isTerrain)
+			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor*pow(scaleFactor, double(1) / 6));
 		else
-			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor/pow(scaleFactor, double(1)/8));
+			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor / pow(scaleFactor, double(1) / 8));
 
 		//sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor);
-		if (worldItem->isTransparent)					
-			sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, 128));				
+		if (worldItem->isTransparent)
+			sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, 128));
 
-		if (focusedObject->getCurrentWorldName() == "spirit" && !worldItem->isTransparent)				
-			window.draw(sprite, &spiritWorldShader);		
+		if (focusedObject->getCurrentWorldName() == "spirit" && !worldItem->isTransparent)
+			window.draw(sprite, &spiritWorldShader);
 		else
 			window.draw(sprite);
-		
-		if (worldItem->isVisibleInventory)
+
+		/*if (worldItem->isVisibleInventory)
 		{
-			//dropInventory.insert(dropInventory.end(), worldItem->getInventory().begin(), worldItem->getInventory().end());
-			for (int cnt = 0; cnt < worldItem->getInventory().size(); cnt++)
-				dropInventory.push_back(worldItem->getInventory()[cnt]);
-		}
-			
+			dropInventory.insert(dropInventory.end(), worldItem->inventory.begin(), worldItem->inventory.end());
+		}*/
+
 		//if (worldItem->isTransparent)		
 			//Helper::drawText(mouseDisplayName, 30, Mouse::getPosition().x + 20, Mouse::getPosition().y + 20, &window);
+
+		if (worldItem->isVisibleInventory)
+		{
+			//inventorySystem.currentInventory[0] = worldItem->getInventory();
+			//Helper::drawText(mouseDisplayName, 30, Mouse::getPosition().x + 20, Mouse::getPosition().y + 20, &window);
+			inventorySystem.drawInventory(worldItem->inventory, Vector2f(screenCenter), elapsedTime, window);
+						
+			//inventorySystem.onMouseDownInteract(focusedObject->inventory, window);
+			
+			isDrawInv = true;
+		}
+	}
+
+	if (!isDrawInv)
+	{
+		inventorySystem.resetAnimationValues();
 	}
 
 	lastPosition = focusedObject->getPosition();
-	if (focusedObject->isVisibleInventory)
-		inventorySystem.drawInventory(focusedObject->getInventory(), Vector2f(screenCenter), elapsedTime, window);
-	if (dropInventory.size() != 0)
+
+	/*if (dropInventory.size() != 0)
 	{
 		inventorySystem.drawInventory(dropInventory, Vector2f(screenCenter), elapsedTime, window);
-		//Helper::drawText(std::to_string(dropInventory.size()), 30, 100, 100, &window);
+		Helper::drawText(std::to_string(dropInventory.size()), 30, 100, 100, &window);
 	}
 	else
-		inventorySystem.resetAnimationValues();
-	Helper::drawText(testString, 30, 200, 200, &window);
+		inventorySystem.resetAnimationValues();*/
+
+	//auto t = focusedObject->getInventory();
+	//Helper::drawText(std::to_string(t[0].first), 30, 300, 400, &window);
 }
 
 Vector2f World::move(const DynamicObject& dynamicObject, long long elapsedTime)

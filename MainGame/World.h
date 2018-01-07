@@ -34,7 +34,7 @@ class World
 	Shader unshadowShader, lightOverShapeShader;// Шейдеры для рендера света.
 	ltbl::LightSystem ls;//Глобальная система света и тени.	
 	//hero
-	const std::string heroTextureName = "Maddox/Maddox1.png";
+	const std::string heroTextureName = "Maddox/ch1_b_1.png";
 	//world base
 	float width, height;
 	Vector2i blockSize;
@@ -64,9 +64,9 @@ class World
 	sf::Shader spiritWorldShader;
 	sf::Texture distortionMap;
 	void initShaders();
+public:
 	//inventorySystem
 	InventoryMaker inventorySystem;
-public:
 	//test
 	Vector2f positioning, lastPosition;
 	std::string testString;

@@ -10,7 +10,7 @@ class Deerchant : public DynamicObject
 	int currentSprite;
 	int animationLength;	
 	void setHitDirection();
-	float energy, maxEnergyValue, energyForSpecial;	
+	float energy, maxEnergyValue, energyForSpecial;
 public:	
 	Deerchant(std::string objectName, Vector2f centerPosition);
 	//builder

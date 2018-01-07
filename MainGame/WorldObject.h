@@ -16,11 +16,12 @@ protected:
 	Vector2f position;
 	int typeOfObject;
 	std::string currentWorld;
-	std::vector<std::pair <int, int>> inventory;
+	int inventoryCapacity;
 public:
+	int getInvCampacity() { return inventoryCapacity; }
 	int getType() { return typeOfObject; }
 	bool isVisibleInventory;
-	std::vector<std::pair <int, int>> getInventory() { return inventory; }
+	std::vector<std::pair <int, int>> inventory;
 	Vector2f biasOffset, bias, lastPosition;	
 	Vector2f getBias(Vector2f focusedObjectPos, double elapsedTime);
 	Vector2f conditionalSizeUnits;
