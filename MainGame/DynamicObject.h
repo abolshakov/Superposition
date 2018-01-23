@@ -15,6 +15,7 @@ protected:
 	int ellipseSize;
 	float healthPoint, armor = 1, strength = 0, maxHealthPointValue;	
 public:
+	int getSpriteNumber() override { return currentSprite; }
 	Actions currentAction, lastAction;
 	void takeDamage(float damage);
 	float getMaxHealthPointValue() { return maxHealthPointValue; }

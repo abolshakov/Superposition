@@ -3,24 +3,37 @@
 #define WORLD_H
 
 #include <unordered_map>
+#include <ltbl/lighting/LightSystem.h>
+#include <math.h>
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <windows.h>
+
 #include "GridList.h"
+#include "InventoryMaker.h"
+#include "Helper.h"
+#include "Builder.h"
+#include "BoardSprite.h"
+
 #include "DynamicObject.h"
+#include "TerrainObject.h"
+
 #include "TreeOfGreatness.h"
+#include "Grass.h"
+#include "Spawn.h"
+#include "BonefireOfInsight.h"
+#include "HomeCosiness.h"
+#include "MushroomStone.h"
+
 #include "Enemy.h"
 #include "Deerchant.h"
-#include "InventoryMaker.h"
-#include <ltbl/lighting/LightSystem.h>
 
 using namespace sf;
 
-struct boardSprite
-{
-	Texture texture;
-	Sprite sprite;
-};
-
 enum VictimSide { upSide = 1, rightSide = 2, downSide = 3, leftSide = 4 };
-enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5};
+enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6};
+enum dynamicItemsIdList { hero1 = 1, enemy = 2};
 
 class World
 {
@@ -33,6 +46,7 @@ class World
 	Texture  penumbraTexture;// Текстура полутени.
 	Shader unshadowShader, lightOverShapeShader;// Шейдеры для рендера света.
 	ltbl::LightSystem ls;//Глобальная система света и тени.	
+	sf::View view;
 	//hero
 	const std::string heroTextureName = "Maddox/ch1_b_1.png";
 	//world base
@@ -50,7 +64,7 @@ class World
 	//move logic
 	bool isClimbBeyond(Vector2f pos);
 	static Vector2f move(const DynamicObject& dynamicObject, long long elapsedTime);
-	bool isIntersectTerrain(DynamicObject& dynamic1, Vector2f newPosition, const TerrainObject& other) const;
+	bool isIntersectTerrain(Vector2f newPosition, const TerrainObject& other) const;
 	bool isIntersectDynamic(DynamicObject& position, Vector2f newPosition, const DynamicObject& other) const;
 	static Vector2f newSlippingPositionInCircle(DynamicObject *dynamicItem, Vector2f pos, float radius, long long elapsedTime);
 	static Vector2f newSlippingPosition(DynamicObject *dynamicItem, Vector2f pos, long long elapsedTime);
@@ -67,6 +81,7 @@ class World
 public:
 	//inventorySystem
 	InventoryMaker inventorySystem;
+	Builder buildSystem;
 	//test
 	Vector2f positioning, lastPosition;
 	std::string testString;
@@ -74,14 +89,8 @@ public:
 	void initLightSystem(RenderWindow &window);
 	void renderLightSystem(View view, RenderWindow &window);
 	//adding to the grid
-	void initializeItem(staticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName);
-	void initializeTreeOfGreatness(Vector2f position, int typeOfImage, std::string itemName);
-	void initializeSpawn(Vector2f position, int typeOfImage, std::string itemName);
-	void initializeGrass(Vector2f position, int typeOfImage, std::string itemName);
-	void initializeBonefireOfInsight(Vector2f position, int typeOfImage, std::string itemName);
-	void initializeHomeCosiness(Vector2f position, int typeOfImage, std::string itemName);
-	void initializeEnemy(Vector2f position, std::string enemyName);
-	void initializeHero(Vector2f position);
+	void initializeStaticItem(staticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName);
+	void initializeDynamicItem(dynamicItemsIdList itemClass, Vector2f itemPosition, std::string itemName);
 	//getters
 	Vector2f getBossSpawnPosition() { return bossSpawnPosition; }
 	Vector2i getWorldSize() { return Vector2i(width, height); }
@@ -99,7 +108,7 @@ public:
 	GridList<DynamicObject> dynamicGrid;
 	//base (draw, interact)
 	World(int width, int height);
-	std::unordered_map<std::string, boardSprite> spriteMap;
+	std::unordered_map<std::string, BoardSprite> spriteMap;
 	void interact(RenderWindow& window, long long elapsedTime);
 	void draw(RenderWindow& window, long long elapsedTime);
 	std::vector<WorldObject*> visibleItems;
@@ -117,7 +126,7 @@ public:
 	Vector2f currentTransparentPos = Vector2f(0, 0);
 	VictimSide victimSide;
 	//hero
-	const std::string heroName = "hero";
+	//const std::string heroName = "hero";
 	DynamicObject* focusedObject;	
 };
 

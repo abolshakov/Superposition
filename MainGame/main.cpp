@@ -1,7 +1,6 @@
 #include "Helper.h"
 #include "World.h"
 #include "Deerchant.h"
-#include "Builder.h"
 #include <cmath>
 #include <thread>
 #include "Menu.h"
@@ -15,21 +14,16 @@ int main() {
 	auto screenSize = Helper::GetScreenSize();
 	RenderWindow mainWindow(VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y), 32), "game", Style::Fullscreen);
 	
-	sf::View view = mainWindow.getDefaultView();
-
 	Menu menu;
 	World world(40000, 40000);
-	Builder builder(world.getInventorySystem().getSpriteList());	
-	float scaleDecrease = 0;
-	float timeForScaleDecrease = 0;
-	float pi = 3.14159265358979323846;
-	bool isGenerate = false;	
-
+	bool windowFocus = true;
 	world.initLightSystem(mainWindow);
 
 	Clock interactClock;
 	Clock drawClock;
 	Clock scaleDecreaseClock;	
+
+	float interactTime = 0, drawTime = 0;
 
 	while (mainWindow.isOpen())
 	{
@@ -55,18 +49,22 @@ int main() {
 			}	
 			if (event.type == Event::MouseButtonPressed)
 			{
-				builder.onMouseDownInteract(world);
+				if (world.buildSystem.succesInit)
+					world.buildSystem.onMouseDownInteract(world.focusedObject->getPosition(), world.scaleFactor);
 			}
 			if (event.type == Event::MouseButtonReleased)
 			{
 				world.inventorySystem.onMouseDownInteract(mainWindow);
 			}
+			if (event.type == Event::GainedFocus)
+			{
+				windowFocus = true;
+			}
+			if (event.type == Event::LostFocus)
+			{
+				windowFocus = false;
+			}
 		}		
-		auto interactTime = interactClock.getElapsedTime().asMicroseconds();
-		interactClock.restart();
-
-		auto drawTime = drawClock.getElapsedTime().asMicroseconds();
-		drawClock.restart();
 
 		if (menu.isMenu)
 		{		
@@ -75,17 +73,24 @@ int main() {
 			mainWindow.display();			
 			continue;
 		}	 	
-		
-		auto hero = dynamic_cast<Deerchant*>(world.dynamicGrid.getItemByName(world.heroName));
-		
-		builder.setCharacterBuildActivity(*hero);
+			
+		if (windowFocus)
+		{
+			interactTime = interactClock.getElapsedTime().asMicroseconds();
+			interactClock.restart();
+
+			drawTime = drawClock.getElapsedTime().asMicroseconds();
+			drawClock.restart();
+		}
+
 		world.focusedObject->handleInput();
-		world.interact(mainWindow, interactTime);	
-		
-		mainWindow.clear(Color::White);
-		builder.interact();
+		world.interact(mainWindow, interactTime);
+
+			mainWindow.clear(Color::White);
 				
 		world.draw(mainWindow, drawTime);
+
+		auto hero = dynamic_cast<Deerchant*>(world.dynamicGrid.getItemByName(world.focusedObject->getName()));
 
 		if (hero->getHealthPoint() <= 0)
 		{
@@ -94,17 +99,23 @@ int main() {
 
 		RectangleShape energyRect(Vector2f(int(hero->getEnergy() / hero->getMaxEnergyValue() * 500), 40));
 		energyRect.setPosition(Vector2f(screenSize.x / 2 - 250, screenSize.y - 100));
-		energyRect.setFillColor(Color::Yellow);
+		energyRect.setFillColor(Color(245, 215, 66));
 		mainWindow.draw(energyRect);
 		RectangleShape healthRect(Vector2f(int(hero->getHealthPoint() / hero->getMaxHealthPointValue() * 500), 40));
 		healthRect.setPosition(Vector2f(screenSize.x / 2 - 250, screenSize.y - 200));
-		healthRect.setFillColor(Color::Red);
+		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
-		
-		world.renderLightSystem(view, mainWindow);
-		Helper::drawText(to_string(Actions(hero->currentAction)), 30, 100, 100, &mainWindow);
-		Helper::drawText(to_string(int(hero->hitDirection)), 30, 100, 200, &mainWindow);
-		builder.draw(mainWindow, world, interactTime);
+
+		//Helper::drawText(to_string(interactTime), 30, 100, 200, &mainWindow);
+		//Helper::drawText(to_string(hero->lastAction), 30, 200, 200, &mainWindow);
+
+
 		mainWindow.display();
 	}
 }
+
+
+
+
+
+

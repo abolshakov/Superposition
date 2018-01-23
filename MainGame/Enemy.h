@@ -1,4 +1,7 @@
 #pragma once
+#ifndef ENEMY_H
+#define ENEMY_H
+
 #include "DynamicObject.h"
 
 using namespace sf;
@@ -21,7 +24,6 @@ public:
 	int currentSprite;
 	Vector2f targetPosition;
 	//!
-	int getSpriteNumber() override { return currentSprite; }
 	std::string nameOfFile;
 	Enemy(std::string objectName, Vector2f centerPosition);
 	Vector2i calculateTextureOffset() override;
@@ -30,3 +32,4 @@ public:
 	void moveToTarget(Vector2f ptargetPosition, float targetRadius);
 };
 
+#endif

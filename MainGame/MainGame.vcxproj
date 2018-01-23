@@ -91,6 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Users\Gubidonius\Documents\Visual Studio 2017\include\LTBL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SFML_DYNAMIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -124,6 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Users\Gubidonius\Documents\Visual Studio 2017\include\LTBL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SFML_DYNAMIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -159,7 +161,7 @@
     <ClCompile Include="TreeOfGreatness.cpp" />
     <ClCompile Include="Spawn.cpp" />
     <ClCompile Include="StaticObject.cpp" />
-    <ClCompile Include="Stone.cpp" />
+    <ClCompile Include="MushroomStone.cpp" />
     <ClCompile Include="TerrainObject.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="WorldObject.cpp" />
@@ -175,6 +177,7 @@
     <ClInclude Include="..\..\..\..\Users\Gubidonius\Documents\Visual Studio 2017\include\LTBL2\ltbl\quadtree\QuadtreeNode.h" />
     <ClInclude Include="..\..\..\..\Users\Gubidonius\Documents\Visual Studio 2017\include\LTBL2\ltbl\quadtree\QuadtreeOccupant.h" />
     <ClInclude Include="..\..\..\..\Users\Gubidonius\Documents\Visual Studio 2017\include\LTBL2\ltbl\quadtree\StaticQuadtree.h" />
+    <ClInclude Include="BoardSprite.h" />
     <ClInclude Include="BonefireOfInsight.h" />
     <ClInclude Include="Builder.h" />
     <ClInclude Include="Constraint.h" />
@@ -190,7 +193,7 @@
     <ClInclude Include="TreeOfGreatness.h" />
     <ClInclude Include="Spawn.h" />
     <ClInclude Include="StaticObject.h" />
-    <ClInclude Include="Stone.h" />
+    <ClInclude Include="MushroomStone.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="TerrainObject.h" />
     <ClInclude Include="World.h" />

@@ -3,10 +3,27 @@
 
 Grass::Grass(std::string objectName, Vector2f centerPosition, int typeOfObject) : StaticObject(objectName, centerPosition)
 {
+	varietyOfTypes = 16;
 	this->typeOfObject = typeOfObject;
-	conditionalSizeUnits = Vector2f(500, 300);
-	isTerrain = true;
-	strength = 0;
+	isBackground = true;
+	toSaveName = "grass";
+	setType(typeOfObject);
+}
+
+void Grass::setType(int typeOfObject)
+{
+	if (typeOfObject == -1)
+		return;
+	this->typeOfObject = typeOfObject;
+	if (this->typeOfObject == 0)
+	{
+		this->conditionalSizeUnits = Vector2f(1500, 1200);
+	}
+	else
+	{
+		this->conditionalSizeUnits = Vector2f(500, 400);
+		this->zCoords = 1;
+	}
 }
 
 Vector2i Grass::calculateTextureOffset()
@@ -18,5 +35,5 @@ Vector2i Grass::calculateTextureOffset()
 
 std::string Grass::getSpriteName(long long elapsedTime)
 {
-	return "grass" + std::to_string(typeOfObject) + ".png";
+	return "terrainObjects/grass/grass" + std::to_string(typeOfObject) + ".png";
 }

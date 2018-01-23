@@ -7,7 +7,7 @@ WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 	position = centerPosition;
 	WorldObject::initPedestal();
 	isVisibleInventory = false;
-	//light = std::make_shared<ltbl::LightPointEmission>();
+	transparensy = 255;
 }
 
 void WorldObject::setTextureSize(Vector2i textureSize)
@@ -25,9 +25,10 @@ void WorldObject::setTextureSize(Vector2i textureSize)
 
 Vector2f WorldObject::getBias(Vector2f focusedObjectPos, double elapsedTime)
 {
-	biasOffset.x = bias.x*(focusedObjectPos.y - position.y) / elapsedTime;
-	//biasOffset.x = bias.x*(focusedObjectPos.y - position.y)/elapsedTime;
-	biasOffset.y = bias.y*(focusedObjectPos.y - position.y)/elapsedTime;
+	//biasOffset.x += bias.x * (lastPosition.y) / elapsedTime / 20;
+	//biasOffset.y += bias.y*(focusedObjectPos.y - position.y) / elapsedTime / 20;
+	biasOffset.x = bias.x * (lastPosition.y) / elapsedTime / 1.5;
+	biasOffset.y = bias.y*(focusedObjectPos.y - position.y) / elapsedTime / 1.5;
 
 	return Vector2f(biasOffset.x, biasOffset.y);
 }

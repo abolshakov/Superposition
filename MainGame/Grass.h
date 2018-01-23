@@ -1,4 +1,7 @@
 #pragma once
+#ifndef GRASS_H
+#define GRASS_H
+
 #include "TerrainObject.h"
 
 class Grass : public StaticObject
@@ -9,5 +12,7 @@ public:
 	Vector2i calculateTextureOffset() override;
 	std::string getSpriteName(long long elapsedTime) override;
 	int strength;
-	int getSpriteNumber() override { return 0; }
+	void setType(int typeOfObject) override;
 };
+
+#endif

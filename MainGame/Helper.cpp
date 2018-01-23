@@ -28,7 +28,7 @@ int Helper::getFps()
 void Helper::drawText(std::string text, int size, int Posx, int Posy, RenderWindow *window)
 {
 	Font font;
-	font.loadFromFile("fonts/Bebas.ttf");
+	font.loadFromFile("fonts/normal.ttf");
 	Text result(text, font, size);
 	result.setFillColor(Color::White);
 	Vector2f pos(static_cast<float>(Posx),static_cast<float>(Posy));

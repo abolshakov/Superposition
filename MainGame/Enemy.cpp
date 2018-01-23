@@ -12,15 +12,22 @@ Enemy::Enemy(std::string objectName, Vector2f centerPosition) : DynamicObject(ob
 	animationLength = 8;
 	radius = 50;
 	strength = 10;
-	healthPoint = 100;
+	healthPoint = 0;
 	currentAction = relax;
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
 	inventoryCapacity = 5;
 
 	inventory.push_back(std::make_pair(1, 2));
-	inventory.push_back(std::make_pair(2, 2));
 	inventory.push_back(std::make_pair(1, 1));
+	inventory.push_back(std::make_pair(1, 2));
+	inventory.push_back(std::make_pair(2, 2));
+	inventory.push_back(std::make_pair(1, 2));
+	inventory.push_back(std::make_pair(1, 1));
+	inventory.push_back(std::make_pair(1, 2));
+	inventory.push_back(std::make_pair(2, 2));
+	
+	toSaveName = "enemy";
 	//healthPoint = 0;
 }
 

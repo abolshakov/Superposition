@@ -1,4 +1,6 @@
 #pragma once
+#ifndef MENU_H
+#define MENU_H
 
 #include <SFML/Graphics.hpp>
 #include "World.h"
@@ -28,3 +30,4 @@ private:
 
 	Vector2f screenSize;
 };
+#endif

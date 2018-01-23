@@ -1,4 +1,7 @@
 #pragma once
+#ifndef DEERCHANT_H
+#define DEERCHANT_H
+
 #include "DynamicObject.h"
 #include "World.h"
 
@@ -6,9 +9,6 @@ using namespace sf;
 
 class Deerchant : public DynamicObject
 {
-	float timeForNewSprite;
-	int currentSprite;
-	int animationLength;	
 	void setHitDirection();
 	float energy, maxEnergyValue, energyForSpecial;
 public:	
@@ -26,10 +26,10 @@ public:
 	//draw
 	std::string nameOfFile;
 	Vector2i calculateTextureOffset() override;
-	int getSpriteNumber() override { return currentSprite; }
 	std::string getSpriteName(long long elapsedTime) override;
 	//control
 	void handleInput() override;	
 	//inventory
 };
 
+#endif

@@ -1,4 +1,7 @@
 #pragma once
+#ifndef TERRAINOBJECT_H
+#define TERRAINOBJECT_H
+
 #include "StaticObject.h"
 
 class TerrainObject : public StaticObject
@@ -14,3 +17,4 @@ public:
 	int getEllipseSize() const { return ellipseSize; }
 };
 
+#endif

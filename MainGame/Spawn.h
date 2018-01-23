@@ -1,4 +1,7 @@
 #pragma once
+#ifndef SPAWN_H
+#define SPAWN_H
+
 #include "TerrainObject.h"
 
 class Spawn : public TerrainObject
@@ -9,5 +12,7 @@ public:
 	Vector2i calculateTextureOffset() override;
 	void initPedestal() override;
 	std::string getSpriteName(long long elapsedTime) override;
-	int getSpriteNumber() override { return 0; }
+	void setType(int typeOfObject) override;
 };
+
+#endif

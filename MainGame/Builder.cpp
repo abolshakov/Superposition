@@ -1,6 +1,10 @@
 #include "Builder.h"
 
-Builder::Builder(std::unordered_map<int, cell> itemsSpriteList)
+Builder::Builder()
+{
+}
+
+void Builder::Init(std::unordered_map<int, cell> itemsSpriteList)
 {
 	this->craftIngredientsSpriteList = itemsSpriteList;
 	inicializeObjectsInfo();
@@ -37,6 +41,11 @@ void Builder::initializeButtons()
 		(float)builtObjects[0].iconTexture.getSize().y / recipeFrame.getTextureRect().height * 2);
 }
 
+void Builder::inventoryBounding(std::vector<std::pair <int, int>>& inventory)
+{
+	currentInventory = std::ref(inventory);
+}
+
 void Builder::inicializeObjectsInfo()
 {
 	recipeFrameTexture.loadFromFile("World/builder/recipeFrame.png");
@@ -52,11 +61,20 @@ void Builder::inicializeObjectsInfo()
 		infoItem.image = objectImagePath;
 		infoItem.type = objectImageType;
 
+		int recipeItemId, recipeItemAmount, recipeLength;
+
+		fin >> recipeLength;
+		for (int i = 0; i < recipeLength; i++)
+		{
+			fin >> recipeItemId >> recipeItemAmount;
+			infoItem.recipe.push_back(std::make_pair(recipeItemId, recipeItemAmount));
+		}
+
 		builtObjects.push_back(infoItem);
 	}
 }
 
-void Builder::draw(RenderWindow &window, World& world, float elapsedTime)
+void Builder::draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f focusedObjectPosition, std::vector<WorldObject*> visibleItems)
 {
 	Vector2f mousePos = (Vector2f)Mouse::getPosition();
 	if (!isBuilding)
@@ -64,40 +82,51 @@ void Builder::draw(RenderWindow &window, World& world, float elapsedTime)
 		window.draw(buildStartButton);
 		return;
 	}
-
+	
 	animator(elapsedTime);
-	//initialize spriteSilhouette
-	auto sprite = (&world.spriteMap[builtObjects[currentObject].image])->sprite;
-	Helper::drawText(std::to_string((&world.spriteMap[builtObjects[currentObject].image])->sprite.getTextureRect().width), 30, 200, 200, &window);
-	auto terrain = dynamic_cast<TerrainObject*>(world.staticGrid.getItemByName(builtObjects[currentObject].type));
-	sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
-	sprite.setScale(terrain->getScaleRatio().x*world.scaleFactor, terrain->getScaleRatio().y*world.scaleFactor*sqrt(sqrt(world.scaleFactor)));
-	buildingAvaliable = true;
-	Vector2f mouseWorldPos = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + world.focusedObject->getPosition().x*world.scaleFactor) / world.scaleFactor,
-		(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + world.focusedObject->getPosition().y*world.scaleFactor) / world.scaleFactor);
-	//enumeration of intersecting elements
-	for (auto item : world.visibleItems)
-	{
-		if (item->isTerrain)
-			continue;
-		auto currentTerrain = dynamic_cast<TerrainObject*>(item);
-		if (currentTerrain)
-			if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->intersectsRadius))
-			{
-				sprite.setColor(Color::Red);
-				buildingAvaliable = false;
-				break;
-			}
-	}
-	if (buildingAvaliable)
-		sprite.setColor(Color::Green);
-	Vector2f testPosition = Vector2f(mousePos.x - terrain->getTextureBoxOffset().x*world.scaleFactor, mousePos.y + (terrain->getTextureBoxSize().y - terrain->getTextureBoxOffset().y)*world.scaleFactor);
-	Helper::drawText(std::to_string(testPosition.x), 30, 200, 250, &window);
-	Helper::drawText(std::to_string(testPosition.x), 30, 200, 300, &window);
-	sprite.setPosition(Vector2f(mousePos.x - terrain->getTextureBoxOffset().x*world.scaleFactor, mousePos.y + (terrain->getTextureBoxSize().y - terrain->getTextureBoxOffset().y)*world.scaleFactor));
 
-	window.draw(sprite);
+	if (currentObject != -1)
+	{
+		if (buildingReady)
+		{
+			//initialize spriteSilhouette
+			auto sprite = (&spriteMap[builtObjects[currentObject].image])->sprite;
+			auto terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[currentObject].type));
+
+			//Helper::drawText(std::to_string(builtObjects[currentObject].recipe.size()), 30, 200, 200, &window);
+			Helper::drawText(std::to_string(currentInventory.get().size()), 30, 200, 200, &window);
+			sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
+			sprite.setScale(terrain->getScaleRatio().x*scaleFactor, terrain->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
+			Vector2f mouseWorldPos = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x*scaleFactor) / scaleFactor,
+				(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
+
+			//enumeration of intersecting elements
+			canBePlaced = true;
+			for (auto item : visibleItems)
+			{
+				if (item->isBackground)
+					continue;
+				auto currentTerrain = dynamic_cast<TerrainObject*>(item);
+				if (currentTerrain)
+					if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->intersectsRadius))
+					{
+						sprite.setColor(Color::Red);
+						canBePlaced = false;
+						break;
+					}
+			}
+
+			if (canBePlaced)
+				sprite.setColor(Color::Green);
+			Vector2f testPosition = Vector2f(mousePos.x - terrain->getTextureBoxOffset().x*scaleFactor, mousePos.y + (terrain->getTextureBoxSize().y - terrain->getTextureBoxOffset().y)*scaleFactor);
+			sprite.setPosition(Vector2f(mousePos.x - terrain->getTextureBoxOffset().x*scaleFactor, mousePos.y + (terrain->getTextureBoxSize().y - terrain->getTextureBoxOffset().y)*scaleFactor));
+
+			window.draw(sprite);
+		}
+	}
+
 	window.draw(buildStopButton);
+
 	//draw icons
 	for (int i = 0; i < builtObjects.size(); i++)
 	{
@@ -120,6 +149,8 @@ void Builder::interact()
 		{
 			if (Helper::isIntersects(mousePos, IntRect(builtObjects[i].iconSprite.getPosition().x, builtObjects[i].iconSprite.getPosition().y, builtObjects[i].iconSprite.getTextureRect().width, builtObjects[i].iconSprite.getTextureRect().height)))
 			{
+				if (!buildingReady)
+					currentObject = i;
 				isRecipeFrame = true;
 				recipeFrame.setPosition(builtObjects[i].iconSprite.getPosition().x + builtObjects[i].iconSprite.getTextureRect().width*1.25, builtObjects[i].iconSprite.getPosition().y);
 				f = true;
@@ -131,13 +162,14 @@ void Builder::interact()
 	}
 }
 
-void Builder::onMouseDownInteract(World& world)
+void Builder::onMouseDownInteract(Vector2f focusedObjectPosition, float scaleFactor)
 {
 	Vector2f mousePos = (Vector2f)Mouse::getPosition();
 
 	if (Helper::isIntersects(mousePos, buildStartButton.getTextureRect()) && !isBuilding)
 	{
 		isBuilding = true;
+		currentObject = -1;
 	}
 	else
 		if (Helper::isIntersects(mousePos, buildStopButton.getTextureRect()) && isBuilding)
@@ -151,28 +183,38 @@ void Builder::onMouseDownInteract(World& world)
 		}
 		else
 		{
-			bool f = false;
-			for (int i = 0; i < builtObjects.size(); i++)
+			if (isBuilding && buildingReady)
 			{
-				if (Helper::isIntersects(mousePos, IntRect(builtObjects[i].iconSprite.getPosition().x, builtObjects[i].iconSprite.getPosition().y, builtObjects[i].iconSprite.getTextureRect().width, builtObjects[i].iconSprite.getTextureRect().height)))
+				buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
+					(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
+				buildingAvaliable = true;
+				//buildObject(Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x*scaleFactor) / scaleFactor,
+				//(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor), world);
+			}
+			else
+			{
+				buildingPosition = Vector2f(-1, -1);
+			}
+
+			//can be crafted
+			buildingReady = true;
+			if (currentObject != -1)
+			{
+				std::vector<std::pair <int, int>>& temporaryInventory = builtObjects[currentObject].recipe;
+				for (auto curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
 				{
-					currentObject = i;
-					f = true;
-					break;
+					for (auto curInvItem = currentInventory.get().begin(); curInvItem != currentInventory.get().end(); ++curInvItem)
+					{
+						if (curRecipeItem->first == curInvItem->first)
+						{
+							curRecipeItem->second -= curInvItem->second;
+						}
+					}
+					if (curRecipeItem->second > 0)
+						buildingReady = false;
 				}
 			}
-			if (!f)
-				if (isBuilding && buildingAvaliable)
-				{
-					buildObject(Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + world.focusedObject->getPosition().x*world.scaleFactor) / world.scaleFactor,
-						(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + world.focusedObject->getPosition().y*world.scaleFactor) / world.scaleFactor), world);
-				}
 		}
-}
-
-void Builder::setCharacterBuildActivity(Deerchant& hero)
-{
-	hero.isBuilder = isBuilding;
 }
 
 void Builder::animator(float elapsedTime)
@@ -194,14 +236,10 @@ void Builder::animator(float elapsedTime)
 	}
 }
 
-void Builder::buildObject(Vector2f position, World& world)
+std::string Builder::getBuiltObjectType()
 {
-	if (builtObjects[currentObject].type == "homeCosiness")
-	{
-		world.initializeHomeCosiness(position, 1, "");
-	}
-	if (builtObjects[currentObject].type == "bonefireOfInsight")
-	{
-		world.initializeBonefireOfInsight(position, 1, "");
-	}
+	if (currentObject == -1)
+		return "-1";
+
+	return builtObjects[currentObject].type;
 }

@@ -6,11 +6,18 @@ Spawn::Spawn(std::string objectName, Vector2f centerPosition, int typeOfObject) 
 	varietyOfTypes = 1;
 	this->typeOfObject = typeOfObject;
 	intersectsRadius = 200;
+	toSaveName = "spawn";
+	setType(typeOfObject);
+}
+
+void Spawn::setType(int typeOfObject)
+{
+	this->typeOfObject = typeOfObject;
+	this->conditionalSizeUnits = Vector2f(1000, 1000);
 }
 
 Vector2i Spawn::calculateTextureOffset()
 {
-	conditionalSizeUnits = Vector2f(1000, 1000);
 	textureBox.width *= getScaleRatio().x;
 	textureBox.height *= getScaleRatio().y;
 	return Vector2i(textureBox.width / 2, int(textureBox.height / 1.6));
@@ -40,5 +47,5 @@ void Spawn::initPedestal()
 
 std::string Spawn::getSpriteName(long long elapsedTime)
 {
-	return "spawn" + std::to_string(typeOfObject) + ".png";
+	return "terrainObjects/spawn/spawn" + std::to_string(typeOfObject) + ".png";
 }
