@@ -22,7 +22,6 @@ public:
 	float getEnergyForSpecial() { return energyForSpecial; }
 	void setEnergy(float energy) { this->energy = energy; }
 	void addEnergy(float energy) { this->energy += energy; if (this->energy > this->maxEnergyValue) this->energy = this->maxEnergyValue; }
-	HitDirection hitDirection;
 	//draw
 	std::string nameOfFile;
 	Vector2i calculateTextureOffset() override;

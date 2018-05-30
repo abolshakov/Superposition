@@ -3,9 +3,6 @@
 
 using namespace sf;
 
-const
-float pi = 3.14159265358979323846;
-
 Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicObject(objectName, centerPosition)
 {
 	currentSprite = 1;
@@ -131,16 +128,16 @@ void Deerchant::setHitDirection()
 	float xPos = screenSize.x / 2, yPos = screenSize.y / 2, mouseX = Mouse::getPosition().x, mouseY = Mouse::getPosition().y;
 	float alpha = atan((yPos - mouseY) / (xPos - mouseX)) * 180 / pi;
 	if (mouseY <= yPos && abs(alpha) >= 45 && abs(alpha) <= 90)
-		hitDirection = up;
+		side = up;
 	else
 		if (mouseX >= xPos && abs(alpha) >= 0 && abs(alpha) <= 45)
-			hitDirection = right;
+			side = right;
 		else
 			if (mouseY >= yPos && abs(alpha) >= 45 && abs(alpha) <= 90)
-				hitDirection = down;
+				side = down;
 			else
 				if (mouseX <= xPos && abs(alpha) >= 0 && abs(alpha) <= 45)
-					hitDirection = left;
+					side = left;
 }
 
 std::string Deerchant::getSpriteName(long long elapsedTime)
@@ -151,7 +148,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 	{
 	case commonHit:
 		animationLength = 6;
-		switch (hitDirection)
+		switch (side)
 		{
 			case up:
 			{
@@ -179,7 +176,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		break;
 	case hardHit:
 		animationLength = 6;
-		switch (hitDirection)
+		switch (side)
 		{
 			case up:
 			{
@@ -207,7 +204,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		break;
 	case specialHit:
 		animationLength = 6;
-		switch (hitDirection)
+		switch (side)
 		{
 			case up:
 			{
@@ -241,7 +238,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		break;
 	case combatState:
 		animationLength = 5;
-		switch (hitDirection)
+		switch (side)
 		{
 		case up:
 			spriteName = "Maddox/moveUp/MaddoxUp";
@@ -257,7 +254,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		break;
 	case evasionDown:
 		animationLength = 7;
-		switch (hitDirection)
+		switch (side)
 		{
 			case up:
 			{
@@ -285,7 +282,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		break;
 	case evasionUp:
 		animationLength = 8;
-		switch (hitDirection)
+		switch (side)
 		{
 		case up:
 		{
@@ -320,7 +317,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 	case relax:
 		animationLength = 1;
 		currentSprite = 1;
-		switch (hitDirection)
+		switch (side)
 		{
 		case up:
 		{

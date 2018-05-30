@@ -25,15 +25,17 @@
 #include "BonefireOfInsight.h"
 #include "HomeCosiness.h"
 #include "MushroomStone.h"
+#include "MushroomsOnStone.h"
 
-#include "Enemy.h"
+#include "Creature.h"
+#include "Monster.h"
 #include "Deerchant.h"
+#include "Monster.h"
 
 using namespace sf;
 
-enum VictimSide { upSide = 1, rightSide = 2, downSide = 3, leftSide = 4 };
-enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6};
-enum dynamicItemsIdList { hero1 = 1, enemy = 2};
+enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7};
+enum dynamicItemsIdList { hero1 = 1,  monster = 2};
 
 class World
 {
@@ -69,8 +71,7 @@ class World
 	static Vector2f newSlippingPositionInCircle(DynamicObject *dynamicItem, Vector2f pos, float radius, long long elapsedTime);
 	static Vector2f newSlippingPosition(DynamicObject *dynamicItem, Vector2f pos, long long elapsedTime);
 	static Vector2f newSlippingPositionForDynamics(DynamicObject *dynamicItem1, DynamicObject *dynamicItem2, long long elapsedTime);
-	//fight logic
-	VictimSide getVictimSide(DynamicObject& hero, DynamicObject& victim);		
+	//fight logic	
 	//selection logic
 	void setTransparent(std::vector<WorldObject*> visibleItems);
 	std::string mouseDisplayName;
@@ -78,13 +79,13 @@ class World
 	sf::Shader spiritWorldShader;
 	sf::Texture distortionMap;
 	void initShaders();
-public:
 	//inventorySystem
 	InventoryMaker inventorySystem;
 	Builder buildSystem;
-	//test
-	Vector2f positioning, lastPosition;
-	std::string testString;
+	//grids
+	GridList<StaticObject> staticGrid;
+	GridList<DynamicObject> dynamicGrid;
+public:
 	//lightSystem
 	void initLightSystem(RenderWindow &window);
 	void renderLightSystem(View view, RenderWindow &window);
@@ -97,15 +98,13 @@ public:
 	GridList<StaticObject> getStaticGrid() { return staticGrid; }
 	GridList<DynamicObject> getDynamicGrid() { return dynamicGrid; }
 	Vector2f getCameraPosition() { return cameraPosition; }
-	InventoryMaker getInventorySystem() { return inventorySystem; }
+	InventoryMaker& getInventorySystem() { return inventorySystem; }
+	Builder& getBuildSystem() { return buildSystem; }
 	//save-load logic
 	void ClearWorld();
 	void Load();
 	void Save();
 	void generate(int objCount);
-	//grids
-	GridList<StaticObject> staticGrid;
-	GridList<DynamicObject> dynamicGrid;
 	//base (draw, interact)
 	World(int width, int height);
 	std::unordered_map<std::string, BoardSprite> spriteMap;
@@ -124,9 +123,7 @@ public:
 	void heroInteractWithMobs(DynamicObject& victim, float elapsedTime);
 	void hitInteract(DynamicObject& currentItem, float elapsedTime);
 	Vector2f currentTransparentPos = Vector2f(0, 0);
-	VictimSide victimSide;
 	//hero
-	//const std::string heroName = "hero";
 	DynamicObject* focusedObject;	
 };
 

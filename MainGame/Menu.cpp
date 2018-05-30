@@ -25,6 +25,11 @@ Menu::Menu()
 	exitButton.setPosition(exitButtonPosition);
 	settingsButton.setPosition(settingsButtonPosition);
 	continueButton.setPosition(continueButtonPosition);
+
+	newRunButton.setScale((screenSize.x / 4) / newRunButtonTexture.getSize().x, (screenSize.y / 10) / newRunButtonTexture.getSize().y);
+	exitButton.setScale((screenSize.x / 4) / exitButtonTexture.getSize().x, (screenSize.y / 10) / exitButtonTexture.getSize().y);
+	settingsButton.setScale((screenSize.x / 4) / settingsButtonTexture.getSize().x, (screenSize.y / 10) / settingsButtonTexture.getSize().y);
+	continueButton.setScale((screenSize.x / 4) / continueButtonTexture.getSize().x, (screenSize.y / 10) / continueButtonTexture.getSize().y);
 }
 
 void Menu::drawLoadingImage(RenderWindow &window)

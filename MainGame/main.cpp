@@ -11,6 +11,7 @@ using namespace sf;
 using namespace std;
 
 int main() {	
+	srand(time(0));
 	auto screenSize = Helper::GetScreenSize();
 	RenderWindow mainWindow(VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y), 32), "game", Style::Fullscreen);
 	
@@ -49,12 +50,12 @@ int main() {
 			}	
 			if (event.type == Event::MouseButtonPressed)
 			{
-				if (world.buildSystem.succesInit)
-					world.buildSystem.onMouseDownInteract(world.focusedObject->getPosition(), world.scaleFactor);
+				if (world.getBuildSystem().succesInit)
+					world.getBuildSystem().onMouseDownInteract(world.focusedObject->getPosition(), world.scaleFactor);
 			}
 			if (event.type == Event::MouseButtonReleased)
 			{
-				world.inventorySystem.onMouseDownInteract(mainWindow);
+				world.getInventorySystem().onMouseDownInteract(mainWindow);
 			}
 			if (event.type == Event::GainedFocus)
 			{
@@ -90,7 +91,7 @@ int main() {
 				
 		world.draw(mainWindow, drawTime);
 
-		auto hero = dynamic_cast<Deerchant*>(world.dynamicGrid.getItemByName(world.focusedObject->getName()));
+		auto hero = dynamic_cast<Deerchant*>(world.focusedObject);
 
 		if (hero->getHealthPoint() <= 0)
 		{
@@ -106,7 +107,7 @@ int main() {
 		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
 
-		//Helper::drawText(to_string(interactTime), 30, 100, 200, &mainWindow);
+		//Helper::drawText(to_string(world.getDynamicGrid().getItemByName("testEnemy1")->isSelected), 30, 100, 200, &mainWindow);
 		//Helper::drawText(to_string(hero->lastAction), 30, 200, 200, &mainWindow);
 
 

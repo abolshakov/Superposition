@@ -22,6 +22,7 @@ protected:
 	int zCoords = 0;
 	int currentSprite;
 	float timeForNewSprite, animationSpeed;
+	Vector2i randomSizeIncrease;
 public:
 	//getters
 	bool getIsVisibleInventory() { return isVisibleInventory; }

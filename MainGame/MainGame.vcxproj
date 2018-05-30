@@ -150,7 +150,7 @@
     <ClCompile Include="Constraint.cpp" />
     <ClCompile Include="Deerchant.cpp" />
     <ClCompile Include="DynamicObject.cpp" />
-    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Creature.cpp" />
     <ClCompile Include="Grass.cpp" />
     <ClCompile Include="GridList.cpp" />
     <ClCompile Include="Helper.cpp" />
@@ -158,6 +158,8 @@
     <ClCompile Include="InventoryMaker.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="MushroomsOnStone.cpp" />
     <ClCompile Include="TreeOfGreatness.cpp" />
     <ClCompile Include="Spawn.cpp" />
     <ClCompile Include="StaticObject.cpp" />
@@ -183,13 +185,15 @@
     <ClInclude Include="Constraint.h" />
     <ClInclude Include="Deerchant.h" />
     <ClInclude Include="DynamicObject.h" />
-    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Creature.h" />
     <ClInclude Include="Grass.h" />
     <ClInclude Include="GridList.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="HomeCosiness.h" />
     <ClInclude Include="InventoryMaker.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Monster.h" />
+    <ClInclude Include="MushroomsOnStone.h" />
     <ClInclude Include="TreeOfGreatness.h" />
     <ClInclude Include="Spawn.h" />
     <ClInclude Include="StaticObject.h" />
