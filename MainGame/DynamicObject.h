@@ -12,33 +12,48 @@ enum Side { up = 1, right = 2, down = 3, left = 4 };
 
 class DynamicObject : public WorldObject
 {
-protected:
-	Vector2f focus1, focus2;
+protected:	
 	int ellipseSize;
+	std::string selectedName;
+	Vector2f targetPosition;
+	Vector2f focus1, focus2;
 	float healthPoint, armor = 1, strength = 0, maxHealthPointValue;	
-	void setSide(Vector2f otherObjectPosition);
-	Side side;
-public:
-	int getSpriteNumber() override { return currentSprite; }
-	Actions currentAction, lastAction;
-	void takeDamage(float damage);
-	float getMaxHealthPointValue() { return maxHealthPointValue; }
-	float getHealthPoint() { return healthPoint; }
-	void setHealthPoint(float healthPoint) { this->healthPoint = healthPoint; }
-	float getStrength() { return strength; }
 	float speed;
 	float radius;
-	float timeForNewHitself, timeAfterHitself;
+	float timeAfterHitself;
+	void setSide(Vector2f otherObjectPosition);
+	Side side;	
+	Actions currentAction, lastAction;
 	Direction direction;
-
+	Vector2f moveOffset = Vector2f(-1, -1);
+public:
 	DynamicObject(std::string objectName, Vector2f centerPosition);
 
-	virtual void handleInput();
-	
+	int getSpriteNumber() override { return currentSprite; }
+	int getEllipseSize() const { return ellipseSize; }
+	float getMaxHealthPointValue() { return maxHealthPointValue; }
+	float getHealthPoint() { return healthPoint; }
+	float getRadius() { return radius; }
+	float getSpeed() { return speed; }
+	float getStrength() { return strength; }
+	float getTimeAfterHitself() { return timeAfterHitself; }	
 	Vector2f getFocus1() const { return focus1; }
 	Vector2f getFocus2() const { return focus2; }
+	Vector2f getMoveOffset() { return moveOffset; }
+	Actions getCurrentAction() { return currentAction; }
+	Direction getDirection() { return direction; }
 	
-	int getEllipseSize() const { return ellipseSize; }
+	void setCurrentAction(Actions action) { this->currentAction = action; }
+	void setHealthPoint(float healthPoint) { this->healthPoint = healthPoint; }
+	void setSelectedName(std::string name) { selectedName = name; }
+	float setTimeAfterHitself(float time) { timeAfterHitself = time; }
+	
+	void takeDamage(float damage);			
+	void moveToTarget(float targetRadius);
+	virtual void handleInput();
+	virtual void behavior(DynamicObject& target, float elapsedTime) = 0;
+
+	float timeForNewHitself;			
 };
 
 #endif

@@ -47,6 +47,7 @@ void Menu::interact(World &world, RenderWindow &window)
 			//Thread thread(Menu::drawLoadingImage, &window);				
 			//thread.launch();
 			world.generate(3000);
+			//world.initLightSystem(window);
 			isMenu = false;
 		}
 		newRunButton.setColor(Color(newRunButton.getColor().r, newRunButton.getColor().g, newRunButton.getColor().b, 128));
@@ -61,6 +62,7 @@ void Menu::interact(World &world, RenderWindow &window)
 			//Thread thread(Menu::drawLoadingImage, &window);				
 			//thread.launch();
 			world.Load();
+			//world.initLightSystem(window);
 			isMenu = false;
 		}
 		continueButton.setColor(Color(continueButton.getColor().r, continueButton.getColor().g, continueButton.getColor().b, 128));

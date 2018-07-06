@@ -36,11 +36,15 @@ public:
 	void interact();
 	int getCurrentObject() { return currentObject; }
 	void setCurrentObject(int n) { currentObject = n; }
-	std::string getBuiltObjectType();
+	void wasPlaced();
+	int getBuiltObjectType();
+	bool canAfford();
 	Vector2f buildingPosition;
 	bool succesInit = false;
 	bool getIsBuilding() { return isBuilding; }
-	bool buildingAvaliable = false, buildingReady = false, canBePlaced = false;
+	
+	bool canBePlaced = false;
+	int selectedObject = -1;
 private:	
 	std::unordered_map<int, cell> craftIngredientsSpriteList;
 	Vector2f currentSpritePos, currentSpriteOffset, currentSpriteSize, currentSpriteScale;
@@ -55,6 +59,8 @@ private:
 	Texture buildStartButtonTexture, buildStopButtonTexture, recipeFrameTexture;
 	int currentObject = -1;
 	std::string builderObjectsInfoFileDirectory = "World/builder/builderObjectsInfo.txt";
+	Text numberOfObjects;
+	Font font;
 };
 
 #endif

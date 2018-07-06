@@ -9,6 +9,11 @@ void Builder::Init(std::unordered_map<int, cell> itemsSpriteList)
 	this->craftIngredientsSpriteList = itemsSpriteList;
 	inicializeObjectsInfo();
 	initializeButtons();
+
+	font.loadFromFile("Fonts/Bebas.ttf");
+	numberOfObjects.setFont(font);
+	numberOfObjects.setCharacterSize(30);
+	numberOfObjects.setFillColor(Color(200, 200, 200, 255));
 }
 
 void Builder::initializeButtons()
@@ -31,9 +36,9 @@ void Builder::initializeButtons()
 	for (int i = 0; i < builtObjects.size(); i++)
 	{
 		builtObjects[i].iconTexture.loadFromFile(builtObjects[i].icon);
-		builtObjects[i].iconSprite.setTexture(builtObjects[i].iconTexture);
-		builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getTextureRect().width*-1, (i + 1)*builtObjects[i].iconSprite.getTextureRect().height * 1.25);
+		builtObjects[i].iconSprite.setTexture(builtObjects[i].iconTexture);		
 		builtObjects[i].iconSprite.setScale(buildStartButton.getScale());
+		builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getTextureRect().width*-1, (i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25);
 	}
 
 	//initialize frame for recipes
@@ -48,8 +53,8 @@ void Builder::inventoryBounding(std::vector<std::pair <int, int>>& inventory)
 
 void Builder::inicializeObjectsInfo()
 {
-	recipeFrameTexture.loadFromFile("World/builder/recipeFrame.png");
-	recipeFrame.setTexture(recipeFrameTexture);
+	//recipeFrameTexture.loadFromFile("World/builder/recipeFrame.png");
+	//recipeFrame.setTexture(recipeFrameTexture);
 
 	std::string objectIconPath, objectImagePath, objectImageType;
 	std::ifstream fin(builderObjectsInfoFileDirectory);
@@ -85,44 +90,39 @@ void Builder::draw(RenderWindow &window, float elapsedTime, std::unordered_map<s
 	
 	animator(elapsedTime);
 
-	if (currentObject != -1)
+	if (selectedObject != -1)
 	{
-		if (buildingReady)
+		//initialize spriteSilhouette
+		auto sprite = (&spriteMap[builtObjects[selectedObject].image])->sprite;
+		auto terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[selectedObject].type));
+
+		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
+		sprite.setScale(terrain->getScaleRatio().x*scaleFactor, terrain->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
+		Vector2f mouseWorldPos = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x*scaleFactor) / scaleFactor,
+			(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
+
+		//enumeration of intersecting elements
+		canBePlaced = true;
+		for (auto item : visibleItems)
 		{
-			//initialize spriteSilhouette
-			auto sprite = (&spriteMap[builtObjects[currentObject].image])->sprite;
-			auto terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[currentObject].type));
-
-			//Helper::drawText(std::to_string(builtObjects[currentObject].recipe.size()), 30, 200, 200, &window);
-			Helper::drawText(std::to_string(currentInventory.get().size()), 30, 200, 200, &window);
-			sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
-			sprite.setScale(terrain->getScaleRatio().x*scaleFactor, terrain->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
-			Vector2f mouseWorldPos = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x*scaleFactor) / scaleFactor,
-				(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
-
-			//enumeration of intersecting elements
-			canBePlaced = true;
-			for (auto item : visibleItems)
-			{
-				if (item->isBackground)
-					continue;
-				auto currentTerrain = dynamic_cast<TerrainObject*>(item);
-				if (currentTerrain)
-					if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->intersectsRadius))
-					{
-						sprite.setColor(Color::Red);
-						canBePlaced = false;
-						break;
-					}
-			}
-
-			if (canBePlaced)
-				sprite.setColor(Color::Green);
-			Vector2f testPosition = Vector2f(mousePos.x - terrain->getTextureBoxOffset().x*scaleFactor, mousePos.y + (terrain->getTextureBoxSize().y - terrain->getTextureBoxOffset().y)*scaleFactor);
-			sprite.setPosition(Vector2f(mousePos.x - terrain->getTextureBoxOffset().x*scaleFactor, mousePos.y + (terrain->getTextureBoxSize().y - terrain->getTextureBoxOffset().y)*scaleFactor));
-
-			window.draw(sprite);
+			if (item->isBackground)
+				continue;
+			auto currentTerrain = dynamic_cast<TerrainObject*>(item);
+			if (currentTerrain)
+				if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->intersectsRadius))
+				{
+					sprite.setColor(Color::Red);
+					canBePlaced = false;
+					break;
+				}
 		}
+
+		if (canBePlaced)
+			sprite.setColor(Color::Green);
+		Vector2f testPosition = Vector2f(mousePos.x - terrain->getTextureBoxOffset().x*scaleFactor, mousePos.y + (terrain->getTextureBoxSize().y - terrain->getTextureBoxOffset().y)*scaleFactor);
+		sprite.setPosition(Vector2f(mousePos.x - terrain->getTextureBoxOffset().x*scaleFactor, mousePos.y + (terrain->getTextureBoxSize().y - terrain->getTextureBoxOffset().y)*scaleFactor));
+
+		window.draw(sprite);
 	}
 
 	window.draw(buildStopButton);
@@ -135,7 +135,29 @@ void Builder::draw(RenderWindow &window, float elapsedTime, std::unordered_map<s
 
 	if (isRecipeFrame)
 	{
-		window.draw(recipeFrame);
+		//window.draw(recipeFrame);
+		for (int i = 0; i < builtObjects[currentObject].recipe.size(); i++)
+		{
+			Sprite *currentRecipeItem = &craftIngredientsSpriteList[builtObjects[currentObject].recipe[i].first].sprite;
+			currentRecipeItem->setPosition(recipeFrame.getPosition().x + i * currentRecipeItem->getTextureRect().width, recipeFrame.getPosition().y);
+			window.draw(*currentRecipeItem);
+
+			int boundInventoryObjectsCount = 0;
+			for (auto item = currentInventory.get().begin(); item != currentInventory.get().end(); ++item)
+			{
+				if (item->first == builtObjects[currentObject].recipe[i].first)
+					boundInventoryObjectsCount+= item->second;
+			}
+
+			numberOfObjects.setString(std::to_string(boundInventoryObjectsCount) + '/' + std::to_string(builtObjects[currentObject].recipe[i].second));
+			if (boundInventoryObjectsCount < builtObjects[currentObject].recipe[i].second)
+				numberOfObjects.setFillColor(Color(193, 63, 63, 255));
+			numberOfObjects.setPosition(currentRecipeItem->getPosition().x + currentRecipeItem->getTextureRect().width - numberOfObjects.getGlobalBounds().width,
+				currentRecipeItem->getPosition().y + currentRecipeItem->getTextureRect().height - numberOfObjects.getGlobalBounds().height);
+			window.draw(numberOfObjects);
+			numberOfObjects.setFillColor(Color(200, 200, 200, 255));
+		}
+		 
 	}
 }
 
@@ -149,8 +171,7 @@ void Builder::interact()
 		{
 			if (Helper::isIntersects(mousePos, IntRect(builtObjects[i].iconSprite.getPosition().x, builtObjects[i].iconSprite.getPosition().y, builtObjects[i].iconSprite.getTextureRect().width, builtObjects[i].iconSprite.getTextureRect().height)))
 			{
-				if (!buildingReady)
-					currentObject = i;
+				currentObject = i;
 				isRecipeFrame = true;
 				recipeFrame.setPosition(builtObjects[i].iconSprite.getPosition().x + builtObjects[i].iconSprite.getTextureRect().width*1.25, builtObjects[i].iconSprite.getPosition().y);
 				f = true;
@@ -158,7 +179,10 @@ void Builder::interact()
 			}
 		}
 		if (!f)
+		{
 			isRecipeFrame = false;
+			currentObject = -1;
+		}
 	}
 }
 
@@ -178,43 +202,86 @@ void Builder::onMouseDownInteract(Vector2f focusedObjectPosition, float scaleFac
 			animationSpeed = 0.001;
 			for (int i = 0; i < builtObjects.size(); i++)
 			{
-				builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getTextureRect().width*-1, (i + 1)*builtObjects[i].iconSprite.getTextureRect().height*1.25);
+				builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getTextureRect().width*-1, (i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25);
+			}
+			return;
+		}
+
+	if (isBuilding && currentObject != -1 && canAfford())
+	{
+		selectedObject = currentObject;
+		return;
+	}
+
+	if (isBuilding && selectedObject != -1 && currentObject == -1 && canBePlaced)
+		buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
+			(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
+	else
+		buildingPosition = Vector2f(-1, -1);
+}
+
+bool Builder::canAfford()
+{
+	if (currentObject != -1)
+	{
+		std::vector<std::pair <int, int>> temporaryInventory = builtObjects[currentObject].recipe;
+		std::vector<std::pair <int, int>> curInventory = currentInventory.get();
+
+		for (auto curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
+		{
+			for (auto curInvItem = curInventory.begin(); curInvItem != curInventory.end(); ++curInvItem)
+			{
+				if (curRecipeItem->first == curInvItem->first)
+				{
+					if (curInvItem->second >= curRecipeItem->second)
+					{
+						curRecipeItem->second = 0;
+						break;
+					}
+					else
+						curRecipeItem->second -= curInvItem->second;
+				}
+			}
+			if (curRecipeItem->second != 0)
+			{
+				return false;
 			}
 		}
-		else
-		{
-			if (isBuilding && buildingReady)
-			{
-				buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
-					(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
-				buildingAvaliable = true;
-				//buildObject(Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x*scaleFactor) / scaleFactor,
-				//(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor), world);
-			}
-			else
-			{
-				buildingPosition = Vector2f(-1, -1);
-			}
 
-			//can be crafted
-			buildingReady = true;
-			if (currentObject != -1)
+		return true;
+	}
+	return false;
+}
+
+void Builder::wasPlaced()
+{
+	std::vector<std::pair <int, int>> temporaryInventory = builtObjects[selectedObject].recipe;
+
+	for (auto curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
+	{
+		for (auto curInvItem = currentInventory.get().begin(); curInvItem != currentInventory.get().end(); ++curInvItem)
+		{
+			if (curRecipeItem->first == curInvItem->first)
 			{
-				std::vector<std::pair <int, int>>& temporaryInventory = builtObjects[currentObject].recipe;
-				for (auto curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
+				if (curInvItem->second >= curRecipeItem->second)
+				{					
+					curInvItem->second -= curRecipeItem->second;
+					if (curInvItem->second == 0)
+						curInvItem->first = 0;
+					curRecipeItem->second = 0;
+				}
+				else
 				{
-					for (auto curInvItem = currentInventory.get().begin(); curInvItem != currentInventory.get().end(); ++curInvItem)
-					{
-						if (curRecipeItem->first == curInvItem->first)
-						{
-							curRecipeItem->second -= curInvItem->second;
-						}
-					}
-					if (curRecipeItem->second > 0)
-						buildingReady = false;
+					curRecipeItem->second -= curInvItem->second;
+					curInvItem->second = 0;
+					curInvItem->first = 0;
 				}
 			}
 		}
+	}
+
+	selectedObject = -1;
+	buildingPosition = Vector2f(-1, -1);
 }
 
 void Builder::animator(float elapsedTime)
@@ -236,10 +303,14 @@ void Builder::animator(float elapsedTime)
 	}
 }
 
-std::string Builder::getBuiltObjectType()
+int Builder::getBuiltObjectType()
 {
-	if (currentObject == -1)
-		return "-1";
+	if (selectedObject == -1)
+		return -1;
 
-	return builtObjects[currentObject].type;
+	std::string objectType = builtObjects[selectedObject].type;
+	if (objectType == "bonefireOfInsight")
+		return 4;
+	if (objectType == "homeCosiness")
+		return 5;
 }

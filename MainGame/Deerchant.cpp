@@ -11,7 +11,7 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	animationLength = 8;
 	radius = 100;
 	strength = 20;
-	maxHealthPointValue = 1000000;
+	maxHealthPointValue = 1000;
 	healthPoint = maxHealthPointValue;
 	energy = 50; maxEnergyValue = 100; energyForSpecial = 20;
 	currentAction = relax;
@@ -22,8 +22,9 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 		curInvItem->first = 0;
 		curInvItem->second = 0;
 	}
+	tag = "player";
 	inventoryCapacity = 16;
-	toSaveName = "hero1";
+	toSaveName = "this1";
 }
 
 Vector2i Deerchant::calculateTextureOffset()
@@ -44,39 +45,38 @@ void Deerchant::handleInput()
 	}
 
 	if (currentAction != evasionDown && currentAction != evasionUp)
-	{
 		if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::S) || Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::D))
 			currentAction = move;
-		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::W))
-			direction = UPLEFT;
+
+	if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::W))
+		direction = UPLEFT;
+	else
+		if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::W))
+			direction = UPRIGHT;
 		else
-			if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::W))
-				direction = UPRIGHT;
+			if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::S))
+				direction = DOWNLEFT;
 			else
-				if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::S))
-					direction = DOWNLEFT;
+				if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::S))
+					direction = DOWNRIGHT;
 				else
-					if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::S))
-						direction = DOWNRIGHT;
+					if (Keyboard::isKeyPressed(Keyboard::A))
+						direction = LEFT;
 					else
-						if (Keyboard::isKeyPressed(Keyboard::A))
-							direction = LEFT;
+						if (Keyboard::isKeyPressed(Keyboard::D))
+							direction = RIGHT;
 						else
-							if (Keyboard::isKeyPressed(Keyboard::D))
-								direction = RIGHT;
+							if (Keyboard::isKeyPressed(Keyboard::W))
+								direction = UP;
 							else
-								if (Keyboard::isKeyPressed(Keyboard::W))
-									direction = UP;
+								if (Keyboard::isKeyPressed(Keyboard::S))
+									direction = DOWN;
 								else
-									if (Keyboard::isKeyPressed(Keyboard::S))
-										direction = DOWN;
-									else
-									{
-										direction = STAND;
-										if (currentAction == move)
-											currentAction = relax;
-									}
-	}
+								{
+									direction = STAND;
+									if (currentAction == move)
+										currentAction = relax;
+								}
 	if (isBuilder)
 		return;
 	if (Keyboard::isKeyPressed(Keyboard::Z) && (currentAction == relax || currentAction == combatState))
@@ -138,6 +138,50 @@ void Deerchant::setHitDirection()
 			else
 				if (mouseX <= xPos && abs(alpha) >= 0 && abs(alpha) <= 45)
 					side = left;
+}
+
+void Deerchant::behavior(DynamicObject& target, float elapsedTime)
+{
+	bool isIntersect = (sqrt(pow(this->position.x - target.getPosition().x, 2) + pow(this->position.y - target.getPosition().y, 2)) <= (this->radius + target.getRadius()));
+
+	if (target.getCurrentAction() == dead)
+	{			
+		if (isIntersect && this->lastAction == openInventory && target.inventory.size() != 0)
+			target.setInventoryVisibility(true);
+		if (this->direction != STAND)
+			target.setInventoryVisibility(false);
+		return;
+	}
+
+	if (isIntersect && target.isSelected/* gettargetSide(thisObject, target) == this->hitDirection*/)
+	{
+		if (target.timeForNewHitself >= target.getTimeAfterHitself())
+		{
+			if (this->currentAction == commonHit && this->getSpriteNumber() == 4)
+			{
+				this->addEnergy(5);
+				target.takeDamage(this->getStrength());
+				target.timeForNewHitself = 0;
+			}
+			else
+				if (this->currentAction == hardHit && this->getSpriteNumber() == 4)
+				{
+					this->addEnergy(15);
+					target.takeDamage(this->getStrength()*1.5);
+					target.timeForNewHitself = 0;
+				}
+				else
+					if (this->currentAction == specialHit && this->getSpriteNumber() == 4)
+					{
+						target.takeDamage(this->getStrength() * 2);
+						target.timeForNewHitself = 0;
+					}
+
+		}
+
+	}
+
+	target.timeForNewHitself += elapsedTime;
 }
 
 std::string Deerchant::getSpriteName(long long elapsedTime)
@@ -254,15 +298,48 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		break;
 	case evasionDown:
 		animationLength = 7;
-		switch (side)
+		if (direction != STAND)
 		{
+			switch (direction)
+			{
+			case LEFT:
+				spriteName = "Maddox/evasionDown/left/ch1_dodge_s_";
+				break;
+			case RIGHT:
+				spriteName = "Maddox/evasionDown/right/ch1_dodge_s_";
+				break;
+			case UP:
+				spriteName = "Maddox/evasionDown/back/ch1_dodge_b_";
+				break;
+			case DOWN:
+				spriteName = "Maddox/evasionDown/front/ch1_dodge_f_";
+				break;
+			case UPLEFT:
+				spriteName = "Maddox/evasionDown/left/ch1_dodge_s_";
+				break;
+			case UPRIGHT:
+				spriteName = "Maddox/evasionDown/right/ch1_dodge_s_";
+				break;
+			case DOWNLEFT:
+				spriteName = "Maddox/evasionDown/left/ch1_dodge_s_";
+				break;
+			case DOWNRIGHT:
+				spriteName = "Maddox/evasionDown/right/ch1_dodge_s_";
+				break;
+			default:;
+			}
+		}
+		else
+		{
+			switch (side)
+			{
 			case up:
 			{
 				spriteName = "Maddox/evasionDown/back/ch1_dodge_b_";
 				break;
 			}
 			case right:
-			{	
+			{
 				spriteName = "Maddox/evasionDown/right/ch1_dodge_s_";
 				break;
 			}
@@ -276,34 +353,70 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 				spriteName = "Maddox/evasionDown/left/ch1_dodge_s_";
 				break;
 			}
+			}
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	case evasionUp:
 		animationLength = 8;
-		switch (side)
+		if (direction != STAND)
 		{
-		case up:
-		{
-			spriteName = "Maddox/evasionUp/back/ch1_jump_b_";
-			break;
+			switch (direction)
+			{
+			case LEFT:
+				spriteName = "Maddox/evasionUp/left/ch1_jump_s_";
+
+				break;
+			case RIGHT:
+				spriteName = "Maddox/evasionUp/right/ch1_jump_s_";
+				break;
+			case UP:
+				spriteName = "Maddox/evasionUp/back/ch1_jump_b_";
+				break;
+			case DOWN:
+				spriteName = "Maddox/evasionUp/front/ch1_jump_f_";
+				break;
+			case UPLEFT:
+				spriteName = "Maddox/evasionUp/left/ch1_jump_s_";
+				break;
+			case UPRIGHT:
+				spriteName = "Maddox/evasionUp/right/ch1_jump_s_";
+				break;
+			case DOWNLEFT:
+				spriteName = "Maddox/evasionUp/left/ch1_jump_s_";
+				break;
+			case DOWNRIGHT:
+				spriteName = "Maddox/evasionUp/right/ch1_jump_s_";
+				break;
+			default:;
+			}
 		}
-		case right:
+		else
 		{
-			spriteName = "Maddox/evasionUp/right/ch1_jump_s_";
-			break;
-		}
-		case down:
-		{
-			spriteName = "Maddox/evasionUp/front/ch1_jump_f_";
-			break;
-		}
-		case left:
-		{
-			spriteName = "Maddox/evasionUp/left/ch1_jump_s_";
-			break;
-		}
+			switch (side)
+			{
+			case up:
+			{
+				spriteName = "Maddox/evasionUp/back/ch1_jump_b_";
+				break;
+			}
+			case right:
+			{
+				spriteName = "Maddox/evasionUp/right/ch1_jump_s_";
+				break;
+			}
+			case down:
+			{
+				spriteName = "Maddox/evasionUp/front/ch1_jump_f_";
+				break;
+			}
+			case left:
+			{
+				spriteName = "Maddox/evasionUp/left/ch1_jump_s_";
+				break;
+			}
+			}
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";

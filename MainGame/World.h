@@ -20,6 +20,7 @@
 #include "TerrainObject.h"
 
 #include "TreeOfGreatness.h"
+#include "Ground.h"
 #include "Grass.h"
 #include "Spawn.h"
 #include "BonefireOfInsight.h"
@@ -27,54 +28,62 @@
 #include "MushroomStone.h"
 #include "MushroomsOnStone.h"
 
-#include "Creature.h"
 #include "Monster.h"
 #include "Deerchant.h"
 #include "Monster.h"
+#include "Wolf.h"
 
 using namespace sf;
 
-enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7};
-enum dynamicItemsIdList { hero1 = 1,  monster = 2};
+enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11};
+enum dynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3};
 
 class World
 {
 	//lightSystem
-	Color commonWorldColor = Color(140, 90, 90, 255), commonWorldColorOutfill = Color(229.5, 178, 178, 255), spiritWorldColor = Color(73, 193, 214, 255), spiritWorldColorOutfill = Color(12, 78, 89, 255);
+	Color commonWorldColor = /*Color(140, 100, 100, 255)*/ Color(0, 0, 0, 255),
+		commonWorldColorOutfill = Color(240, 200, 200, 255),
+		spiritWorldColor = Color(73, 193, 214, 255),
+		spiritWorldColorOutfill = Color(12, 78, 89, 255);
 	ContextSettings contextSettings;
 	sf::RenderStates lightRenderStates;
 	sf::Sprite Lsprite;//Спрайт света.
-	Texture pointLightTexture, ConeLightTexture;// Текстура света.
+	Texture pointLightTexture, directionLightTexture;// Текстура света.
 	Texture  penumbraTexture;// Текстура полутени.
 	Shader unshadowShader, lightOverShapeShader;// Шейдеры для рендера света.
 	ltbl::LightSystem ls;//Глобальная система света и тени.	
 	sf::View view;
+	std::shared_ptr<ltbl::LightPointEmission> brightner;
 	//hero
 	const std::string heroTextureName = "Maddox/ch1_b_1.png";
 	//world base
 	float width, height;
 	Vector2i blockSize;
 	Vector2f cameraPosition;
-	Vector2i initSpriteMap();
+	void initSpriteMap();
 	float World::getScaleFactor();
 	Vector2f bossSpawnPosition;
 	std::string spriteNameFileDirectory = "World/objects.txt";
 	const float heroToScreenRatio = 0.25f;
+	void inBlockGenerate(int blockIndex);
+	bool canBeRegenerated(int blockIndex);
+	void World::beyondScreenGenerate();
+	int focusedObjectBlock = 0;
 	//time logic
 	Clock timer;
 	float timeForNewSave, timeAfterSave;	
 	//move logic
 	bool isClimbBeyond(Vector2f pos);
-	static Vector2f move(const DynamicObject& dynamicObject, long long elapsedTime);
+	static Vector2f move(DynamicObject& dynamicObject, long long elapsedTime);
 	bool isIntersectTerrain(Vector2f newPosition, const TerrainObject& other) const;
-	bool isIntersectDynamic(DynamicObject& position, Vector2f newPosition, const DynamicObject& other) const;
+	bool isIntersectDynamic(DynamicObject& position, Vector2f newPosition, DynamicObject& other) const;
 	static Vector2f newSlippingPositionInCircle(DynamicObject *dynamicItem, Vector2f pos, float radius, long long elapsedTime);
 	static Vector2f newSlippingPosition(DynamicObject *dynamicItem, Vector2f pos, long long elapsedTime);
 	static Vector2f newSlippingPositionForDynamics(DynamicObject *dynamicItem1, DynamicObject *dynamicItem2, long long elapsedTime);
 	//fight logic	
 	//selection logic
 	void setTransparent(std::vector<WorldObject*> visibleItems);
-	std::string mouseDisplayName;
+	std::string mouseDisplayName, mouseSelectedName;
 	//shaders
 	sf::Shader spiritWorldShader;
 	sf::Texture distortionMap;
@@ -85,6 +94,7 @@ class World
 	//grids
 	GridList<StaticObject> staticGrid;
 	GridList<DynamicObject> dynamicGrid;
+	
 public:
 	//lightSystem
 	void initLightSystem(RenderWindow &window);
@@ -110,6 +120,7 @@ public:
 	std::unordered_map<std::string, BoardSprite> spriteMap;
 	void interact(RenderWindow& window, long long elapsedTime);
 	void draw(RenderWindow& window, long long elapsedTime);
+	void drawVisibleItems(RenderWindow& window, long long elapsedTime);
 	std::vector<WorldObject*> visibleItems;
 	std::vector<StaticObject*> staticItems;
 	Vector2i worldUpperLeft, worldBottomRight;
@@ -119,12 +130,14 @@ public:
 	void scaleSmoothing();
 	float scaleDecrease, timeForScaleDecrease = 0;
 	Clock scaleDecreaseClock;
-	//fight logic
-	void heroInteractWithMobs(DynamicObject& victim, float elapsedTime);
-	void hitInteract(DynamicObject& currentItem, float elapsedTime);
+
 	Vector2f currentTransparentPos = Vector2f(0, 0);
 	//hero
 	DynamicObject* focusedObject;	
+	//std::vector< std::vector<StaticObject*> > backgroundMatrix;
+	StaticObject* backgroundMatrix[100][100];
+	//events
+	void onMouseDownInteract();
 };
 
 #endif

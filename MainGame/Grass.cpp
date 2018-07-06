@@ -3,7 +3,7 @@
 
 Grass::Grass(std::string objectName, Vector2f centerPosition, int typeOfObject) : StaticObject(objectName, centerPosition)
 {
-	varietyOfTypes = 16;
+	varietyOfTypes = 9;
 	this->typeOfObject = typeOfObject;
 	isBackground = true;
 	toSaveName = "grass";
@@ -14,22 +14,20 @@ void Grass::setType(int typeOfObject)
 {
 	if (typeOfObject == -1)
 		return;
+
 	this->typeOfObject = typeOfObject;
-	if (this->typeOfObject == 0)
-	{
-		this->conditionalSizeUnits = Vector2f(1500, 1200);
-	}
-	else
-	{
-		this->conditionalSizeUnits = Vector2f(500, 400);
-		this->zCoords = 1;
-	}
+	this->conditionalSizeUnits = Vector2f(500, 400);
+	this->zCoords = 1;
 }
 
 Vector2i Grass::calculateTextureOffset()
 {	
 	textureBox.width *= getScaleRatio().x;
 	textureBox.height *= getScaleRatio().y;
+	
+	if (typeOfObject == 0)
+		return Vector2i(0, 0);	
+	
 	return Vector2i(textureBox.width / 2, int(textureBox.height / 2));
 }
 

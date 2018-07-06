@@ -27,6 +27,10 @@ GridList<T>::GridList(int width, int height, Vector2i size)
 	this->size = size;
 	auto vectorSize = int(ceil(double(height) / size.y) * ceil(double(width) / size.x));
 	cells.resize(vectorSize);
+	for (auto arr : cells)
+	{
+		arr.resize(0);
+	}
 }
 
 template <class T>
@@ -54,6 +58,19 @@ int GridList<T>::getIndexByPoint(int x, int y) const
 }
 
 template <class T>
+Vector2f GridList<T>::getPointByIndex(int index) const
+{
+	int inLineNumber = ceil(double(width) / size.x);
+	int inRawNumber = (index) / inLineNumber;
+
+	Vector2f result;
+	result.x = (index % inLineNumber) * size.x;
+	result.y = (inRawNumber * size.y);
+
+	return result;
+}
+
+template <class T>
 void GridList<T>::addItem(T* item, const std::string& name, int x, int y)
 {
 	if (items.find(name) != items.end())
@@ -66,6 +83,18 @@ void GridList<T>::addItem(T* item, const std::string& name, int x, int y)
 }
 
 template <class T>
+void GridList<T>::clearCell(int cellIndex)
+{
+	for (auto item : cells[cellIndex])
+	{
+		auto itemObject = dynamic_cast<WorldObject*>(item);
+		if (itemObject)
+			items.erase(items.find(itemObject->getName()));
+	}
+	cells[cellIndex].clear();
+}
+
+template <class T>
 T* GridList<T>::getItemByName(const std::string& name)
 {
 	auto position = items.at(name);
@@ -73,7 +102,7 @@ T* GridList<T>::getItemByName(const std::string& name)
 }
 
 template <class T>
-std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY, int width)
+std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY)
 {
 	std::vector<T*> result;
 	if (upperLeftX <= 0)
@@ -113,6 +142,53 @@ std::vector<T*> GridList<T>::getItems(int upperLeftX, int upperLeftY, int bottom
 		lastColumn += columnsPerRow;
 		
 	}
+	return result;
+}
+
+template <class T>
+std::vector<T*> GridList<T>::getItems(int blockIndex)
+{
+	return cells[blockIndex];
+}
+
+template <class T>
+std::vector<int> GridList<T>::getBlocksAround(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY)
+{
+	std::vector<int> result;
+
+	if (upperLeftX <= 0)
+		upperLeftX = 0;
+	if (bottomRightX >= width)
+		bottomRightX = width;
+	if (upperLeftY <= 0)
+		upperLeftY = 0;
+	if (bottomRightY >= height)
+		bottomRightY = height;
+
+	auto rowsCount = int(ceil(double(bottomRightY - upperLeftY) / size.y));
+	auto firstColumn = getIndexByPoint(upperLeftX, upperLeftY);
+	auto lastColumn = getIndexByPoint(bottomRightX, upperLeftY);
+	auto columnsPerRow = int(ceil(double(width) / size.x));
+	auto maxColumn = int(cells.size()) - 1;
+
+	for (auto i = 0; i <= rowsCount; i++)
+	{
+		if (lastColumn >= maxColumn)
+			lastColumn = maxColumn;
+
+		if (i == 0 || i == rowsCount)
+			for (int j = firstColumn; j <= lastColumn; j++)
+				result.push_back(j);
+		else
+		{
+			result.push_back(firstColumn);
+			result.push_back(lastColumn);
+		}
+
+		firstColumn += columnsPerRow;
+		lastColumn += columnsPerRow;
+	}
+
 	return result;
 }
 

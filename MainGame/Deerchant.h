@@ -10,7 +10,7 @@ using namespace sf;
 class Deerchant : public DynamicObject
 {
 	void setHitDirection();
-	float energy, maxEnergyValue, energyForSpecial;
+	float energy, maxEnergyValue, energyForSpecial;	
 public:	
 	Deerchant(std::string objectName, Vector2f centerPosition);
 	//builder
@@ -28,7 +28,8 @@ public:
 	std::string getSpriteName(long long elapsedTime) override;
 	//control
 	void handleInput() override;	
-	//inventory
+
+	void behavior(DynamicObject& target, float elapsedTime) override;	
 };
 
 #endif

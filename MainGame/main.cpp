@@ -17,8 +17,8 @@ int main() {
 	
 	Menu menu;
 	World world(40000, 40000);
-	bool windowFocus = true;
 	world.initLightSystem(mainWindow);
+	bool windowFocus = true;
 
 	Clock interactClock;
 	Clock drawClock;
@@ -55,7 +55,9 @@ int main() {
 			}
 			if (event.type == Event::MouseButtonReleased)
 			{
-				world.getInventorySystem().onMouseDownInteract(mainWindow);
+				world.onMouseDownInteract();
+				//if (world.focusedObject->direction == RIGHT)
+					//world.beyondScreenGenerate();
 			}
 			if (event.type == Event::GainedFocus)
 			{
@@ -98,17 +100,18 @@ int main() {
 			menu.isMenu = true;
 		}
 
-		RectangleShape energyRect(Vector2f(int(hero->getEnergy() / hero->getMaxEnergyValue() * 500), 40));
-		energyRect.setPosition(Vector2f(screenSize.x / 2 - 250, screenSize.y - 100));
+		RectangleShape energyRect(Vector2f(int(hero->getEnergy() / hero->getMaxEnergyValue() * screenSize.x / 4), 40));
+		energyRect.setPosition(Vector2f(screenSize.x / 2 - screenSize.x / 8, screenSize.y - 100));
 		energyRect.setFillColor(Color(245, 215, 66));
 		mainWindow.draw(energyRect);
-		RectangleShape healthRect(Vector2f(int(hero->getHealthPoint() / hero->getMaxHealthPointValue() * 500), 40));
-		healthRect.setPosition(Vector2f(screenSize.x / 2 - 250, screenSize.y - 200));
+		RectangleShape healthRect(Vector2f(int(hero->getHealthPoint() / hero->getMaxHealthPointValue() * screenSize.x / 4), 40));
+		healthRect.setPosition(Vector2f(screenSize.x / 2 - screenSize.x / 8, screenSize.y - 200));
 		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
 
-		//Helper::drawText(to_string(world.getDynamicGrid().getItemByName("testEnemy1")->isSelected), 30, 100, 200, &mainWindow);
-		//Helper::drawText(to_string(hero->lastAction), 30, 200, 200, &mainWindow);
+		//Helper::drawText(to_string(drawTime), 30, 200, 200, &mainWindow);	
+		//Helper::drawText(to_string(world.focusedObject->getPosition().x), 30, 200, 300, &mainWindow);
+		//Helper::drawText(to_string(world.focusedObject->getPosition().y), 30, 200, 400, &mainWindow);
 
 
 		mainWindow.display();
