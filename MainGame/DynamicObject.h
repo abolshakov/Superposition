@@ -28,7 +28,7 @@ protected:
 	Vector2f moveOffset = Vector2f(-1, -1);
 public:
 	DynamicObject(std::string objectName, Vector2f centerPosition);
-
+	~DynamicObject();
 	int getSpriteNumber() override { return currentSprite; }
 	int getEllipseSize() const { return ellipseSize; }
 	float getMaxHealthPointValue() { return maxHealthPointValue; }

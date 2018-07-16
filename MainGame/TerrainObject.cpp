@@ -5,4 +5,8 @@ TerrainObject::TerrainObject(std::string objectName, Vector2f centerPosition) : 
 	isTerrain = true;
 }
 
+TerrainObject::~TerrainObject()
+{
+
+}
 

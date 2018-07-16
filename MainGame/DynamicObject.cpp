@@ -6,6 +6,11 @@ DynamicObject::DynamicObject(std::string objectName, Vector2f centerPosition) : 
 	direction = STAND;	
 }
 
+DynamicObject::~DynamicObject()
+{
+
+}
+
 void DynamicObject::handleInput()
 {
 }

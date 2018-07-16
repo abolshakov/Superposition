@@ -13,8 +13,9 @@ class Deerchant : public DynamicObject
 	float energy, maxEnergyValue, energyForSpecial;	
 public:	
 	Deerchant(std::string objectName, Vector2f centerPosition);
-	//builder
-	bool isBuilder = false;
+	~Deerchant();
+	//BuildSystemMaker
+	bool isBuildSystemMaker = false;
 	//fight
 	bool isFightWithBoss = false;
 	float getEnergy() { return energy;  }

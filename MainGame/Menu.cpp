@@ -5,7 +5,7 @@ Menu::Menu()
 	screenSize = Helper::GetScreenSize();
 	loadingImageTexture.loadFromFile("World/Menu/Loading.png");
 	loadingImage.setTexture(loadingImageTexture);
-	loadingImage.setPosition(screenSize.x, screenSize.y);
+	loadingImage.setPosition(screenSize.x / 2, screenSize.y / 2);
 
 	newRunButtonPosition = Vector2f(screenSize.x / 16, screenSize.y / 8);
 	exitButtonPosition = Vector2f(screenSize.x / 16, screenSize.y * 5 / 8);
@@ -30,6 +30,11 @@ Menu::Menu()
 	exitButton.setScale((screenSize.x / 4) / exitButtonTexture.getSize().x, (screenSize.y / 10) / exitButtonTexture.getSize().y);
 	settingsButton.setScale((screenSize.x / 4) / settingsButtonTexture.getSize().x, (screenSize.y / 10) / settingsButtonTexture.getSize().y);
 	continueButton.setScale((screenSize.x / 4) / continueButtonTexture.getSize().x, (screenSize.y / 10) / continueButtonTexture.getSize().y);
+}
+
+Menu::~Menu()
+{
+
 }
 
 void Menu::drawLoadingImage(RenderWindow &window)

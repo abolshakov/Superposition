@@ -1,4 +1,3 @@
-#pragma once
 #ifndef MENU_H
 #define MENU_H
 
@@ -13,8 +12,9 @@ class Menu
 protected:
 
 public:
-	bool isMenu = true;
 	Menu();
+	~Menu();
+	bool isMenu = true;	
 	void drawLoadingImage(RenderWindow &window);
 	void interact(World &world, RenderWindow &window);
 	void drawButtons(RenderWindow &window);

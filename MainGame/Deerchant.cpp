@@ -27,6 +27,11 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	toSaveName = "this1";
 }
 
+Deerchant::~Deerchant()
+{
+
+}
+
 Vector2i Deerchant::calculateTextureOffset()
 {
 	conditionalSizeUnits = Vector2f(250, 250);
@@ -77,7 +82,7 @@ void Deerchant::handleInput()
 									if (currentAction == move)
 										currentAction = relax;
 								}
-	if (isBuilder)
+	if (isBuildSystemMaker)
 		return;
 	if (Keyboard::isKeyPressed(Keyboard::Z) && (currentAction == relax || currentAction == combatState))
 	{

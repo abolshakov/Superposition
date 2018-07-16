@@ -8,7 +8,7 @@ World::World(int width, int height) : focusedObject(nullptr)
 {
 	timeAfterSave = 60000000;
 	timeForNewSave = 0;
-	blockSize = Vector2i(1500, 1200); //conditionalSizeUnits
+	blockSize = Vector2i(1000, 1000); //conditionalSizeUnits
 	initSpriteMap();
 	scaleFactor = getScaleFactor();
 
@@ -18,10 +18,19 @@ World::World(int width, int height) : focusedObject(nullptr)
 	initShaders();
 	inventorySystem.init();
 	buildSystem.Init(inventorySystem.getSpriteList());
+}
 
-	/*backgroundMatrix.resize(ceil(width / blockSize.x));
-	for (int i = 0; i < width / blockSize.x; ++i)
-		backgroundMatrix[i].resize(ceil(height / blockSize.y));*/
+World::~World()
+{
+	/*staticGrid.~GridList();
+	dynamicGrid.~GridList();
+	inventorySystem.~InventoryMaker();
+	buildSystem.~BuildSystemMaker();
+	focusedObject->~DynamicObject();
+	for (auto item : staticItems)
+		item->~StaticObject();
+	for (auto item : visibleItems)
+		item->~WorldObject();*/
 }
 
 void World::initShaders()
@@ -255,6 +264,12 @@ void World::initializeStaticItem(staticItemsIdList itemClass, Vector2f itemPosit
 		nameOfImage = "terrainObjects/ground/ground";
 		break;
 	}
+	case 12:
+	{
+		item = new GroundConnection("item", Vector2f(0, 0), -1);
+		nameOfImage = "terrainObjects/ground/groundConnection";
+		break;
+	}
 	default:
 	{
 		item = new Spawn("item", Vector2f(0, 0), -1);
@@ -282,7 +297,7 @@ void World::initializeStaticItem(staticItemsIdList itemClass, Vector2f itemPosit
 
 	//for bias positioning
 	auto spriteLeft = float((item->getPosition().x - cameraPosition.x - item->getTextureOffset().x) * scaleFactor + Helper::GetScreenSize().x / 2);
-	auto spriteTop = float((item->getPosition().y - cameraPosition.y + (item->getTextureBoxSize().y - item->getTextureOffset().y)) * scaleFactor + Helper::GetScreenSize().y / 2);	
+	auto spriteTop = float((item->getPosition().y - cameraPosition.y + (item->getTextureSize().y - item->getTextureOffset().y)) * scaleFactor + Helper::GetScreenSize().y / 2);	
 
 	staticGrid.addItem(item, name, int(itemPosition.x), int(itemPosition.y));
 }
@@ -433,21 +448,22 @@ void World::generate(int objCount)
 
 	int blocksCount = ceil(width / blockSize.x) * ceil(height / blockSize.y);
 
-	for (int i = 0; i < blocksCount; i++)
-	{
-		inBlockGenerate(i);
-	}
-
 	//
 	initializeStaticItem(treeOfGreatness, Vector2f(0, 0), 1, "treeOfGreatness");
 	initializeStaticItem(spawn, Vector2f(0, 0), 1, "spawn");
 	initializeStaticItem(grass, Vector2f(0, 0), 1, "grass");
 	initializeStaticItem(ground, Vector2f(0, 0), 1, "ground");
+	initializeStaticItem(groundConnection, Vector2f(0, 0), 1, "groundConnection");
 	initializeStaticItem(bonefireOfInsight, Vector2f(0, 0), 1, "bonefireOfInsight");
 	initializeStaticItem(homeCosiness, Vector2f(0, 0), 1, "homeCosiness");
 	initializeStaticItem(mushroomStone, Vector2f(0, 0), 1, "mushroomStone");
 	initializeStaticItem(mushroomsOnStone, Vector2f(0, 0), 1, "mushroomsOnStone");
 	//
+
+	/*for (int i = 0; i < blocksCount; i++)
+	{
+		inBlockGenerate(i);
+	}*/
 
 	//none target object
 	dynamicGrid.addItem(new Monster("none", Vector2f(width, height)), "none", int(width), int(height));
@@ -457,8 +473,8 @@ void World::generate(int objCount)
 	initializeDynamicItem(wolf, Vector2f(5400, 5500), "testEnemy2");
 	//------------------------------------------
 	//initializeHero(Vector2f(3800, 4000));
-	initializeDynamicItem(hero1, Vector2f(5800, 5800), "hero1");
-	//initializeStaticItem(treeOfGreatness, Vector2f(4100, 4100), 2, "testTree");
+	initializeDynamicItem(hero1, Vector2f(5800, 5000), "hero1");
+	//initializeStaticItem(treeOfGreatness, Vector2f(5400, 5400), 1, "testItem");
 	Save();
 
 	std::vector<std::reference_wrapper<std::pair<int, int>>> heroInventory;
@@ -476,30 +492,39 @@ void World::generate(int objCount)
 
 void World::inBlockGenerate(int blockIndex)
 {
+	if (blockIndex == 0)
+		return;
+
 	staticGrid.clearCell(blockIndex);
 	IntRect blockTransform = IntRect(staticGrid.getPointByIndex(blockIndex).x, staticGrid.getPointByIndex(blockIndex).y, Vector2i(blockSize).x, Vector2i(blockSize).y);
 	
 	//ground
 	int groundIndX = staticGrid.getPointByIndex(blockIndex).x / blockSize.x;
 	int groundIndY = staticGrid.getPointByIndex(blockIndex).y / blockSize.y;
-
-	if (groundIndY == int(height / blockSize.y) || groundIndY == 0 || groundIndX == int(width / blockSize.x) || groundIndX == 0)
-		return;
 	
-	//int randomGroundType = rand() % Ground("item", Vector2f(0, 0), -1).varietyOfTypes + 1;
-	backgroundMatrix[groundIndX][groundIndY] = new Ground("ground" + std::to_string(blockIndex), Vector2f(groundIndX * blockSize.x, groundIndY * blockSize.y), 1);
+	int randomGroundType = rand() % Ground("item", Vector2f(0, 0), -1).getVarietyOfTypes() + 1;
+	groundMatrix[groundIndX][groundIndY] = new Ground("ground" + std::to_string(blockIndex), Vector2f(groundIndX * blockSize.x, groundIndY * blockSize.y), randomGroundType);
 	auto textureBounds = spriteMap["terrainObjects/ground/ground1.png"].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
-	backgroundMatrix[groundIndX][groundIndY]->setTextureSize(textureSize);
-	staticGrid.addItem(backgroundMatrix[groundIndX][groundIndY], backgroundMatrix[groundIndX][groundIndY]->getName(), backgroundMatrix[groundIndX][groundIndY]->getPosition().x, backgroundMatrix[groundIndX][groundIndY]->getPosition().y);
+	groundMatrix[groundIndX][groundIndY]->setTextureSize(textureSize);
+	staticGrid.addItem(groundMatrix[groundIndX][groundIndY], groundMatrix[groundIndX][groundIndY]->getName(), groundMatrix[groundIndX][groundIndY]->getPosition().x, groundMatrix[groundIndX][groundIndY]->getPosition().y);
 
+	auto connectionPos = groundMatrix[groundIndX][groundIndY]->getPosition();
+	auto currentType = groundMatrix[groundIndX][groundIndY]->getType();
+	auto cellSize = groundMatrix[groundIndX][groundIndY]->getConditionalSizeUnits();
+	initializeStaticItem(groundConnection, connectionPos, (currentType - 1) * 4 + 1, "");
+	initializeStaticItem(groundConnection, Vector2f(connectionPos.x + cellSize.x - 1, connectionPos.y), (currentType - 1) * 4 + 2, "");
+	initializeStaticItem(groundConnection, connectionPos, (groundMatrix[groundIndX][groundIndY]->getType() - 1) * 4 + 3, "");
+	initializeStaticItem(groundConnection, Vector2f(connectionPos.x, connectionPos.y + cellSize.y - 1), (currentType - 1) * 4 + 4, "");
+
+	//block filling
 	Vector2f grassCellSize = Grass("", Vector2f(0, 0), 1).getConditionalSizeUnits();
 	
-	int saturation = rand() % 10 + 10;
+	int saturation = rand() % 10 + 5;
 
-	for (double i = blockTransform.left; i <= blockTransform.left + blockTransform.width; i += grassCellSize.x / 1.6)
+	for (double i = blockTransform.left; i < blockTransform.left + blockTransform.width; i += grassCellSize.x / 1.6)
 	{
-		for (double j = blockTransform.top; j <= blockTransform.top + blockTransform.height; j += grassCellSize.y / 1.6)
+		for (double j = blockTransform.top; j < blockTransform.top + blockTransform.height; j += grassCellSize.y / 1.6)
 		{
 			//grass
 			auto position = Vector2f(i, j);
@@ -806,20 +831,20 @@ void World::setTransparent(std::vector<WorldObject*> visibleItems)
 	{
 		if (visibleItem->getName() == focusedObject->getName())
 			return;
-		Vector2f itemSize = (Vector2f)visibleItem->getTextureBoxSize();
+		Vector2f itemSize = (Vector2f)visibleItem->getTextureSize();
 		visibleItem->isTransparent = false;
-		Vector2f itemPos = Vector2f(visibleItem->getPosition().x - visibleItem->getTextureBoxOffset().x, visibleItem->getPosition().y - visibleItem->getTextureBoxOffset().y);
+		Vector2f itemPos = Vector2f(visibleItem->getPosition().x - visibleItem->getTextureOffset().x, visibleItem->getPosition().y - visibleItem->getTextureOffset().y);
 
-		if (mousePos.x >= itemPos.x && mousePos.x <= itemPos.x + visibleItem->getTextureBoxSize().x &&
-			mousePos.y >= itemPos.y && mousePos.y <= itemPos.y + visibleItem->getTextureBoxSize().y && visibleItem->isBackground == false)
+		if (mousePos.x >= itemPos.x && mousePos.x <= itemPos.x + visibleItem->getTextureSize().x &&
+			mousePos.y >= itemPos.y && mousePos.y <= itemPos.y + visibleItem->getTextureSize().y && visibleItem->isBackground == false)
 		{
 			visibleItem->isSelected = true;
 		}
 		else
 			visibleItem->isSelected = false;
 
-		if (mousePos.x >= itemPos.x && mousePos.x <= itemPos.x + visibleItem->getTextureBoxSize().x &&
-			mousePos.y >= itemPos.y && mousePos.y <= itemPos.y + visibleItem->getTextureBoxSize().y && visibleItem->isBackground == false)
+		if (mousePos.x >= itemPos.x && mousePos.x <= itemPos.x + visibleItem->getTextureSize().x &&
+			mousePos.y >= itemPos.y && mousePos.y <= itemPos.y + visibleItem->getTextureSize().y && visibleItem->isBackground == false)
 		{
 			visibleItem->isVisibleName = true;
 			//float distanceToBounds = abs(mousePos.x - visibleItem->getPosition().x) + abs(mousePos.y - visibleItem->getPosition().y);
@@ -834,7 +859,7 @@ void World::setTransparent(std::vector<WorldObject*> visibleItems)
 			}
 		}
 
-		if (focusedObject->getPosition().x >= itemPos.x && focusedObject->getPosition().x <= itemPos.x + visibleItem->getTextureBoxSize().x && focusedObject->getPosition().y >= itemPos.y && focusedObject->getPosition().y <= itemPos.y + visibleItem->getTextureOffset().y && visibleItem->isBackground == false)
+		if (focusedObject->getPosition().x >= itemPos.x && focusedObject->getPosition().x <= itemPos.x + visibleItem->getTextureSize().x && focusedObject->getPosition().y >= itemPos.y && focusedObject->getPosition().y <= itemPos.y + visibleItem->getTextureOffset().y && visibleItem->isBackground == false)
 		{
 			visibleItem->isTransparent = true;
 			if (visibleItem->transparensy > 128)
@@ -908,9 +933,9 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 			newPosition.x = (screenSize.x / 2 + extra.x) * 1.5;
 			intersects = true;
 		}
-		if (newPosition.x > (width - screenSize.x / 2 - extra.x) * 1.5)
+		if (newPosition.x > width - (screenSize.x / 2 + extra.x) * 1.5)
 		{
-			newPosition.x = (width - screenSize.x / 2 - extra.x) * 1.5;
+			newPosition.x = width - (screenSize.x / 2 + extra.x) * 1.5;
 			intersects = true;
 		}
 		if (newPosition.y < (screenSize.y / 2 + extra.y) * 1.5)
@@ -918,9 +943,9 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 			newPosition.y = (screenSize.y / 2 + extra.y) * 1.5;
 			intersects = true;
 		}
-		if (newPosition.y > (height - screenSize.y / 2 - extra.y) * 1.5)
+		if (newPosition.y > height - (screenSize.y / 2 + extra.y) * 1.5)
 		{
-			newPosition.y = (height - screenSize.y / 2 - extra.y) * 1.5;
+			newPosition.y = height - (screenSize.y / 2 + extra.y) * 1.5;
 			intersects = true;
 		}
 
@@ -1121,13 +1146,13 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		inventorySystem.resetAnimationValues();
 
 	/*Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x), 30, 200, 200, &window);
-	Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y), 30, 350, 200, &window);
-	Helper::drawText(std::to_string(focusedObject->getPosition().x), 30, 200, 300, &window);
-	Helper::drawText(std::to_string(focusedObject->getPosition().y), 30, 350, 300, &window);*/
-	//Helper::drawText(std::to_string(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)), 30, 200, 400, &window);
-	int groundIndX = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x / blockSize.x;
-	int groundIndY = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y / blockSize.y;
-	//Helper::drawText(std::to_string(dynamicGrid.getItems(dynamicGrid.getIndexByPoint(dynamicGrid.getItemByName("testEnemy1")->getPosition().x, dynamicGrid.getItemByName("testEnemy1")->getPosition().y)).size()), 30, 200, 500, &window);
+	Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y), 30, 350, 200, &window);*/
+	//Helper::drawText(std::to_string(focusedObject->getPosition().x), 30, 200, 300, &window);
+	//Helper::drawText(std::to_string(focusedObject->getPosition().y), 30, 350, 300, &window);
+	/*Helper::drawText(std::to_string(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)), 30, 200, 400, &window);*/
+	//int groundIndX = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x / blockSize.x;
+	//int groundIndY = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y / blockSize.y;
+	Helper::drawText(std::to_string(elapsedTime), 30, 200, 500, &window);
 	//std::string blockName = staticGrid.getItemByName("ground" + std::to_string(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)))->getName();
 	/*for (int cnt = 0; cnt < staticGrid.getBlocksAround(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y).size(); cnt++)
 	{
@@ -1147,10 +1172,11 @@ void World::drawVisibleItems(RenderWindow& window, long long elapsedTime)
 	{
 		auto worldItemPosition = worldItem->getPosition();
 		auto worldTextureOffset = worldItem->getTextureOffset();
+		worldTextureOffset = Vector2i(worldTextureOffset.x * worldItem->getConditionalSizeUnits().x / worldItem->getTextureSize().x, worldTextureOffset.y * worldItem->getConditionalSizeUnits().y / worldItem->getTextureSize().y);
 		auto worldTextureSize = worldItem->getTextureSize();
 
 		auto spriteLeft = float((worldItemPosition.x - cameraPosition.x - worldTextureOffset.x) * scaleFactor + screenCenter.x);
-		auto spriteTop = float((worldItemPosition.y - cameraPosition.y + (worldItem->getTextureBoxSize().y - worldTextureOffset.y)) * scaleFactor + screenCenter.y);
+		auto spriteTop = float((worldItemPosition.y - cameraPosition.y + (worldItem->getConditionalSizeUnits().y - worldTextureOffset.y)) * scaleFactor + screenCenter.y);
 		//auto spriteRight = float(spriteLeft + worldTextureSize.x * scaleFactor);
 		//auto spriteBottom = float(spriteTop + worldTextureSize.y * scaleFactor);
 
@@ -1169,6 +1195,7 @@ void World::drawVisibleItems(RenderWindow& window, long long elapsedTime)
 
 		//set transparent
 		sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, worldItem->transparensy));
+		sprite.setRotation(worldItem->getRotation());
 
 		if (focusedObject->getCurrentWorldName() == "spirit"/* && !worldItem->isTransparent*/)
 			window.draw(sprite, &spiritWorldShader);
@@ -1181,8 +1208,6 @@ void World::drawVisibleItems(RenderWindow& window, long long elapsedTime)
 			{
 				dropInventory.push_back(worldItem->inventory[cnt]);
 			}
-			//inventorySystem.temporaryInventoryBounding(worldItem->inventory);
-			//inventorySystem.wasDrawing = true;
 		}
 	}
 

@@ -1,0 +1,10 @@
+World/buildSystem/homeCosiness.png terrainObjects/homeCosiness/homeCosiness1.png homeCosiness 2 1 2 2 2
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1
+World/buildSystem/bonefireOfInsight.png terrainObjects/bonefireOfInsight/bonefireOfInsight1.png bonefireOfInsight 2 1 1 2 1

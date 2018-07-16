@@ -1,4 +1,3 @@
-#pragma once
 #ifndef WORLD_H
 #define WORLD_H
 
@@ -13,14 +12,14 @@
 #include "GridList.h"
 #include "InventoryMaker.h"
 #include "Helper.h"
-#include "Builder.h"
+#include "BuildSystemMaker.h"
 #include "BoardSprite.h"
 
 #include "DynamicObject.h"
-#include "TerrainObject.h"
 
 #include "TreeOfGreatness.h"
 #include "Ground.h"
+#include "GroundConnection.h"
 #include "Grass.h"
 #include "Spawn.h"
 #include "BonefireOfInsight.h"
@@ -30,18 +29,17 @@
 
 #include "Monster.h"
 #include "Deerchant.h"
-#include "Monster.h"
 #include "Wolf.h"
 
 using namespace sf;
 
-enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11};
+enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12};
 enum dynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3};
 
 class World
 {
 	//lightSystem
-	Color commonWorldColor = /*Color(140, 100, 100, 255)*/ Color(0, 0, 0, 255),
+	Color commonWorldColor = Color(0, 0, 0, 255),
 		commonWorldColorOutfill = Color(240, 200, 200, 255),
 		spiritWorldColor = Color(73, 193, 214, 255),
 		spiritWorldColorOutfill = Color(12, 78, 89, 255);
@@ -90,12 +88,14 @@ class World
 	void initShaders();
 	//inventorySystem
 	InventoryMaker inventorySystem;
-	Builder buildSystem;
+	BuildSystemMaker buildSystem;
 	//grids
 	GridList<StaticObject> staticGrid;
 	GridList<DynamicObject> dynamicGrid;
 	
 public:
+	World(int width, int height);
+	~World();
 	//lightSystem
 	void initLightSystem(RenderWindow &window);
 	void renderLightSystem(View view, RenderWindow &window);
@@ -109,14 +109,13 @@ public:
 	GridList<DynamicObject> getDynamicGrid() { return dynamicGrid; }
 	Vector2f getCameraPosition() { return cameraPosition; }
 	InventoryMaker& getInventorySystem() { return inventorySystem; }
-	Builder& getBuildSystem() { return buildSystem; }
+	BuildSystemMaker& getBuildSystem() { return buildSystem; }
 	//save-load logic
 	void ClearWorld();
 	void Load();
 	void Save();
 	void generate(int objCount);
-	//base (draw, interact)
-	World(int width, int height);
+	//base (draw, interact)	
 	std::unordered_map<std::string, BoardSprite> spriteMap;
 	void interact(RenderWindow& window, long long elapsedTime);
 	void draw(RenderWindow& window, long long elapsedTime);
@@ -135,7 +134,7 @@ public:
 	//hero
 	DynamicObject* focusedObject;	
 	//std::vector< std::vector<StaticObject*> > backgroundMatrix;
-	StaticObject* backgroundMatrix[100][100];
+	StaticObject* groundMatrix[100][100];
 	//events
 	void onMouseDownInteract();
 };

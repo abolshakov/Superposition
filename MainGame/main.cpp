@@ -1,9 +1,8 @@
 #include "Helper.h"
 #include "World.h"
-#include "Deerchant.h"
+#include "Menu.h"
 #include <cmath>
 #include <thread>
-#include "Menu.h"
 #include <vector>
 #include <array>
 
@@ -31,19 +30,7 @@ int main() {
 		Event event;
 		
 		while (mainWindow.pollEvent(event))
-		{
-			if (event.type == Event::Closed)
-			{
-				world.Save();
-				mainWindow.close();
-			}
-			if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
-			{
-				if (menu.isMenu)
-					mainWindow.close();
-				world.Save();
-				menu.isMenu = true;				
-			}
+		{						
 			if (event.type == sf::Event::MouseWheelMoved)
 			{
 				world.setScaleFactor(event.mouseWheel.delta);
@@ -56,8 +43,6 @@ int main() {
 			if (event.type == Event::MouseButtonReleased)
 			{
 				world.onMouseDownInteract();
-				//if (world.focusedObject->direction == RIGHT)
-					//world.beyondScreenGenerate();
 			}
 			if (event.type == Event::GainedFocus)
 			{
@@ -66,6 +51,23 @@ int main() {
 			if (event.type == Event::LostFocus)
 			{
 				windowFocus = false;
+			}
+			if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+			{
+				if (menu.isMenu)
+					mainWindow.close();
+				else
+				{
+					world.Save();					
+					menu.isMenu = true;
+				}
+			}
+			if (event.type == Event::Closed)
+			{
+				world.Save();
+				world.~World();
+				mainWindow.close();
+				break;
 			}
 		}		
 

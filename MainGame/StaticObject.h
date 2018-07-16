@@ -7,8 +7,9 @@
 class StaticObject : public WorldObject
 {
 public:
-	int getSpriteNumber() override { return currentSprite; }
 	StaticObject(std::string objectName, Vector2f centerPosition);
+	~StaticObject();
+	int getSpriteNumber() override { return currentSprite; }	
 	virtual void setType(int newType) = 0;
 };
 

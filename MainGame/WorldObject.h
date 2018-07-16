@@ -16,6 +16,7 @@ protected:
 	int zCoords = 0;
 	int currentSprite;
 	int varietyOfTypes;
+	int rotation = 0;
 	bool inventoryVisibility;
 	float timeForNewSprite, animationSpeed;
 	std::string name, toSaveName;
@@ -27,13 +28,14 @@ protected:
 	Vector2f position;
 public:
 	WorldObject(std::string objectName, Vector2f centerPosition);
-	virtual ~WorldObject();
+	~WorldObject();
 
 	int getZCoords() { return zCoords; }
 	int getAnimationLength() { return animationLength; }
 	int getInvCampacity() { return inventoryCapacity; }
 	int getType() { return typeOfObject; }
 	int getVarietyOfTypes() { return varietyOfTypes; }
+	int getRotation() { return rotation; }
 	bool getInventoryVisibility() { return inventoryVisibility; }
 	std::string getCurrentWorldName() { return currentWorld; }
 	std::string getToSaveName() { return toSaveName; }
@@ -43,27 +45,24 @@ public:
 	Vector2f getPosition() const { return position; }
 	Vector2i getTextureSize() const { return Vector2i(textureBox.width, textureBox.height); }
 	Vector2i getTextureOffset() const { return Vector2i(int(textureBoxOffset.x), int(textureBoxOffset.y)); }
-	Vector2i getTextureBoxOffset() { return textureBoxOffset; };
-	Vector2i getTextureBoxSize() { return Vector2i(textureBox.width, textureBox.height); }
 	Vector2f getScaleRatio();
 	Vector2f getConditionalSizeUnits() { return conditionalSizeUnits; }
 	IntRect getOriginalTextureBox() { return originalTextureBox; }
 
 	void setInventoryVisibility(bool f) { inventoryVisibility = f; }
+	void setPosition(Vector2f newPosition);
+	void setName(std::string name) { this->name = name; }
+	virtual void setTextureSize(Vector2i textureSize);
+	void setRotation(int rotation) { this->rotation = rotation; }
 
-	std::vector<std::pair <int, int>> inventory;	
-	
 	bool isTransparent = false, isVisibleName = false, isSelected = false;
 	bool isBackground = false, isTerrain = false;
 
-	virtual void setTextureSize(Vector2i textureSize);
 	virtual Vector2i calculateTextureOffset();
-	virtual void initPedestal();
-	
-	void setPosition(Vector2f newPosition);
-	void setName(std::string name) { this->name = name; }
+	virtual void initPedestal();	
 
 	int transparensy;
+	std::vector<std::pair <int, int>> inventory;
 
 	std::string tag;
 };

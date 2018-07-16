@@ -47,5 +47,6 @@ void WorldObject::setPosition(Vector2f newPosition)
 
 WorldObject::~WorldObject()
 {
+
 }
 
