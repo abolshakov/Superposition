@@ -1,0 +1,6 @@
+[submodule "LTBL2"]
+	path = LTBL2
+	url = https://github.com/222464/LTBL2.git
+[submodule "Vendors/LTBL2"]
+	path = Vendors/LTBL2
+	url = https://github.com/222464/LTBL2.git
