@@ -17,7 +17,7 @@
 
 #include "DynamicObject.h"
 
-#include "TreeOfGreatness.h"
+#include "ForestTree.h"
 #include "Ground.h"
 #include "GroundConnection.h"
 #include "Grass.h"
@@ -33,7 +33,7 @@
 
 using namespace sf;
 
-enum staticItemsIdList { treeOfGreatness = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12};
+enum staticItemsIdList { Tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12};
 enum dynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3};
 
 class World

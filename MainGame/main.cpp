@@ -1,6 +1,6 @@
 #include "Helper.h"
 #include "World.h"
-#include "Menu.h"
+#include "MenuMaker.h"
 #include <cmath>
 #include <thread>
 #include <vector>
@@ -14,7 +14,7 @@ int main() {
 	auto screenSize = Helper::GetScreenSize();
 	RenderWindow mainWindow(VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y), 32), "game", Style::Fullscreen);
 	
-	Menu menu;
+	MenuMaker MenuMaker;
 	World world(40000, 40000);
 	world.initLightSystem(mainWindow);
 	bool windowFocus = true;
@@ -54,12 +54,12 @@ int main() {
 			}
 			if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
 			{
-				if (menu.isMenu)
+				if (MenuMaker.isMenuMaker)
 					mainWindow.close();
 				else
 				{
 					world.Save();					
-					menu.isMenu = true;
+					MenuMaker.isMenuMaker = true;
 				}
 			}
 			if (event.type == Event::Closed)
@@ -71,10 +71,10 @@ int main() {
 			}
 		}		
 
-		if (menu.isMenu)
+		if (MenuMaker.isMenuMaker)
 		{		
 			mainWindow.clear(Color::White);
-			menu.interact(world, mainWindow);			
+			MenuMaker.interact(world, mainWindow);			
 			mainWindow.display();			
 			continue;
 		}	 	
@@ -99,7 +99,7 @@ int main() {
 
 		if (hero->getHealthPoint() <= 0)
 		{
-			menu.isMenu = true;
+			MenuMaker.isMenuMaker = true;
 		}
 
 		RectangleShape energyRect(Vector2f(int(hero->getEnergy() / hero->getMaxEnergyValue() * screenSize.x / 4), 40));

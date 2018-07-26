@@ -73,10 +73,13 @@ Vector2f GridList<T>::getPointByIndex(int index) const
 template <class T>
 void GridList<T>::addItem(T* item, const std::string& name, int x, int y)
 {
+	int blocksCount = ceil(width / size.x) * ceil(height / size.y);
+
 	if (items.find(name) != items.end())
 		throw std::invalid_argument("The key '" + name + "' already exists in the Grid.");
 
-	auto index = getIndexByPoint(x, y);
+	auto index = getIndexByPoint(x, y);	
+
 	auto position = std::make_pair(index, int(cells[index].size()));
 	cells[index].push_back(item);
 	items.insert({ name, position });

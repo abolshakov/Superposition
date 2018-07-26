@@ -218,8 +218,8 @@ void World::initializeStaticItem(staticItemsIdList itemClass, Vector2f itemPosit
 	{
 	case 1:
 	{
-		item = new TreeOfGreatness("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/treeOfGreatness/treeOfGreatness";
+		item = new ForestTree("item", Vector2f(0, 0), -1);
+		nameOfImage = "terrainObjects/ForestTree/ForestTree";
 		break;
 	}
 	case 2:
@@ -358,7 +358,7 @@ void World::Load()
 	dynamicGrid = GridList<DynamicObject>(this->width, this->height, blockSize);
 
 	//
-	initializeStaticItem(treeOfGreatness, Vector2f(0, 0), 1, "treeOfGreatness");
+	initializeStaticItem(Tree, Vector2f(0, 0), 1, "ForestTree");
 	initializeStaticItem(spawn, Vector2f(0, 0), 1, "spawn");
 	initializeStaticItem(grass, Vector2f(0, 0), 1, "grass");
 	initializeStaticItem(ground, Vector2f(0, 0), 1, "gournd");
@@ -392,8 +392,8 @@ void World::Load()
 	{
 		fin >> saveName >> typeOfObject >> posX >> posY;
 	
-		if (saveName == TreeOfGreatness("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
-			initializeStaticItem(treeOfGreatness, Vector2f(posX, posY), typeOfObject, "");
+		if (saveName == ForestTree("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
+			initializeStaticItem(Tree, Vector2f(posX, posY), typeOfObject, "");
 		else
 			if (saveName == Grass("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
 				initializeStaticItem(grass, Vector2f(posX, posY), typeOfObject, "");
@@ -449,7 +449,7 @@ void World::generate(int objCount)
 	int blocksCount = ceil(width / blockSize.x) * ceil(height / blockSize.y);
 
 	//
-	initializeStaticItem(treeOfGreatness, Vector2f(0, 0), 1, "treeOfGreatness");
+	initializeStaticItem(Tree, Vector2f(0, 0), 1, "ForestTree");
 	initializeStaticItem(spawn, Vector2f(0, 0), 1, "spawn");
 	initializeStaticItem(grass, Vector2f(0, 0), 1, "grass");
 	initializeStaticItem(ground, Vector2f(0, 0), 1, "ground");
@@ -460,13 +460,13 @@ void World::generate(int objCount)
 	initializeStaticItem(mushroomsOnStone, Vector2f(0, 0), 1, "mushroomsOnStone");
 	//
 
-	/*for (int i = 0; i < blocksCount; i++)
+	for (int i = 0; i < blocksCount; i++)
 	{
 		inBlockGenerate(i);
-	}*/
+	}
 
 	//none target object
-	dynamicGrid.addItem(new Monster("none", Vector2f(width, height)), "none", int(width), int(height));
+	/*dynamicGrid.addItem(new Monster("none", Vector2f(width, height)), "none", int(width), int(height));*/
 	//-----------------------------------------
 	//test enemy
 	initializeDynamicItem(wolf, Vector2f(6000, 6100), "testEnemy1");
@@ -474,7 +474,7 @@ void World::generate(int objCount)
 	//------------------------------------------
 	//initializeHero(Vector2f(3800, 4000));
 	initializeDynamicItem(hero1, Vector2f(5800, 5000), "hero1");
-	//initializeStaticItem(treeOfGreatness, Vector2f(5400, 5400), 1, "testItem");
+	//initializeStaticItem(Tree, Vector2f(5400, 5400), 1, "testItem");
 	Save();
 
 	std::vector<std::reference_wrapper<std::pair<int, int>>> heroInventory;
@@ -539,7 +539,7 @@ void World::inBlockGenerate(int blockIndex)
 			int probability = rand() % 100;
 			if (probability <= saturation)
 			{
-				initializeStaticItem(treeOfGreatness, position, -1, "");
+				initializeStaticItem(Tree, position, -1, "");
 			}
 		}
 	}
