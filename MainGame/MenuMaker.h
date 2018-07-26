@@ -1,0 +1,33 @@
+#ifndef MenuMaker_H
+#define MenuMaker_H
+
+#include <SFML/Graphics.hpp>
+#include "World.h"
+#include "Helper.h"
+
+using namespace sf;
+
+class MenuMaker
+{
+protected:
+
+public:
+	MenuMaker();
+	~MenuMaker();
+	bool isMenuMaker = true;	
+	void drawLoadingImage(RenderWindow &window);
+	void interact(World &world, RenderWindow &window);
+	void drawButtons(RenderWindow &window);
+private:
+	Sprite newRunButton, continueButton, exitButton, settingsButton;
+	Texture newRunButtonTexture, continueButtonTexture, exitButtonTexture, settingsButtonTexture;
+	Vector2f newRunButtonSize, continueButtonSize, exitButtonSize, settingsButtonSize;
+	Vector2f newRunButtonPosition, continueButtonPosition, exitButtonPosition, settingsButtonPosition;
+	bool newRunButtonShow = true, continueButtonShow = true, exitButtonShow = true, settingsButtonShow = true;
+
+	Sprite loadingImage;
+	Texture loadingImageTexture;
+
+	Vector2f screenSize;
+};
+#endif
