@@ -76,7 +76,7 @@ void GridList<T>::addItem(T* item, const std::string& name, int x, int y)
 	int blocksCount = ceil(width / size.x) * ceil(height / size.y);
 
 	if (items.find(name) != items.end())
-		throw std::invalid_argument("The key '" + name + "' already exists in the Grid.");
+		throw std::invalid_argument("The key " + name + " already exists in the Grid.");
 
 	auto index = getIndexByPoint(x, y);	
 
@@ -93,8 +93,25 @@ void GridList<T>::clearCell(int cellIndex)
 		auto itemObject = dynamic_cast<WorldObject*>(item);
 		if (itemObject)
 			items.erase(items.find(itemObject->getName()));
+		itemObject->~WorldObject();
 	}
 	cells[cellIndex].clear();
+}
+
+template <class T>
+void GridList<T>::deleteItem(std::string name)
+{	
+	auto position = items.at(name);
+	for (int i = position.second; i < cells[position.first].size(); i++)
+	{
+		auto itemToUpdate = dynamic_cast<WorldObject*>(cells[position.first][i]);
+		auto itemName = itemToUpdate->getName();
+		items.at(itemName).second -= 1;
+	}
+	auto itemObject = dynamic_cast<WorldObject*>(cells[position.first][position.second]);
+	itemObject->~WorldObject();
+	cells[position.first].erase(cells[position.first].begin() + position.second);
+	items.erase(items.find(name));
 }
 
 template <class T>

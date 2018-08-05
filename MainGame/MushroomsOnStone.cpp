@@ -7,7 +7,7 @@ MushroomsOnStone::MushroomsOnStone(std::string objectName, Vector2f centerPositi
 	animationSpeed = 0.0004f;
 	animationLength = 12;
 	this->typeOfObject = typeOfObject;
-	intersectsRadius = 200;
+	radius = 200;
 	randomSizeIncrease = Vector2i(50, 50);
 	toSaveName = "spawn";
 	setType(typeOfObject);

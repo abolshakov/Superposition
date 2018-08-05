@@ -83,6 +83,8 @@ void BuildSystemMaker::inicializeObjectsInfo()
 
 		builtObjects.push_back(infoItem);
 	}
+
+	fin.close();
 }
 
 void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f focusedObjectPosition, std::vector<WorldObject*> visibleItems)
@@ -115,7 +117,7 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 				continue;
 			auto currentTerrain = dynamic_cast<TerrainObject*>(item);
 			if (currentTerrain)
-				if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->intersectsRadius))
+				if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->getRadius()))
 				{
 					sprite.setColor(Color::Red);
 					canBePlaced = false;
@@ -196,10 +198,13 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 {
 	Vector2f mousePos = (Vector2f)Mouse::getPosition();
 
+	wasActive = false;
+
 	if (Helper::isIntersects(mousePos, buildStartButton.getTextureRect()) && !isBuilding)
 	{
 		isBuilding = true;
 		currentObject = -1;
+		wasActive = true;
 	}
 	else
 		if (Helper::isIntersects(mousePos, buildStopButton.getTextureRect()) && isBuilding)
@@ -210,6 +215,7 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 			{
 				builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getTextureRect().width*-1, (i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25);
 			}
+			wasActive = true;
 			return;
 		}
 

@@ -6,9 +6,11 @@ ForestTree::ForestTree(std::string objectName, Vector2f centerPosition, int type
 	varietyOfTypes = 9;
 	this->typeOfObject = typeOfObject;
 	strength = 0;
-	intersectsRadius = 200;
+	radius = 50;
+	animationSpeed = 0.0005f;
 	toSaveName = "ForestTree";
 	setType(typeOfObject);
+	tag = forestTreeTag;
 }
 
 void ForestTree::setType(int typeOfObject)
@@ -153,5 +155,40 @@ void ForestTree::initPedestal()
 
 std::string ForestTree::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/ForestTree/ForestTree" + std::to_string(typeOfObject) + ".png";
+	std::string spriteName;
+
+	switch (state)
+	{
+		case common:
+		{
+			return "terrainObjects/ForestTree/ForestTree" + std::to_string(typeOfObject) + ".png";
+			break;
+		}
+		case absorbed:
+		{
+			animationLength = 15;
+			spriteName = "terrainObjects/ForestTree/ForestTree" + std::to_string(typeOfObject) + ".png";
+			brightness = 100 - currentSprite * 100 / animationLength;
+			break;
+		}
+	}
+
+	timeForNewSprite += elapsedTime;
+
+	if (timeForNewSprite >= 40 / animationSpeed)
+	{
+		timeForNewSprite = 0;
+
+		if (++currentSprite > animationLength)
+		{
+			if (state == absorbed)
+			{
+				state = common;
+				delatePromiseOn();
+			}
+			currentSprite = 1;
+		}
+	}
+
+	return spriteName;
 }

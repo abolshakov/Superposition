@@ -36,6 +36,7 @@ public:
 
 	int heroInventoryRawCellsNumber = 0;
 	std::vector<std::reference_wrapper<std::pair <int, int>>> getBoundInv() { return currentInventory; }
+	std::vector<int> getItemsMaxCount() { return itemsMaxCount; }
 private:
 	void initSpriteList();
 	int visibleItemsNumber = 0;

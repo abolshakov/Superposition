@@ -12,6 +12,7 @@ using namespace sf;
 template <class T>
 class GridList
 {
+private:
 	int width, height;
 	Vector2i size;
 	std::vector<std::vector<T*>> cells;
@@ -32,6 +33,7 @@ public:
 	void updateItemPosition(const std::string name, int x, int y);
 	std::vector<std::vector<T*>> getCells(){ return cells; }
 	void clearCell(int cellIndex);
+	void deleteItem(std::string name);
 	int getSize() { return items.size(); }
 	std::vector<int> getBlocksAround(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY);
 };

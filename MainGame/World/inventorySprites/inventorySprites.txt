@@ -1,3 +1,4 @@
 inventoryCell 0 100
 criticism 1 1
 myPeace 2 4
+chamomile 3 4

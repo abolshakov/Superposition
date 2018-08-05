@@ -5,10 +5,10 @@ HomeCosiness::HomeCosiness(std::string objectName, Vector2f centerPosition, int 
 {
 	varietyOfTypes = 1;
 	this->typeOfObject = typeOfObject;
-	intersectsRadius = 100;
+	radius = 100;
 	isBackground = true;
 	toSaveName = "homeCosiness";
-	zCoords = 2;
+	zCoords = 10;
 	setType(typeOfObject);
 }
 

@@ -9,8 +9,10 @@ using namespace sf;
 
 class Deerchant : public DynamicObject
 {
+private:
 	void setHitDirection();
 	float energy, maxEnergyValue, energyForSpecial;	
+	WorldObject *target;
 public:	
 	Deerchant(std::string objectName, Vector2f centerPosition);
 	~Deerchant();
@@ -31,6 +33,7 @@ public:
 	void handleInput() override;	
 
 	void behavior(DynamicObject& target, float elapsedTime) override;	
+	void onMouseDownBehavior(WorldObject *object);
 };
 
 #endif

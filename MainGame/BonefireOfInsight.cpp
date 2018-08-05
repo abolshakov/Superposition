@@ -5,7 +5,7 @@ BonefireOfInsight::BonefireOfInsight(std::string objectName, Vector2f centerPosi
 {
 	varietyOfTypes = 1;
 	this->typeOfObject = typeOfObject;
-	intersectsRadius = 100;
+	radius = 100;
 	/*light->_emissionSprite.setTexture(Helper::pointLightTexture);
 	light->_emissionSprite.setScale(Vector2f(25, 25));
 	light->_emissionSprite.setColor(Color(229.5, 178, 178, 255));

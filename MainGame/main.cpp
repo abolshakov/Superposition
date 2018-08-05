@@ -1,6 +1,7 @@
 #include "Helper.h"
 #include "World.h"
 #include "MenuMaker.h"
+#include "ButtonMaker.h"
 #include <cmath>
 #include <thread>
 #include <vector>
@@ -14,7 +15,7 @@ int main() {
 	auto screenSize = Helper::GetScreenSize();
 	RenderWindow mainWindow(VideoMode(static_cast<unsigned int>(screenSize.x), static_cast<unsigned int>(screenSize.y), 32), "game", Style::Fullscreen);
 	
-	MenuMaker MenuMaker;
+	MenuMaker menuSystem;
 	World world(40000, 40000);
 	world.initLightSystem(mainWindow);
 	bool windowFocus = true;
@@ -25,6 +26,14 @@ int main() {
 
 	float interactTime = 0, drawTime = 0;
 
+	world.scaleFactor = 1;
+
+	Sprite test;
+	Texture testTexture;
+	testTexture.loadFromFile("World/Hero/stand/down/1.png");
+	test.setTexture(testTexture);
+	test.setPosition(Vector2f(0, 0));
+
 	while (mainWindow.isOpen())
 	{
 		Event event;
@@ -33,35 +42,29 @@ int main() {
 		{						
 			if (event.type == sf::Event::MouseWheelMoved)
 			{
-				world.setScaleFactor(event.mouseWheel.delta);
+				if (menuSystem.getState() == closed)
+					world.setScaleFactor(event.mouseWheel.delta);
 			}	
-			if (event.type == Event::MouseButtonPressed)
-			{
-				if (world.getBuildSystem().succesInit)
-					world.getBuildSystem().onMouseDownInteract(world.focusedObject->getPosition(), world.scaleFactor);
-			}
+
 			if (event.type == Event::MouseButtonReleased)
-			{
-				world.onMouseDownInteract();
+			{										
+				if (menuSystem.getState() == closed)
+					world.onMouseDownInteract();
+
+				menuSystem.interact(world, mainWindow);
 			}
-			if (event.type == Event::GainedFocus)
+
+			if (event.type == Event::KeyReleased)
 			{
-				windowFocus = true;
+				menuSystem.onKeyDown(event, world);
 			}
-			if (event.type == Event::LostFocus)
-			{
-				windowFocus = false;
-			}
-			if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
-			{
-				if (MenuMaker.isMenuMaker)
-					mainWindow.close();
-				else
-				{
-					world.Save();					
-					MenuMaker.isMenuMaker = true;
-				}
-			}
+
+			if (event.type == Event::GainedFocus)			
+				windowFocus = true;	
+
+			if (event.type == Event::LostFocus)			
+				windowFocus = false;			
+
 			if (event.type == Event::Closed)
 			{
 				world.Save();
@@ -71,35 +74,42 @@ int main() {
 			}
 		}		
 
-		if (MenuMaker.isMenuMaker)
+		if (menuSystem.getState() == mainMenu)
 		{		
 			mainWindow.clear(Color::White);
-			MenuMaker.interact(world, mainWindow);			
+			menuSystem.drawButtons(mainWindow);
 			mainWindow.display();			
 			continue;
 		}	 	
 			
-		if (windowFocus)
+		if (windowFocus && menuSystem.getState() != gameMenu)
 		{
 			interactTime = interactClock.getElapsedTime().asMicroseconds();
 			interactClock.restart();
 
 			drawTime = drawClock.getElapsedTime().asMicroseconds();
 			drawClock.restart();
-		}
 
-		world.focusedObject->handleInput();
-		world.interact(mainWindow, interactTime);
+			world.focusedObject->handleInput();
+			world.interact(mainWindow, interactTime);
 
 			mainWindow.clear(Color::White);
-				
-		world.draw(mainWindow, drawTime);
+
+			world.draw(mainWindow, drawTime);
+		}	
+		else
+		{
+			world.draw(mainWindow, 0);
+			menuSystem.drawButtons(mainWindow);
+			interactClock.restart();
+			drawClock.restart();
+		}
 
 		auto hero = dynamic_cast<Deerchant*>(world.focusedObject);
 
 		if (hero->getHealthPoint() <= 0)
 		{
-			MenuMaker.isMenuMaker = true;
+			menuSystem.setState(mainMenu);
 		}
 
 		RectangleShape energyRect(Vector2f(int(hero->getEnergy() / hero->getMaxEnergyValue() * screenSize.x / 4), 40));
@@ -111,10 +121,8 @@ int main() {
 		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
 
-		//Helper::drawText(to_string(drawTime), 30, 200, 200, &mainWindow);	
-		//Helper::drawText(to_string(world.focusedObject->getPosition().x), 30, 200, 300, &mainWindow);
-		//Helper::drawText(to_string(world.focusedObject->getPosition().y), 30, 200, 400, &mainWindow);
-
+		//Helper::drawText(world.focusedObject->getSpriteName(drawTime), 30, 200, 300, &mainWindow);
+		//Helper::drawText(to_string(world.focusedObject->getPosition().y), 30, 200, 400, &mainWindow);		
 
 		mainWindow.display();
 	}

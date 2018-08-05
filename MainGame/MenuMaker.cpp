@@ -2,34 +2,37 @@
 
 MenuMaker::MenuMaker()
 {
+	initButtons();
+}
+
+/*void MenuMaker::worldBounding(World &world)
+{
+	this->world = world;
+}*/
+
+void MenuMaker::initButtons()
+{
 	screenSize = Helper::GetScreenSize();
-	loadingImageTexture.loadFromFile("World/MenuMaker/Loading.png");
-	loadingImage.setTexture(loadingImageTexture);
-	loadingImage.setPosition(screenSize.x / 2, screenSize.y / 2);
 
-	newRunButtonPosition = Vector2f(screenSize.x / 16, screenSize.y / 8);
-	exitButtonPosition = Vector2f(screenSize.x / 16, screenSize.y * 5 / 8);
-	settingsButtonPosition = Vector2f(screenSize.x / 16, screenSize.y * 3 / 8);
-	continueButtonPosition = Vector2f(screenSize.x / 16, screenSize.y * 2 / 8);
+	std::string buttonImagePath;
+	Vector2f buttonPosition, buttonScale; // in percents
+	int tag;
 
-	newRunButtonTexture.loadFromFile("World/MenuMaker/newRun.png");
-	newRunButton.setTexture(newRunButtonTexture);
-	exitButtonTexture.loadFromFile("World/MenuMaker/exit.png");
-	exitButton.setTexture(exitButtonTexture);
-	settingsButtonTexture.loadFromFile("World/MenuMaker/settings.png");
-	settingsButton.setTexture(settingsButtonTexture);
-	continueButtonTexture.loadFromFile("World/MenuMaker/continue.png");
-	continueButton.setTexture(continueButtonTexture);
+	std::ifstream fin(buttonsInfoFileDirectory);
+	while (fin >> buttonImagePath >> buttonPosition.x >> buttonPosition.y >> buttonScale.y >> tag)
+	{
+		Texture buttonTexture;
+		buttonTexture.loadFromFile(buttonImagePath);
 
-	newRunButton.setPosition(newRunButtonPosition);
-	exitButton.setPosition(exitButtonPosition);
-	settingsButton.setPosition(settingsButtonPosition);
-	continueButton.setPosition(continueButtonPosition);
+		buttonPosition.x = buttonPosition.x * screenSize.x / 100;
+		buttonPosition.y = buttonPosition.y * screenSize.y / 100;
+		buttonScale.y = buttonScale.y * screenSize.y / 100;
+		buttonScale.x = buttonScale.y * (buttonTexture.getSize().x / buttonTexture.getSize().y);
+		
+		buttonList[ButtonTag(tag)].initialize(buttonTexture, buttonPosition, buttonScale, ButtonTag(tag));
+	}
 
-	newRunButton.setScale((screenSize.x / 4) / newRunButtonTexture.getSize().x, (screenSize.y / 10) / newRunButtonTexture.getSize().y);
-	exitButton.setScale((screenSize.x / 4) / exitButtonTexture.getSize().x, (screenSize.y / 10) / exitButtonTexture.getSize().y);
-	settingsButton.setScale((screenSize.x / 4) / settingsButtonTexture.getSize().x, (screenSize.y / 10) / settingsButtonTexture.getSize().y);
-	continueButton.setScale((screenSize.x / 4) / continueButtonTexture.getSize().x, (screenSize.y / 10) / continueButtonTexture.getSize().y);
+	fin.close();
 }
 
 MenuMaker::~MenuMaker()
@@ -37,79 +40,109 @@ MenuMaker::~MenuMaker()
 
 }
 
-void MenuMaker::drawLoadingImage(RenderWindow &window)
+void MenuMaker::onKeyDown(Event event, World &world)
 {
-	window.draw(loadingImage);
+	if (event.key.code == Keyboard::Escape)
+	{
+		if (menuState == closed)
+		{
+			menuState = gameMenu;	
+		}
+		else
+			if (menuState == gameMenu)
+			{
+				menuState = closed;
+			}
+	}
 }
 
 void MenuMaker::interact(World &world, RenderWindow &window)
 {
+	if (menuState == closed)
+		return;
+
+	wasActive = false;
+
 	Vector2f mousePos = (Vector2f)Mouse::getPosition();
-	if (Helper::isIntersects(mousePos, IntRect(newRunButtonPosition.x, newRunButtonPosition.y, newRunButtonTexture.getSize().x, newRunButtonTexture.getSize().y)))
+
+	if (menuState == mainMenu)
 	{
-		if (Mouse::isButtonPressed(Mouse::Left))
+		if (buttonList[newRunTag].isSelected(mousePos))
 		{
-			//Thread thread(MenuMaker::drawLoadingImage, &window);				
-			//thread.launch();
 			world.generate(3000);
-			//world.initLightSystem(window);
-			isMenuMaker = false;
+			menuState = closed;
+			wasActive = true;
+			return;
 		}
-		newRunButton.setColor(Color(newRunButton.getColor().r, newRunButton.getColor().g, newRunButton.getColor().b, 128));
-	}
-	else
-		newRunButton.setColor(Color(newRunButton.getColor().r, newRunButton.getColor().g, newRunButton.getColor().b, 255));
 
-	if (Helper::isIntersects(mousePos, IntRect(continueButtonPosition.x, continueButtonPosition.y, continueButtonTexture.getSize().x, continueButtonTexture.getSize().y)))
-	{
-		if (Mouse::isButtonPressed(Mouse::Left))
+		if (buttonList[continueTag].isSelected(mousePos))
 		{
-			//Thread thread(MenuMaker::drawLoadingImage, &window);				
-			//thread.launch();
 			world.Load();
-			//world.initLightSystem(window);
-			isMenuMaker = false;
+			menuState = closed;
+			wasActive = true;
+			return;
 		}
-		continueButton.setColor(Color(continueButton.getColor().r, continueButton.getColor().g, continueButton.getColor().b, 128));
-	}
-	else
-		continueButton.setColor(Color(continueButton.getColor().r, continueButton.getColor().g, continueButton.getColor().b, 255));
 
-	if (Helper::isIntersects(mousePos, IntRect(settingsButtonPosition.x, settingsButtonPosition.y, settingsButtonTexture.getSize().x, settingsButtonTexture.getSize().y)))
-	{
-		if (Mouse::isButtonPressed(Mouse::Left))
+		if (buttonList[exitTag].isSelected(mousePos))
 		{
-
-		}
-		settingsButton.setColor(Color(exitButton.getColor().r, exitButton.getColor().g, exitButton.getColor().b, 128));
-	}
-	else
-		settingsButton.setColor(Color(exitButton.getColor().r, exitButton.getColor().g, exitButton.getColor().b, 250));
-
-	if (Helper::isIntersects(mousePos, IntRect(exitButtonPosition.x, exitButtonPosition.y, exitButtonTexture.getSize().x, exitButtonTexture.getSize().y)))
-	{
-		if (Mouse::isButtonPressed(Mouse::Left))
-		{
-			isMenuMaker = false;
+			menuState = closed;
 			window.close();
+			wasActive = true;
+			return;
 		}
-		exitButton.setColor(Color(exitButton.getColor().r, exitButton.getColor().g, exitButton.getColor().b, 128));
-	}
-	else
-		exitButton.setColor(Color(exitButton.getColor().r, exitButton.getColor().g, exitButton.getColor().b, 255));
 
-	drawButtons(window);
+		return;
+	}
+
+	if (menuState == gameMenu)
+	{
+		if (buttonList[newRunTag].isSelected(mousePos))
+		{
+			world.generate(3000);
+			menuState = closed;
+			wasActive = true;
+			return;
+		}
+
+		if (buttonList[continueTag].isSelected(mousePos))
+		{
+			menuState = closed;
+			wasActive = true;
+			return;
+		}
+
+		if (buttonList[menuTag].isSelected(mousePos))
+		{
+			world.Save();
+			menuState = mainMenu;
+			wasActive = true;
+			return;
+		}
+
+		return;
+	}
 }
 
 void MenuMaker::drawButtons(RenderWindow &window)
 {
-	if (newRunButtonShow)
-		window.draw(newRunButton);
-	if (exitButtonShow)
-		window.draw(exitButton);
-	if (settingsButtonShow)
-		window.draw(settingsButton);
-	if (continueButtonShow)
-		window.draw(continueButton);
+	if (menuState == mainMenu)
+	{
+		buttonList[newRunTag].draw(window);
+		buttonList[continueTag].draw(window);
+		buttonList[settingsTag].draw(window);
+		buttonList[exitTag].draw(window);
+
+		return;
+	}
+
+	if (menuState == gameMenu)
+	{
+		buttonList[newRunTag].draw(window);
+		buttonList[continueTag].draw(window);
+		buttonList[settingsTag].draw(window);
+		buttonList[menuTag].draw(window);
+
+		return;
+	}
 }
 	

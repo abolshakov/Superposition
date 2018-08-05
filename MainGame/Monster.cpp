@@ -48,7 +48,7 @@ void Monster::behavior(DynamicObject& target, float elapsedTime)
 		return;
 	}
 
-	if (target.tag != "player")
+	if (target.tag != mainHeroTag)
 		return;	
 
 	setSide(target.getPosition());

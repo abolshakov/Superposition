@@ -12,7 +12,6 @@ protected:
 public:
 	TerrainObject(std::string objectName, Vector2f centerPosition);
 	~TerrainObject();
-	float interactRadius, intersectsRadius;	
 	Vector2i getFocus1() const { return focus1; }
 	Vector2i getFocus2() const { return focus2; }
 	int getEllipseSize() const { return ellipseSize; }

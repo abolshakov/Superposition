@@ -37,11 +37,11 @@ public:
 	void setCurrentObject(int n) { currentObject = n; }
 	void wasPlaced();
 	int getBuiltObjectType();
-	bool canAfford();
 	Vector2f buildingPosition;
+	bool canAfford();
 	bool succesInit = false;
 	bool getIsBuilding() { return isBuilding; }
-	
+	bool getActivity() { return wasActive; }
 	bool canBePlaced = false;
 	int selectedObject = -1;
 private:	
@@ -52,7 +52,7 @@ private:
 	void animator(float elapsedTime);
 	//void buildObject(Vector2f position, World& world);
 	float originalAnimationSpeed = 0.001, animationSpeed = 0.001;
-	bool isBuilding = false, isPressed = false, isRecipeFrame;
+	bool isBuilding = false, isPressed = false, isRecipeFrame, wasActive = false;
 	Sprite buildStartButton, buildStopButton, recipeFrame;
 	std::vector<objectInfo> builtObjects;
 	Texture buildStartButtonTexture, buildStopButtonTexture, recipeFrameTexture;

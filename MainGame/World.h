@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WORLD_H
 #define WORLD_H
 
@@ -14,6 +15,7 @@
 #include "Helper.h"
 #include "BuildSystemMaker.h"
 #include "BoardSprite.h"
+#include "EventHandler.h"
 
 #include "DynamicObject.h"
 
@@ -26,6 +28,7 @@
 #include "HomeCosiness.h"
 #include "MushroomStone.h"
 #include "MushroomsOnStone.h"
+#include "Chamomile.h"
 
 #include "Monster.h"
 #include "Deerchant.h"
@@ -33,13 +36,14 @@
 
 using namespace sf;
 
-enum staticItemsIdList { Tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12};
-enum dynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3};
+enum staticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13 };
+enum dynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3 };
 
 class World
 {
+private:
 	//lightSystem
-	Color commonWorldColor = Color(0, 0, 0, 255),
+	const Color commonWorldColor = Color(0, 0, 0, 255),
 		commonWorldColorOutfill = Color(240, 200, 200, 255),
 		spiritWorldColor = Color(73, 193, 214, 255),
 		spiritWorldColorOutfill = Color(12, 78, 89, 255);
@@ -53,7 +57,7 @@ class World
 	sf::View view;
 	std::shared_ptr<ltbl::LightPointEmission> brightner;
 	//hero
-	const std::string heroTextureName = "Maddox/ch1_b_1.png";
+	const std::string heroTextureName = "Hero/stand/down/1.png";
 	//world base
 	float width, height;
 	Vector2i blockSize;
@@ -69,6 +73,7 @@ class World
 	int focusedObjectBlock = 0;
 	//time logic
 	Clock timer;
+	int newNameId = 0;
 	float timeForNewSave, timeAfterSave;	
 	//move logic
 	bool isClimbBeyond(Vector2f pos);
@@ -78,10 +83,10 @@ class World
 	static Vector2f newSlippingPositionInCircle(DynamicObject *dynamicItem, Vector2f pos, float radius, long long elapsedTime);
 	static Vector2f newSlippingPosition(DynamicObject *dynamicItem, Vector2f pos, long long elapsedTime);
 	static Vector2f newSlippingPositionForDynamics(DynamicObject *dynamicItem1, DynamicObject *dynamicItem2, long long elapsedTime);
-	//fight logic	
 	//selection logic
 	void setTransparent(std::vector<WorldObject*> visibleItems);
-	std::string mouseDisplayName, mouseSelectedName;
+	std::string mouseDisplayName;
+	WorldObject *selectedObject = focusedObject;
 	//shaders
 	sf::Shader spiritWorldShader;
 	sf::Texture distortionMap;
@@ -110,6 +115,7 @@ public:
 	Vector2f getCameraPosition() { return cameraPosition; }
 	InventoryMaker& getInventorySystem() { return inventorySystem; }
 	BuildSystemMaker& getBuildSystem() { return buildSystem; }
+	ltbl::LightSystem& getLightSystem() { return ls; }
 	//save-load logic
 	void ClearWorld();
 	void Load();
@@ -119,9 +125,7 @@ public:
 	std::unordered_map<std::string, BoardSprite> spriteMap;
 	void interact(RenderWindow& window, long long elapsedTime);
 	void draw(RenderWindow& window, long long elapsedTime);
-	void drawVisibleItems(RenderWindow& window, long long elapsedTime);
-	std::vector<WorldObject*> visibleItems;
-	std::vector<StaticObject*> staticItems;
+	void drawVisibleItems(RenderWindow& window, long long elapsedTime, std::vector<WorldObject*> visibleItems);
 	Vector2i worldUpperLeft, worldBottomRight;
 	//zoom
 	float scaleFactor;
@@ -133,7 +137,6 @@ public:
 	Vector2f currentTransparentPos = Vector2f(0, 0);
 	//hero
 	DynamicObject* focusedObject;	
-	//std::vector< std::vector<StaticObject*> > backgroundMatrix;
 	StaticObject* groundMatrix[100][100];
 	//events
 	void onMouseDownInteract();

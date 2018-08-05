@@ -10,6 +10,7 @@ using namespace sf;
 
 class Monster : public DynamicObject
 {
+private:
 	float timeForNewSprite;
 
 	int animationLength;

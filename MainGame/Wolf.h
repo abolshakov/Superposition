@@ -9,6 +9,7 @@ using namespace sf;
 
 class Wolf : public Creature
 {
+private:
 	float timeForNewSprite;
 
 	int animationLength;

@@ -7,7 +7,7 @@ MushroomStone::MushroomStone(std::string objectName, Vector2f centerPosition, in
 	animationSpeed = 0.0004f;
 	animationLength = 15;
 	this->typeOfObject = typeOfObject;
-	intersectsRadius = 200;
+	radius = 200;
 	randomSizeIncrease = Vector2i(50, 50);
 	toSaveName = "spawn";
 	setType(typeOfObject);

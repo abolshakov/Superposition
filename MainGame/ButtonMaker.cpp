@@ -4,7 +4,7 @@ ButtonMaker::ButtonMaker()
 {
 }
 
-void ButtonMaker::initialize(Texture &texture, Vector2f position, Vector2f size, Tags tag)
+void ButtonMaker::initialize(Texture &texture, Vector2f position, Vector2f size, ButtonTag tag)
 {
 	this->tag = tag;
 
@@ -15,7 +15,7 @@ void ButtonMaker::initialize(Texture &texture, Vector2f position, Vector2f size,
 	this->sprite.setScale(size.x / textureSize.x, size.y / textureSize.y);
 }
 
-void ButtonMaker::initialize(Texture &texture, FloatRect rect, Tags tag)
+void ButtonMaker::initialize(Texture &texture, FloatRect rect, ButtonTag tag)
 {
 	this->tag = tag;
 
@@ -30,14 +30,27 @@ bool ButtonMaker::isSelected(Vector2f mousePos)
 {
 	FloatRect rect = sprite.getGlobalBounds();
 	if (rect.contains(mousePos))
-		return true;
+	{
+		selected = true;
+		return true;		
+	}
 	else
+	{
+		selected = false;
 		return false;
+	}
 
+	selected = false;
 	return false;
 }
 
 void ButtonMaker::draw(RenderWindow &window)
 {
+	Color spriteColor = this->sprite.getColor();
+	if (isSelected(Vector2f(Mouse::getPosition())))
+		this->sprite.setColor(Color(spriteColor.r, spriteColor.g, spriteColor.b, 125));
+	else
+		this->sprite.setColor(Color(spriteColor.r, spriteColor.g, spriteColor.b, 255));
+
 	window.draw(this->sprite);
 }

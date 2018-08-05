@@ -1,0 +1,5 @@
+World/MenuMaker/newRunFramed.png 6.25 10 15 2
+World/MenuMaker/continueFramed.png 6.25 25 15 1
+World/MenuMaker/settingsFramed.png 6.25 40 15 3
+World/MenuMaker/exitFramed.png 6.25 55 15 4
+World/MenuMaker/menuFramed.png 6.25 55 15 6
