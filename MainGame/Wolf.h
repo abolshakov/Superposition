@@ -22,6 +22,8 @@ public:
 	~Wolf();
 	Vector2i calculateTextureOffset() override;
 	std::string getSpriteName(long long elapsedTime) override;
+	void behaviorWithStatic(WorldObject& target, float elapsedTime) override;
+	void behavior(float elapsedTime) override;
 };
 
 #endif

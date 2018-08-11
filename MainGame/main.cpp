@@ -26,8 +26,6 @@ int main() {
 
 	float interactTime = 0, drawTime = 0;
 
-	world.scaleFactor = 1;
-
 	Sprite test;
 	Texture testTexture;
 	testTexture.loadFromFile("World/Hero/stand/down/1.png");
@@ -121,8 +119,12 @@ int main() {
 		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
 
-		//Helper::drawText(world.focusedObject->getSpriteName(drawTime), 30, 200, 300, &mainWindow);
-		//Helper::drawText(to_string(world.focusedObject->getPosition().y), 30, 200, 400, &mainWindow);		
+		if (hero->getSelectedTarget())
+		{
+			bool isIntersect = (sqrt(pow(hero->getPosition().x - hero->getSelectedTarget()->getPosition().x, 2) + pow(hero->getPosition().y - hero->getSelectedTarget()->getPosition().y, 2)) <= (100 + 50));
+			Helper::drawText(to_string(hero->getSelectedTarget()->getPosition().x), 30, 200, 300, &mainWindow);
+			Helper::drawText(to_string(isIntersect), 30, 200, 400, &mainWindow);
+		}
 
 		mainWindow.display();
 	}

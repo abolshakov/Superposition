@@ -35,12 +35,12 @@ void Chamomile::initPedestal()
 	if (typeOfObject == 1)
 	{
 		focus1 = Vector2i(position.x - textureBox.width / 10, position.y);
-		focus1 = Vector2i(position.x + textureBox.width / 10, position.y);
+		focus2 = Vector2i(position.x + textureBox.width / 10, position.y);
 		ellipseSize = int((focus2.x - focus1.x) * 1.08);
 	}
 }
 
 std::string Chamomile::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/Chamomile/Chamomile" + std::to_string(typeOfObject) + ".png";
+	return "terrainObjects/chamomile/chamomile" + std::to_string(typeOfObject) + ".png";
 }

@@ -13,7 +13,7 @@ Creature::~Creature()
 
 }
 
-void Creature::behavior(DynamicObject& target, float elapsedTime)
+void Creature::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 {
 	if (healthPoint <= 0)
 	{
@@ -57,4 +57,14 @@ void Creature::behavior(DynamicObject& target, float elapsedTime)
 			}
 		}
 	}
+}
+
+void Creature::behaviorWithStatic(WorldObject& target, float elapsedTime)
+{
+
+}
+
+void Creature::behavior(float elapsedTime)
+{
+
 }

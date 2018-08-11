@@ -16,7 +16,7 @@ void Grass::setType(int typeOfObject)
 		return;
 
 	this->typeOfObject = typeOfObject;
-	this->conditionalSizeUnits = Vector2f(500, 400);
+	this->conditionalSizeUnits = Vector2f(500, 500);
 	this->zCoords = 1;
 }
 

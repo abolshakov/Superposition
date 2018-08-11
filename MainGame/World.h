@@ -29,6 +29,9 @@
 #include "MushroomStone.h"
 #include "MushroomsOnStone.h"
 #include "Chamomile.h"
+#include "Yarrow.h"
+#include "Brazier.h"
+#include "HareTrap.h"
 
 #include "Monster.h"
 #include "Deerchant.h"
@@ -36,7 +39,7 @@
 
 using namespace sf;
 
-enum staticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13 };
+enum staticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13, brazier = 14, yarrow = 15, hareTrap = 16 };
 enum dynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3 };
 
 class World
@@ -125,6 +128,7 @@ public:
 	std::unordered_map<std::string, BoardSprite> spriteMap;
 	void interact(RenderWindow& window, long long elapsedTime);
 	void draw(RenderWindow& window, long long elapsedTime);
+	void setItemFromBuildSystem();
 	void drawVisibleItems(RenderWindow& window, long long elapsedTime, std::vector<WorldObject*> visibleItems);
 	Vector2i worldUpperLeft, worldBottomRight;
 	//zoom

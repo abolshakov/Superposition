@@ -37,6 +37,7 @@ public:
 	Vector2f getFocus1() const { return focus1; }
 	Vector2f getFocus2() const { return focus2; }
 	Vector2f getMoveOffset() { return moveOffset; }
+	Vector2f getTargetPosition() { return targetPosition; }
 	Actions getCurrentAction() { return currentAction; }
 	Direction getDirection() { return direction; }
 	
@@ -47,7 +48,9 @@ public:
 	void takeDamage(float damage);			
 	void moveToTarget(float targetRadius);
 	virtual void handleInput();
-	virtual void behavior(DynamicObject& target, float elapsedTime) = 0;
+	virtual void behaviorWithDynamic(DynamicObject& target, float elapsedTime) = 0;
+	virtual void behaviorWithStatic(WorldObject& target, float elapsedTime) = 0;
+	virtual void behavior(float elapsedTime) = 0;
 
 	float timeForNewHitself;			
 };

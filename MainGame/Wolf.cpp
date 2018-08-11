@@ -4,18 +4,18 @@ using namespace sf;
 
 Wolf::Wolf(std::string objectName, Vector2f centerPosition) : Creature(objectName, centerPosition)
 {
-	conditionalSizeUnits = Vector2f(200, 250);
+	conditionalSizeUnits = Vector2f(250, 200);
 	currentSprite = 1;
 	timeForNewSprite = 0;
-	speed = 0.0004f;
+	speed = 0.0005f;
 	animationSpeed = 0.0006f;
 	animationLength = 8;
 	radius = 70;
 	strength = 10;
-	sightRange = 600; // in conditional size units
+	sightRange = Helper::GetScreenSize().y * 1 / 2; 
 	morality = 5; // from 1 to 10
 	fear = 0;
-	healthPoint = 0;
+	healthPoint = 50;
 	currentAction = relax;
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
@@ -23,7 +23,7 @@ Wolf::Wolf(std::string objectName, Vector2f centerPosition) : Creature(objectNam
 	inventoryCapacity = 5;
 
 	inventory.push_back(std::make_pair(1, 2));
-	inventory.push_back(std::make_pair(1, 1));
+	inventory.push_back(std::make_pair(2, 1));
 	inventory.push_back(std::make_pair(1, 2));
 	inventory.push_back(std::make_pair(2, 2));
 
@@ -32,6 +32,16 @@ Wolf::Wolf(std::string objectName, Vector2f centerPosition) : Creature(objectNam
 
 Wolf::~Wolf()
 {
+}
+
+void Wolf::behaviorWithStatic(WorldObject& target, float elapsedTime)
+{
+
+}
+
+void Wolf::behavior(float elapsedTime)
+{
+
 }
 
 Vector2i Wolf::calculateTextureOffset()
@@ -52,26 +62,26 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		animationLength = 8;
 		switch (side)
 		{
-		case up:
-		{
-			spriteName = "m1/m1_fight/m1_fight_b/m1_fight_b_";
-			break;
-		}
-		case right:
-		{
-			spriteName = "m1/m1_fight/m1_fight_r/m1_fight_r_";
-			break;
-		}
-		case down:
-		{
-			spriteName = "m1/m1_fight/m1_fight_f/m1_fight_f_";
-			break;
-		}
-		case left:
-		{
-			spriteName = "m1/m1_fight/m1_fight_l/m1_fight_l_";
-			break;
-		}
+			case up:
+			{
+				spriteName = "Wolf/hit/up/";
+				break;
+			}
+			case right:
+			{
+				spriteName = "Wolf/hit/right/";
+				break;
+			}
+			case down:
+			{
+				spriteName = "Wolf/hit/down/";
+				break;
+			}
+			case left:
+			{
+				spriteName = "Wolf/hit/left/";
+				break;
+			}
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
@@ -82,26 +92,26 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		animationLength = 8;
 		switch (side)
 		{
-		case up:
-		{
-			spriteName = "m1/m1_fight/m1_fight_b/m1_fight_b_";
-			break;
-		}
-		case right:
-		{
-			spriteName = "m1/m1_fight/m1_fight_r/m1_fight_r_";
-			break;
-		}
-		case down:
-		{
-			spriteName = "m1/m1_fight/m1_fight_f/m1_fight_f_";
-			break;
-		}
-		case left:
-		{
-			spriteName = "m1/m1_fight/m1_fight_l/m1_fight_l_";
-			break;
-		}
+			case up:
+			{
+				spriteName = "Wolf/hit/up/";
+				break;
+			}
+			case right:
+			{
+				spriteName = "Wolf/hit/right/";
+				break;
+			}
+			case down:
+			{
+				spriteName = "Wolf/hit/down/";
+				break;
+			}
+			case left:
+			{
+				spriteName = "Wolf/hit/left/";
+				break;
+			}
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
@@ -112,26 +122,26 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		animationLength = 8;
 		switch (side)
 		{
-		case up:
-		{
-			spriteName = "m1/m1_fight/m1_fight_b/m1_fight_b_";
-			break;
-		}
-		case right:
-		{
-			spriteName = "m1/m1_fight/m1_fight_r/m1_fight_r_";
-			break;
-		}
-		case down:
-		{
-			spriteName = "m1/m1_fight/m1_fight_f/m1_fight_f_";
-			break;
-		}
-		case left:
-		{
-			spriteName = "m1/m1_fight/m1_fight_l/m1_fight_l_";
-			break;
-		}
+			case up:
+			{
+				spriteName = "Wolf/hit/up/";
+				break;
+			}
+			case right:
+			{
+				spriteName = "Wolf/hit/right/";
+				break;
+			}
+			case down:
+			{
+				spriteName = "Wolf/hit/down/";
+				break;
+			}
+			case left:
+			{
+				spriteName = "Wolf/hit/left/";
+				break;
+			}
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
@@ -142,66 +152,43 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		animationLength = 8;
 		switch (side)
 		{
-		case up:
-		{
-			spriteName = "m1/m1_still/m1_still_b";
-			break;
+			case up:
+			{
+				spriteName = "Wolf/move/up/";
+				break;
+			}
+			case right:
+			{
+				spriteName = "Wolf/move/right/";
+				break;
+			}
+			case down:
+			{
+				spriteName = "Wolf/move/down/";
+				break;
+			}
+			case left:
+			{
+				spriteName = "Wolf/move/left/";
+				break;
+			}
 		}
-		case right:
-		{
-			spriteName = "m1/m1_still/m1_still_r";
-			break;
-		}
-		case down:
-		{
-			spriteName = "m1/m1_still/m1_still_f";
-			break;
-		}
-		case left:
-		{
-			spriteName = "m1/m1_still/m1_still_l";
-			break;
-		}
-		}
-		//spriteName += std::to_string(currentSprite);
+		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	}
 	case relax:
 	{
-		animationLength = 8;
-		switch (side)
-		{
-		case up:
-		{
-			spriteName = "m1/m1_still/m1_still_b";
-			break;
-		}
-		case right:
-		{
-			spriteName = "m1/m1_still/m1_still_r";
-			break;
-		}
-		case down:
-		{
-			spriteName = "m1/m1_still/m1_still_f";
-			break;
-		}
-		case left:
-		{
-			spriteName = "m1/m1_still/m1_still_l";
-			break;
-		}
-		}
-		//spriteName += std::to_string(currentSprite);
-		//currentSprite = 0;
+		animationLength = 1;
+	    spriteName = "Wolf/stand/down/";				
+		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
 	}
 	case dead:
 	{
-		animationLength = 8;
-		spriteName = "m1/m1_still/m1_still_f.png";
+		animationLength = 1;
+		spriteName = "Wolf/stand/down/1.png";
 		currentSprite = 0;
 	}
 	}
@@ -212,42 +199,42 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		switch (direction)
 		{
 		case LEFT:
-			spriteName = "m1/m1_run/m1_run_l/m1_run_l_";
+			spriteName = "Wolf/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case RIGHT:
-			spriteName = "m1/m1_run/m1_run_r/m1_run_r_";
+			spriteName = "Wolf/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UP:
-			spriteName = "m1/m1_run/m1_run_b/m1_run_b_";
+			spriteName = "Wolf/move/up/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWN:
-			spriteName = "m1/m1_run/m1_run_f/m1_run_f_";
+			spriteName = "Wolf/move/down/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UPLEFT:
-			spriteName = "m1/m1_run/m1_run_l/m1_run_l_";
+			spriteName = "Wolf/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UPRIGHT:
-			spriteName = "m1/m1_run/m1_run_r/m1_run_r_";
+			spriteName = "Wolf/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWNLEFT:
-			spriteName = "m1/m1_run/m1_run_l/m1_run_l_";
+			spriteName = "Wolf/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWNRIGHT:
-			spriteName = "m1/m1_run/m1_run_r/m1_run_r_";
+			spriteName = "Wolf/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;

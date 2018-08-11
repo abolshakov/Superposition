@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="DynamicObject.cpp" />
+    <ClCompile Include="EventHandler.cpp" />
+    <ClCompile Include="GridList.cpp" />
+    <ClCompile Include="Helper.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="PickedObject.cpp" />
+    <ClCompile Include="StaticObject.cpp" />
+    <ClCompile Include="TerrainObject.cpp" />
+    <ClCompile Include="World.cpp" />
+    <ClCompile Include="WorldObject.cpp" />
+    <ClCompile Include="BonefireOfInsight.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Chamomile.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Constraint.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="ForestTree.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="HomeCosiness.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="MushroomsOnStone.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="MushroomStone.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Spawn.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Deerchant.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Wolf.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Grass.cpp">
+      <Filter>Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="Ground.cpp">
+      <Filter>Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="GroundConnection.cpp">
+      <Filter>Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="ButtonMaker.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="BuildSystemMaker.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryMaker.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuMaker.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="Brazier.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Yarrow.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Creature.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="HareTrap.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BoardSprite.h" />
+    <ClInclude Include="DynamicObject.h" />
+    <ClInclude Include="EventHandler.h" />
+    <ClInclude Include="GridList.h" />
+    <ClInclude Include="Helper.h" />
+    <ClInclude Include="PickedObject.h" />
+    <ClInclude Include="StaticObject.h" />
+    <ClInclude Include="Structs.h" />
+    <ClInclude Include="TerrainObject.h" />
+    <ClInclude Include="World.h" />
+    <ClInclude Include="WorldObject.h" />
+    <ClInclude Include="BonefireOfInsight.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Chamomile.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Constraint.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="ForestTree.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="HomeCosiness.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="MushroomsOnStone.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="MushroomStone.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Spawn.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Deerchant.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Wolf.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Grass.h">
+      <Filter>Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="Ground.h">
+      <Filter>Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="GroundConnection.h">
+      <Filter>Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonMaker.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildSystemMaker.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryMaker.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuMaker.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="Brazier.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Yarrow.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Creature.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="HareTrap.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Terrain">
+      <UniqueIdentifier>{0a95676e-8a6d-4d8f-88a7-b5072218a18e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Creatures">
+      <UniqueIdentifier>{ed4b870f-155e-4632-8362-5f05f03c18ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ground">
+      <UniqueIdentifier>{a1bcb01a-242c-4aa6-8715-2f1282b507c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UISystems">
+      <UniqueIdentifier>{c6d0f57c-5b1e-44be-9b32-415010cac4ed}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

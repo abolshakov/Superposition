@@ -30,6 +30,9 @@ void PickedObject::pickUp(std::vector<std::pair <int, int>>& inventory)
 			}
 		}
 	}
+
+	if (count <= 0)
+		delatePromiseOn();
 }
 
 PickedObject::~PickedObject()

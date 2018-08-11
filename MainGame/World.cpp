@@ -206,7 +206,8 @@ float World::getScaleFactor()
 	auto screenHeight = Helper::GetScreenSize().y;
 	auto ratio = heroHeight / float(screenHeight);
 
-	return heroToScreenRatio / ratio;
+	//return heroToScreenRatio / ratio;
+	return 1;
 }
 
 void World::initializeStaticItem(staticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName)
@@ -273,7 +274,25 @@ void World::initializeStaticItem(staticItemsIdList itemClass, Vector2f itemPosit
 	case 13:
 	{
 		item = new Chamomile("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/Chamomile/Chamomile";
+		nameOfImage = "terrainObjects/chamomile/chamomile";
+		break;
+	}
+	case 14:
+	{
+		item = new Brazier("item", Vector2f(0, 0), -1);
+		nameOfImage = "terrainObjects/brazier/brazier";
+		break;
+	}
+	case 15:
+	{
+		item = new Yarrow("item", Vector2f(0, 0), -1);
+		nameOfImage = "terrainObjects/yarrow/yarrow";
+		break;
+	}
+	case 16:
+	{
+		item = new HareTrap("item", Vector2f(0, 0), -1);
+		nameOfImage = "terrainObjects/hareTrap/hareTrap";
 		break;
 	}
 	default:
@@ -334,7 +353,7 @@ void World::initializeDynamicItem(dynamicItemsIdList itemClass, Vector2f itemPos
 		case 3:
 		{
 			item = new Wolf("item", Vector2f(0, 0));
-			nameOfImage = "enemy/enemyF_0";
+			nameOfImage = "Wolf/stand/down/1";
 			break;
 		}
 		default:
@@ -375,6 +394,9 @@ void World::Load()
 	initializeStaticItem(mushroomStone, Vector2f(0, 0), 1, "mushroomStone");
 	initializeStaticItem(mushroomsOnStone, Vector2f(0, 0), 1, "mushroomsOnStone");
 	initializeStaticItem(chamomile, Vector2f(0, 0), 1, "chamomile");
+	initializeStaticItem(chamomile, Vector2f(0, 0), 1, "yarrow");
+	initializeStaticItem(brazier, Vector2f(0, 0), 1, "brazier");
+	initializeStaticItem(hareTrap, Vector2f(0, 0), 1, "hareTrap");
 	//
 
 	std::ifstream fin("save.txt");
@@ -476,6 +498,9 @@ void World::generate(int objCount)
 	initializeStaticItem(mushroomStone, Vector2f(0, 0), 1, "mushroomStone");
 	initializeStaticItem(mushroomsOnStone, Vector2f(0, 0), 1, "mushroomsOnStone");
 	initializeStaticItem(chamomile, Vector2f(0, 0), 1, "chamomile");
+	initializeStaticItem(chamomile, Vector2f(0, 0), 1, "yarrow");
+	initializeStaticItem(brazier, Vector2f(0, 0), 1, "brazier");
+	initializeStaticItem(hareTrap, Vector2f(0, 0), 1, "hareTrap");
 	//
 
 	for (int i = 0; i < blocksCount; i++)
@@ -492,7 +517,7 @@ void World::generate(int objCount)
 	//------------------------------------------
 	//initializeHero(Vector2f(3800, 4000));
 	initializeDynamicItem(hero1, Vector2f(5800, 5000), "hero1");
-	initializeStaticItem(chamomile, Vector2f(5800, 5000), 1, "testItem");
+	initializeStaticItem(hareTrap, Vector2f(6800, 6000), 1, "testItem");
 	Save();
 
 	std::vector<std::reference_wrapper<std::pair<int, int>>> heroInventory;
@@ -538,11 +563,11 @@ void World::inBlockGenerate(int blockIndex)
 	//block filling
 	Vector2f grassCellSize = Grass("", Vector2f(0, 0), 1).getConditionalSizeUnits();
 	
-	int saturation = rand() % 10 + 5;
+	int saturation = rand() % 40 + 20;
 
-	for (double i = blockTransform.left; i < blockTransform.left + blockTransform.width; i += grassCellSize.x / 1.6)
+	for (double i = blockTransform.left; i < blockTransform.left + blockTransform.width; i += grassCellSize.x)
 	{
-		for (double j = blockTransform.top; j < blockTransform.top + blockTransform.height; j += grassCellSize.y / 1.6)
+		for (double j = blockTransform.top; j < blockTransform.top + blockTransform.height; j += grassCellSize.y)
 		{
 			//grass
 			auto position = Vector2f(i, j);
@@ -557,8 +582,17 @@ void World::inBlockGenerate(int blockIndex)
 			int probability = rand() % 100;
 			if (probability <= saturation)
 			{
-				initializeStaticItem(tree, position, -1, "");
+				int greenFactor = rand() % 100;
+				if (greenFactor <= 70)
+					initializeStaticItem(tree, position, -1, "");
+				else
+					if (greenFactor <= 85)
+						initializeStaticItem(chamomile, position, 1, "");
+					else
+						if (greenFactor <= 100)
+							initializeStaticItem(yarrow, position, 1, "");
 			}
+			
 		}
 	}
 }
@@ -569,7 +603,7 @@ void World::beyondScreenGenerate()
 
 	if (focusedObject->getDirection() != STAND)
 	{
-		for (auto block : staticGrid.getBlocksAround(worldUpperLeft.x, worldUpperLeft.y, worldBottomRight.x, worldBottomRight.y))
+		for (auto block : staticGrid.getBlocksAround(worldUpperLeft.x - blockSize.x * scaleFactor, worldUpperLeft.y - blockSize.y * scaleFactor, worldBottomRight.x + blockSize.x * scaleFactor, worldBottomRight.y + blockSize.y * scaleFactor))
 		{
 			if (canBeRegenerated(block));
 				inBlockGenerate(block);
@@ -873,12 +907,9 @@ void World::setTransparent(std::vector<WorldObject*> visibleItems)
 				minDistance = distanceToBounds;
 
 				bool isIntersect = (sqrt(pow(focusedObject->getPosition().x - visibleItem->getPosition().x, 2) + pow(focusedObject->getPosition().y - visibleItem->getPosition().y, 2)) <= (focusedObject->getRadius() + visibleItem->getRadius()));
-				if (!isIntersect)
-					mouseDisplayName = "Move to " + visibleItem->getToSaveName();
-				else
+
+				switch (visibleItem->tag)
 				{
-					switch (visibleItem->tag)
-					{
 					case forestTreeTag:
 					{
 						mouseDisplayName = "Absorb";
@@ -889,11 +920,15 @@ void World::setTransparent(std::vector<WorldObject*> visibleItems)
 						mouseDisplayName = "Pick up";
 						break;
 					}
+					case yarrowTag:
+					{
+						mouseDisplayName = "Pick up";
+						break;
+					}
 					default:
 					{
 						mouseDisplayName = visibleItem->getToSaveName();
 						break;
-					}
 					}
 				}
 
@@ -933,12 +968,15 @@ bool World::isClimbBeyond(Vector2f pos)
 
 void World::onMouseDownInteract()
 {
-	inventorySystem.onMouseDownInteract();
+	if (!buildSystem.getIsBuilding())
+		inventorySystem.onMouseDownInteract();
 
-	if (buildSystem.succesInit)
-		buildSystem.onMouseDownInteract(focusedObject->getPosition(), scaleFactor);	
+	if (buildSystem.succesInit && !inventorySystem.getUsedMouse())
+		buildSystem.onMouseDownInteract(focusedObject->getPosition(), scaleFactor);
 
-	if (mouseDisplayName == ""  || buildSystem.getActivity() || buildSystem.getIsBuilding())
+	buildSystem.buildHeldItem(focusedObject->getPosition(), scaleFactor);
+
+	if (mouseDisplayName == ""  || buildSystem.getUsedMouse() || buildSystem.getIsBuilding() || inventorySystem.getUsedMouse())
 		selectedObject = nullptr;
 	else
 	{
@@ -948,6 +986,22 @@ void World::onMouseDownInteract()
 
 	Vector2f mousePos = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + cameraPosition.x*scaleFactor) / scaleFactor,
 		(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + cameraPosition.y*scaleFactor) / scaleFactor);
+}
+
+void World::setItemFromBuildSystem()
+{
+	if (buildSystem.selectedObject != -1 && buildSystem.buildingPosition != Vector2f(-1, -1))
+	{
+		initializeStaticItem(staticItemsIdList(buildSystem.getBuiltObjectType()), buildSystem.buildingPosition, 1, "");
+		if (buildSystem.getIsBuilding())
+			buildSystem.wasPlaced();
+		else
+			inventorySystem.getHeldItem()->second--;
+
+		if (inventorySystem.getHeldItem()->second <= 0)
+			buildSystem.resetReadyToBuildHeldItem();
+		buildSystem.buildingPosition = Vector2f(-1, -1);
+	}
 }
 
 void World::interact(RenderWindow& window, long long elapsedTime)
@@ -1004,33 +1058,35 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 		if (intersects)
 		{
 			dynamicItem->setPosition(newPosition);
-			continue;
 		}
 
-		for (auto staticItem : localStaticItems)
+		if (!intersects)
 		{
-			if (staticItem->isBackground == true)
-				continue;
-
-			auto terrain = dynamic_cast<TerrainObject*>(staticItem);
-			if (!terrain)
-				continue;
-
-			if (isIntersectTerrain(newPosition, *terrain))
+			for (auto staticItem : localStaticItems)
 			{
-				Vector2f terrainPos = Vector2f((terrain->getFocus1().x + terrain->getFocus2().x) / 2, (terrain->getFocus1().y + terrain->getFocus2().y) / 2);
-				auto motionAfterSlipping = newSlippingPosition(dynamicItem, terrainPos, elapsedTime);
-				if (motionAfterSlipping != Vector2f(-1, -1) && isClimbBeyond(Vector2f(newPosition.x + motionAfterSlipping.x, newPosition.y + motionAfterSlipping.y)))
-				{
-					newPosition = Vector2f(dynamicItem->getPosition().x + motionAfterSlipping.x, dynamicItem->getPosition().y + motionAfterSlipping.y);
+				if (staticItem->isBackground == true)
 					continue;
+
+				dynamicItem->behaviorWithStatic(*staticItem, elapsedTime);
+
+				auto terrain = dynamic_cast<TerrainObject*>(staticItem);
+				if (!terrain)
+					continue;
+
+				if (isIntersectTerrain(newPosition, *terrain))
+				{
+					Vector2f terrainPos = Vector2f((terrain->getFocus1().x + terrain->getFocus2().x) / 2, (terrain->getFocus1().y + terrain->getFocus2().y) / 2);
+					auto motionAfterSlipping = newSlippingPosition(dynamicItem, terrainPos, elapsedTime);
+					if (motionAfterSlipping != Vector2f(-1, -1) && isClimbBeyond(Vector2f(newPosition.x + motionAfterSlipping.x, newPosition.y + motionAfterSlipping.y)))
+					{
+						newPosition = Vector2f(dynamicItem->getPosition().x + motionAfterSlipping.x, dynamicItem->getPosition().y + motionAfterSlipping.y);
+						continue;
+					}
+					intersects = true;
+					break;
 				}
-				intersects = true;
-				break;
 			}
 		}
-		if (intersects)
-			continue;
 
 		//if (dynamicItem->getName() != focusedObject->getName())
 		{
@@ -1039,7 +1095,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 				if (otherDynamicItem == dynamicItem)
 					continue;
 
-				dynamicItem->behavior(*otherDynamicItem, elapsedTime);
+				dynamicItem->behaviorWithDynamic(*otherDynamicItem, elapsedTime);
 
 				if (isIntersectDynamic(*dynamicItem, newPosition, *otherDynamicItem) && dynamicItem != focusedObject)
 				{
@@ -1054,44 +1110,22 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 				}
 			}
 		}
-		//else
-		{
-			if (hero->isFightWithBoss)
-			{
-				if (sqrt(pow(newPosition.x - bossSpawnPosition.x, 2) + pow(newPosition.y - bossSpawnPosition.y, 2)) >= width * 1 / 28)
-				{
-					auto motionAfterSlipping = newSlippingPositionInCircle(hero, bossSpawnPosition, width * 1 / 28, elapsedTime);
-					if (motionAfterSlipping != Vector2f(-1, -1))
-					{
-						newPosition = Vector2f(hero->getPosition().x + motionAfterSlipping.x, hero->getPosition().y + motionAfterSlipping.y);
-						hero->setPosition(newPosition);
-						dynamicGrid.updateItemPosition(focusedObject->getName(), newPosition.x, newPosition.y);
-						continue;
-					}
-				}
-			}
-			else
-				if (sqrt(pow(newPosition.x - bossSpawnPosition.x, 2) + pow(newPosition.y - bossSpawnPosition.y, 2)) <= width * 1 / 28)
-				{
-					hero->isFightWithBoss = true;
-				}
-		}
+		
+		dynamicItem->behavior(elapsedTime);
 
-		dynamicItem->setPosition(newPosition);
-		dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
+		//if (!intersects)
+		{
+			dynamicItem->setPosition(newPosition);
+			dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
+		}
 	}
 
 	//lightSystemInteract
 	brightner->_emissionSprite.setPosition(Vector2f(focusedObject->getPosition().x - cameraPosition.x + Helper::GetScreenSize().x / 2, focusedObject->getPosition().y - cameraPosition.y + Helper::GetScreenSize().y / 2));
-
-	buildSystem.interact();
-
-	//buildSystem item building
-	if (buildSystem.selectedObject != -1 && buildSystem.buildingPosition != Vector2f(-1, -1))
-	{		
-		initializeStaticItem(staticItemsIdList(buildSystem.getBuiltObjectType()), buildSystem.buildingPosition, 1, "");
-		buildSystem.wasPlaced();
-	}
+	
+	setItemFromBuildSystem();
+	buildSystem.setHeldItem(*inventorySystem.getHeldItem());
+	buildSystem.interact();	
 
 	for (auto item : localStaticItems)
 	{
@@ -1207,7 +1241,7 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 	/*Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x), 30, 200, 200, &window);
 	Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y), 30, 350, 200, &window);*/
-	//Helper::drawText(std::to_string(spriteMap[focusedObject.getS].sprite.getPosition().x), 30, 200, 400, &window);
+	//Helper::drawText(std::to_string(focusedObject->getTargetPosition().x), 30, 200, 400, &window);
 	//Helper::drawText(std::to_string(spriteMap[heroTextureName].texture.getSize().y), 30, 500, 300, &window);
 	/*Helper::drawText(std::to_string(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)), 30, 200, 400, &window);*/
 	//int groundIndX = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x / blockSize.x;

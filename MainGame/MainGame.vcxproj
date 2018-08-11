@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BonefireOfInsight.cpp" />
+    <ClCompile Include="Brazier.cpp" />
     <ClCompile Include="BuildSystemMaker.cpp" />
     <ClCompile Include="ButtonMaker.cpp" />
     <ClCompile Include="Chamomile.cpp" />
@@ -145,6 +146,7 @@
     <ClCompile Include="GridList.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="GroundConnection.cpp" />
+    <ClCompile Include="HareTrap.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="HomeCosiness.cpp" />
     <ClCompile Include="InventoryMaker.cpp" />
@@ -162,10 +164,12 @@
     <ClCompile Include="Wolf.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="WorldObject.cpp" />
+    <ClCompile Include="Yarrow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoardSprite.h" />
     <ClInclude Include="BonefireOfInsight.h" />
+    <ClInclude Include="Brazier.h" />
     <ClInclude Include="BuildSystemMaker.h" />
     <ClInclude Include="ButtonMaker.h" />
     <ClInclude Include="Chamomile.h" />
@@ -177,6 +181,7 @@
     <ClInclude Include="GridList.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="GroundConnection.h" />
+    <ClInclude Include="HareTrap.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="HomeCosiness.h" />
     <ClInclude Include="InventoryMaker.h" />
@@ -194,6 +199,7 @@
     <ClInclude Include="Wolf.h" />
     <ClInclude Include="World.h" />
     <ClInclude Include="WorldObject.h" />
+    <ClInclude Include="Yarrow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

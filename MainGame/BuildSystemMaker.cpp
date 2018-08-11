@@ -18,7 +18,7 @@ void BuildSystemMaker::Init(std::unordered_map<int, cell> itemsSpriteList)
 
 	font.loadFromFile("Fonts/Bebas.ttf");
 	numberOfObjects.setFont(font);
-	numberOfObjects.setCharacterSize(30);
+	numberOfObjects.setCharacterSize(30 * Helper::GetScreenSize().y / 1440);
 	numberOfObjects.setFillColor(Color(200, 200, 200, 255));
 }
 
@@ -62,14 +62,13 @@ void BuildSystemMaker::inicializeObjectsInfo()
 	//recipeFrameTexture.loadFromFile("World/BuildSystemMaker/recipeFrame.png");
 	//recipeFrame.setTexture(recipeFrameTexture);
 
-	std::string objectIconPath, objectImagePath, objectImageType;
+	std::string objectIconPath, objectImageType;
 	std::ifstream fin(BuildSystemMakerObjectsInfoFileDirectory);
-	while (fin >> objectIconPath >> objectImagePath >> objectImageType)
+	while (fin >> objectIconPath >> objectImageType)
 	{
 		objectInfo infoItem;
 
 		infoItem.icon = objectIconPath;
-		infoItem.image = objectImagePath;
 		infoItem.type = objectImageType;
 
 		int recipeItemId, recipeItemAmount, recipeLength;
@@ -90,19 +89,17 @@ void BuildSystemMaker::inicializeObjectsInfo()
 void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f focusedObjectPosition, std::vector<WorldObject*> visibleItems)
 {
 	Vector2f mousePos = (Vector2f)Mouse::getPosition();
+
 	if (!isBuilding)
-	{
 		window.draw(buildStartButton);
-		return;
-	}
-	
-	animator(elapsedTime);
+	else
+		animator(elapsedTime);
 
 	if (selectedObject != -1)
 	{
 		//initialize spriteSilhouette
-		auto sprite = (&spriteMap[builtObjects[selectedObject].image])->sprite;
 		auto terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[selectedObject].type));
+		auto sprite = (&spriteMap[terrain->getSpriteName(0)])->sprite;
 
 		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
 		sprite.setScale(terrain->getScaleRatio().x*scaleFactor, terrain->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
@@ -133,6 +130,9 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 		window.draw(sprite);
 	}
 
+	if (!isBuilding)
+		return;
+
 	window.draw(buildStopButton);
 
 	//draw icons
@@ -147,7 +147,10 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 		for (int i = 0; i < builtObjects[currentObject].recipe.size(); i++)
 		{
 			Sprite *currentRecipeItem = &craftIngredientsSpriteList[builtObjects[currentObject].recipe[i].first].sprite;
-			currentRecipeItem->setPosition(recipeFrame.getPosition().x + i * currentRecipeItem->getTextureRect().width, recipeFrame.getPosition().y);
+			currentRecipeItem->setPosition(recipeFrame.getPosition().x + i * currentRecipeItem->getGlobalBounds().width, recipeFrame.getPosition().y);
+			Vector2f scale = buildStartButton.getScale();
+			currentRecipeItem->setScale(scale);
+			
 			window.draw(*currentRecipeItem);
 
 			int boundInventoryObjectsCount = 0;
@@ -160,8 +163,8 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 			numberOfObjects.setString(std::to_string(boundInventoryObjectsCount) + '/' + std::to_string(builtObjects[currentObject].recipe[i].second));
 			if (boundInventoryObjectsCount < builtObjects[currentObject].recipe[i].second)
 				numberOfObjects.setFillColor(Color(193, 63, 63, 255));
-			numberOfObjects.setPosition(currentRecipeItem->getPosition().x + currentRecipeItem->getTextureRect().width - numberOfObjects.getGlobalBounds().width,
-				currentRecipeItem->getPosition().y + currentRecipeItem->getTextureRect().height - numberOfObjects.getGlobalBounds().height);
+			numberOfObjects.setPosition(currentRecipeItem->getPosition().x + currentRecipeItem->getGlobalBounds().width - numberOfObjects.getGlobalBounds().width,
+				currentRecipeItem->getPosition().y + currentRecipeItem->getGlobalBounds().height - numberOfObjects.getGlobalBounds().height);
 			window.draw(numberOfObjects);
 			numberOfObjects.setFillColor(Color(200, 200, 200, 255));
 		}
@@ -177,11 +180,11 @@ void BuildSystemMaker::interact()
 		bool f = false;
 		for (int i = 0; i < builtObjects.size(); i++)
 		{
-			if (Helper::isIntersects(mousePos, IntRect(builtObjects[i].iconSprite.getPosition().x, builtObjects[i].iconSprite.getPosition().y, builtObjects[i].iconSprite.getTextureRect().width, builtObjects[i].iconSprite.getTextureRect().height)))
+			if (Helper::isIntersects(mousePos, IntRect(builtObjects[i].iconSprite.getPosition().x, builtObjects[i].iconSprite.getPosition().y, builtObjects[i].iconSprite.getGlobalBounds().width, builtObjects[i].iconSprite.getGlobalBounds().height)))
 			{
 				currentObject = i;
 				isRecipeFrame = true;
-				recipeFrame.setPosition(builtObjects[i].iconSprite.getPosition().x + builtObjects[i].iconSprite.getTextureRect().width*1.25, builtObjects[i].iconSprite.getPosition().y);
+				recipeFrame.setPosition(builtObjects[i].iconSprite.getPosition().x + builtObjects[i].iconSprite.getGlobalBounds().width*1.25, builtObjects[i].iconSprite.getPosition().y);
 				f = true;
 				break;
 			}
@@ -192,30 +195,41 @@ void BuildSystemMaker::interact()
 			currentObject = -1;
 		}
 	}
+	else
+	{
+		if (heldItem->first == 4)
+		{
+			selectedObject = heldItem->first;
+		}
+		else
+		{
+			selectedObject = -1;
+		}
+	}
 }
 
 void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float scaleFactor)
 {
 	Vector2f mousePos = (Vector2f)Mouse::getPosition();
 
-	wasActive = false;
+	usedMouse = false;
 
-	if (Helper::isIntersects(mousePos, buildStartButton.getTextureRect()) && !isBuilding)
+	if (Helper::isIntersects(mousePos, sf::IntRect(buildStartButton.getGlobalBounds())) && !isBuilding)
 	{
 		isBuilding = true;
 		currentObject = -1;
-		wasActive = true;
+		usedMouse = true;
 	}
 	else
-		if (Helper::isIntersects(mousePos, buildStopButton.getTextureRect()) && isBuilding)
+		if (Helper::isIntersects(mousePos, sf::IntRect(buildStopButton.getGlobalBounds())) && isBuilding)
 		{
 			isBuilding = false;
 			animationSpeed = 0.001;
 			for (int i = 0; i < builtObjects.size(); i++)
 			{
-				builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getTextureRect().width*-1, (i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25);
+				builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getGlobalBounds().width*-1, (i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25);
 			}
-			wasActive = true;
+			usedMouse = true;
 			return;
 		}
 
@@ -230,6 +244,28 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 			(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
 	else
 		buildingPosition = Vector2f(-1, -1);
+}
+
+void BuildSystemMaker::buildHeldItem(Vector2f focusedObjectPosition, float scaleFactor)
+{
+	if (isBuilding)
+		return;
+
+	if (heldItem->first == -1)
+	{
+		readyToBuildHeldItem = false;
+		buildingPosition = Vector2f(-1, -1);
+		return;
+	}
+
+	if (!readyToBuildHeldItem)
+	{
+		readyToBuildHeldItem = true;
+		buildingPosition = Vector2f(-1, -1);
+	}
+	else
+		buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
+		(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
 }
 
 bool BuildSystemMaker::canAfford()
@@ -321,6 +357,8 @@ int BuildSystemMaker::getBuiltObjectType()
 		return -1;
 
 	std::string objectType = builtObjects[selectedObject].type;
+	if (objectType == "hareTrap")
+		return 16;
 	if (objectType == "bonefireOfInsight")
 		return 4;
 	if (objectType == "homeCosiness")

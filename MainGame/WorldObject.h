@@ -7,7 +7,7 @@
 
 using namespace sf;
 
-enum Tag {mainHeroTag = 1, groundTag = 2, forestTreeTag = 3, chamomileTag = 4};
+enum Tag {mainHeroTag = 1, groundTag = 2, forestTreeTag = 3, chamomileTag = 4, yarrowTag = 5};
 enum State { common = 1, absorbed = 2 };
 
 class WorldObject

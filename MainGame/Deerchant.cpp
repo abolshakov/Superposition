@@ -26,6 +26,10 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	inventoryCapacity = 16;
 	toSaveName = "this1";
 	tag = mainHeroTag;
+
+	inventory[0] = std::make_pair(1, 1);
+	inventory[1] = std::make_pair(2, 2);
+	inventory[2] = std::make_pair(1, 1);
 }
 
 Deerchant::~Deerchant()
@@ -35,10 +39,10 @@ Deerchant::~Deerchant()
 
 Vector2i Deerchant::calculateTextureOffset()
 {
-	conditionalSizeUnits = Vector2f(500, 500);
+	conditionalSizeUnits = Vector2f(250, 250);
 	textureBox.width *= getScaleRatio().x;
 	textureBox.height *= getScaleRatio().y;
-	return Vector2i(textureBox.width / 2, textureBox.height * 11 / 16);
+	return Vector2i(textureBox.width / 2, textureBox.height * 13 / 16);
 }
 
 void Deerchant::handleInput()
@@ -58,7 +62,7 @@ void Deerchant::handleInput()
 	if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::S) ||
 		Keyboard::isKeyPressed(Keyboard::Z) || Keyboard::isKeyPressed(Keyboard::F) || Keyboard::isKeyPressed(Keyboard::E) || Keyboard::isKeyPressed(Keyboard::LControl) ||
 		Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left) || Mouse::isButtonPressed(Mouse::Right))
-		target = nullptr;
+		selectedTarget = nullptr;
 	
 	if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::W))
 	{
@@ -102,10 +106,10 @@ void Deerchant::handleInput()
 								else
 								{			
 									bool isIntersect;
-									if (target)
-										isIntersect = (sqrt(pow(this->position.x - targetPosition.x, 2) + pow(this->position.y - targetPosition.y, 2)) <= (this->radius + target->getRadius()));
+									if (selectedTarget)
+										isIntersect = (sqrt(pow(this->position.x - targetPosition.x, 2) + pow(this->position.y - targetPosition.y, 2)) <= (this->radius + selectedTarget->getRadius()));
 
-									if (isIntersect || !target)
+									if (isIntersect || !selectedTarget)
 									{
 										direction = STAND;
 										if (currentAction == move)
@@ -113,9 +117,9 @@ void Deerchant::handleInput()
 									}
 									else									
 									{
-										if (target)
+										if (selectedTarget)
 										{
-											moveToTarget(target->getRadius());
+											moveToTarget(selectedTarget->getRadius());
 											currentAction = move;
 										}
 									}
@@ -183,7 +187,7 @@ void Deerchant::setHitDirection()
 					side = left;
 }
 
-void Deerchant::behavior(DynamicObject& target, float elapsedTime)
+void Deerchant::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 {
 	bool isIntersect = (sqrt(pow(this->position.x - target.getPosition().x, 2) + pow(this->position.y - target.getPosition().y, 2)) <= (this->radius + target.getRadius()));
 
@@ -227,14 +231,58 @@ void Deerchant::behavior(DynamicObject& target, float elapsedTime)
 	target.timeForNewHitself += elapsedTime;
 }
 
+void Deerchant::behaviorWithStatic(WorldObject& target, float elapsedTime)
+{
+
+}
+
+void Deerchant::behavior(float elapsedTime)
+{
+	if (!selectedTarget)
+		return;
+
+	targetPosition = selectedTarget->getPosition();
+
+	bool isIntersect = (sqrt(pow(this->position.x - targetPosition.x, 2) + pow(this->position.y - targetPosition.y, 2)) <= (this->radius + selectedTarget->getRadius()));
+
+	if (isIntersect)
+	{
+		switch (selectedTarget->tag)
+		{
+			case forestTreeTag:
+			{
+			currentAction = absorbs;
+			currentSprite = 1;
+			selectedTarget->setState(absorbed);
+			selectedTarget = nullptr;
+			break;
+			}
+			case chamomileTag:
+			{
+			auto item = dynamic_cast<PickedObject*>(selectedTarget);
+			item->pickUp(inventory);
+			selectedTarget = nullptr;
+			break;
+			}
+			case yarrowTag:
+			{
+			auto item = dynamic_cast<PickedObject*>(selectedTarget);
+			item->pickUp(inventory);
+			selectedTarget = nullptr;
+			break;
+			}
+		}
+	}
+}
+
 void Deerchant::onMouseDownBehavior(WorldObject *object)
 {
 	if (!object)
 		return;
 
-	target = object;
+	selectedTarget = object;
 	targetPosition = object->getPosition();
-	bool isIntersect = (sqrt(pow(this->position.x - object->getPosition().x, 2) + pow(this->position.y - object->getPosition().y, 2)) <= (this->radius + object->getRadius()));
+	/*sbool isIntersect = (sqrt(pow(this->position.x - object->getPosition().x, 2) + pow(this->position.y - object->getPosition().y, 2)) <= (this->radius + object->getRadius()));
 
 	if (isIntersect)
 	{
@@ -255,7 +303,7 @@ void Deerchant::onMouseDownBehavior(WorldObject *object)
 			break;
 		}
 		}
-	}		
+	}*/		
 }
 
 std::string Deerchant::getSpriteName(long long elapsedTime)
@@ -679,8 +727,6 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 			}
 			if (currentAction == absorbs)
 			{
-				if (target)
-					target->setState(absorbed);
 				currentAction = relax;
 				lastAction = absorbs;
 			}

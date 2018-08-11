@@ -23,7 +23,9 @@ public:
 	~Monster();
 	Vector2i calculateTextureOffset() override;
 	std::string getSpriteName(long long elapsedTime) override;
-	void behavior(DynamicObject& target, float elapsedTime) override;
+	void behaviorWithDynamic(DynamicObject& target, float elapsedTime) override;
+	void behaviorWithStatic(WorldObject& target, float elapsedTime) override;
+	void behavior(float elapsedTime) override;
 };
 
 #endif

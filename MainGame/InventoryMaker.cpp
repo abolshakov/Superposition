@@ -56,10 +56,53 @@ void InventoryMaker::inventoryBounding(std::vector<std::reference_wrapper<std::p
 
 void InventoryMaker::onMouseDownInteract()
 {
-	if (currentCell == -1 || currentInventory.size() == 0)
-		return;
+	if (currentCell != -1 || currentHeroInventoryCell != -1 || heldItem != std::make_pair(-1, -1))
+		usedMouse = true;
+	else
+		usedMouse = false;
 
-	putItemToBound();
+
+	if (currentHeroInventoryCell != -1)
+	{
+		if (heldItem == std::make_pair(-1, -1))
+		{
+			if (boundInventory[currentHeroInventoryCell].get().first != 0)
+			{
+				heldItem = boundInventory[currentHeroInventoryCell].get();
+				boundInventory[currentHeroInventoryCell].get() = { 0, 0 };
+			}
+		}
+		else
+		{
+			if (boundInventory[currentHeroInventoryCell].get().first == 0)
+			{
+				boundInventory[currentHeroInventoryCell].get() = heldItem;
+				heldItem = std::make_pair(-1, -1);
+			}
+			else
+				if (boundInventory[currentHeroInventoryCell].get().first == heldItem.first)
+				{
+					if (boundInventory[currentHeroInventoryCell].get().second + heldItem.second <= itemsMaxCount[heldItem.first])
+					{
+						boundInventory[currentHeroInventoryCell].get().second += heldItem.second;
+						heldItem = std::make_pair(-1, -1);
+					}
+					else
+					{
+						heldItem.second -= itemsMaxCount[heldItem.first] - boundInventory[currentHeroInventoryCell].get().second;
+						boundInventory[currentHeroInventoryCell].get().second = itemsMaxCount[heldItem.first];						
+					}
+				}
+				else
+					if (boundInventory[currentHeroInventoryCell].get().first != heldItem.first)
+					{
+						swap(boundInventory[currentHeroInventoryCell].get(), heldItem);
+					}
+		}
+	}
+
+	if (currentCell != -1 && currentInventory.size() != 0)
+		putItemToBound();
 }
 
 void InventoryMaker::temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory)
@@ -135,6 +178,9 @@ int InventoryMaker::getHeroInventorySelectedCellNumber()
 
 void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 {
+	if (heldItem.second <= 0)
+		heldItem = std::make_pair(-1, -1);
+
 	window.draw(heroInventoryBackgroundSprite);
 
 	currentHeroInventoryPosition = Vector2f(heroInventoryBackgroundSprite.getPosition().x, Helper::GetScreenSize().y - heroInventoryZoneSize.y);
@@ -177,13 +223,21 @@ void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 		}
 		else
 			window.draw(*sprite);
-
+		
 		if (boundInventory[i].get().first != 0 && boundInventory[i].get().second != 0)
 		{
 			numberOfObjects.setString(std::to_string(boundInventory[i].get().second));
 			numberOfObjects.setPosition(sprite->getPosition().x + heroInventoryCellSize.x - numberOfObjects.getGlobalBounds().width, sprite->getPosition().y + heroInventoryCellSize.y - numberOfObjects.getGlobalBounds().height);
 			window.draw(numberOfObjects);
 		}
+	}
+
+	if (heldItem != std::make_pair(-1, -1))
+	{
+		auto sprite = &cellsSpriteList[heldItem.first].sprite;
+		sprite->setPosition(Vector2f(sf::Mouse::getPosition()));
+		sprite->setScale(heroInventoryCellSize.x / sprite->getTextureRect().width, heroInventoryCellSize.y / sprite->getTextureRect().height);
+		window.draw(*sprite);
 	}
 }
 

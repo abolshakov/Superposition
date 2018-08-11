@@ -32,6 +32,16 @@ Monster::~Monster()
 
 }
 
+void Monster::behaviorWithStatic(WorldObject& target, float elapsedTime)
+{
+
+}
+
+void Monster::behavior(float elapsedTime)
+{
+
+}
+
 Vector2i Monster::calculateTextureOffset()
 {
 	textureBox.width *= getScaleRatio().x;
@@ -39,7 +49,7 @@ Vector2i Monster::calculateTextureOffset()
 	return Vector2i(textureBox.width / 2, textureBox.height * 7 / 8);
 }
 
-void Monster::behavior(DynamicObject& target, float elapsedTime)
+void Monster::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 {
 	if (healthPoint <= 0)
 	{

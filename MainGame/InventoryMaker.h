@@ -33,7 +33,8 @@ public:
 	void inventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory);
 	void temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory);
 	bool wasDrawing = false;
-
+	bool getUsedMouse() { return usedMouse; }
+	std::pair<int, int> *getHeldItem() { return &heldItem; }
 	int heroInventoryRawCellsNumber = 0;
 	std::vector<std::reference_wrapper<std::pair <int, int>>> getBoundInv() { return currentInventory; }
 	std::vector<int> getItemsMaxCount() { return itemsMaxCount; }
@@ -56,7 +57,8 @@ private:
 	Sprite heroInventoryBackgroundSprite;
 	Texture heroInventoryBackgroundTexture;
 	Vector2f heroInventoryZoneSize, heroInventoryCellSize;
-	//int heroInventoryRawCellsNumber = 0;
+	std::pair<int, int> heldItem = {-1, -1};
+	bool usedMouse = false;
 };
 
 #endif
