@@ -47,5 +47,5 @@ void Spawn::initPedestal()
 
 std::string Spawn::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/spawn/spawn" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/spawn/spawn" + std::to_string(typeOfObject) + ".png";
 }

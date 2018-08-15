@@ -71,5 +71,5 @@ Vector2i GroundConnection::calculateTextureOffset()
 
 std::string GroundConnection::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/ground/groundConnection" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/ground/groundConnection" + std::to_string(typeOfObject) + ".png";
 }

@@ -77,6 +77,9 @@
     <ClCompile Include="HareTrap.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="Hare.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoardSprite.h" />
@@ -155,6 +158,9 @@
     </ClInclude>
     <ClInclude Include="HareTrap.h">
       <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Hare.h">
+      <Filter>Creatures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

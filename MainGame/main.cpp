@@ -28,7 +28,7 @@ int main() {
 
 	Sprite test;
 	Texture testTexture;
-	testTexture.loadFromFile("World/Hero/stand/down/1.png");
+	testTexture.loadFromFile("Game/worldSprites/hero/stand/down/1.png");
 	test.setTexture(testTexture);
 	test.setPosition(Vector2f(0, 0));
 
@@ -110,21 +110,12 @@ int main() {
 			menuSystem.setState(mainMenu);
 		}
 
-		RectangleShape energyRect(Vector2f(int(hero->getEnergy() / hero->getMaxEnergyValue() * screenSize.x / 4), 40));
-		energyRect.setPosition(Vector2f(screenSize.x / 2 - screenSize.x / 8, screenSize.y - 100));
-		energyRect.setFillColor(Color(245, 215, 66));
-		mainWindow.draw(energyRect);
-		RectangleShape healthRect(Vector2f(int(hero->getHealthPoint() / hero->getMaxHealthPointValue() * screenSize.x / 4), 40));
-		healthRect.setPosition(Vector2f(screenSize.x / 2 - screenSize.x / 8, screenSize.y - 200));
+		RectangleShape healthRect(Vector2f(int(hero->getHealthPoint() / hero->getMaxHealthPointValue() * screenSize.x / 4), screenSize.y * 1 / 20));
+		healthRect.setPosition(Vector2f(screenSize.x / 2 - screenSize.x / 8, screenSize.y * 9 / 10));
 		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
 
-		if (hero->getSelectedTarget())
-		{
-			bool isIntersect = (sqrt(pow(hero->getPosition().x - hero->getSelectedTarget()->getPosition().x, 2) + pow(hero->getPosition().y - hero->getSelectedTarget()->getPosition().y, 2)) <= (100 + 50));
-			Helper::drawText(to_string(hero->getSelectedTarget()->getPosition().x), 30, 200, 300, &mainWindow);
-			Helper::drawText(to_string(isIntersect), 30, 200, 400, &mainWindow);
-		}
+		//Helper::drawText(to_string(), 30, 200, 300, &mainWindow);
 
 		mainWindow.display();
 	}

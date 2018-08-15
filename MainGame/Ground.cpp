@@ -28,5 +28,5 @@ Vector2i Ground::calculateTextureOffset()
 
 std::string Ground::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/ground/ground" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/ground/ground" + std::to_string(typeOfObject) + ".png";
 }

@@ -42,5 +42,5 @@ void Yarrow::initPedestal()
 
 std::string Yarrow::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/yarrow/yarrow" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/yarrow/yarrow" + std::to_string(typeOfObject) + ".png";
 }

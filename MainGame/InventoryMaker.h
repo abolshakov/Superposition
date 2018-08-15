@@ -41,7 +41,7 @@ public:
 private:
 	void initSpriteList();
 	int visibleItemsNumber = 0;
-	std::string spritesFileDirectory = "World/inventorySprites/inventorySprites.txt";
+	std::string spritesFileDirectory = "Game/inventorySprites/inventorySprites.txt";
 	std::unordered_map<int, cell> cellsSpriteList;
 	Vector2f cellSize;
 	float timeForAnimationEffect = 50000, timeAfterAnimationEffect;

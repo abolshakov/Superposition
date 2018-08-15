@@ -62,7 +62,7 @@ private:
 	std::vector<objectInfo> builtObjects;
 	Texture buildStartButtonTexture, buildStopButtonTexture, recipeFrameTexture;
 	int currentObject = -1;
-	std::string BuildSystemMakerObjectsInfoFileDirectory = "World/buildSystem/buildSystemObjectsInfo.txt";
+	std::string BuildSystemMakerObjectsInfoFileDirectory = "Game/buildSystem/buildSystemObjectsInfo.txt";
 	Text numberOfObjects;
 	Font font;
 };

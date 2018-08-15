@@ -37,5 +37,5 @@ void HomeCosiness::initPedestal()
 
 std::string HomeCosiness::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/homeCosiness/homeCosiness" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/homeCosiness/homeCosiness" + std::to_string(typeOfObject) + ".png";
 }

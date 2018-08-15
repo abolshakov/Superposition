@@ -46,5 +46,5 @@ std::string MushroomStone::getSpriteName(long long elapsedTime)
 			currentSprite = 1;
 		}
 	}
-	return "terrainObjects/mushroomStone/t1_" + std::to_string(currentSprite) + ".png";
+	return "Game/worldSprites/terrainObjects/mushroomStone/t1_" + std::to_string(currentSprite) + ".png";
 }

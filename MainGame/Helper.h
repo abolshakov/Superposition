@@ -3,6 +3,7 @@
 #include "TerrainObject.h"
 
 using namespace sf;
+
 class Helper
 {
 public:

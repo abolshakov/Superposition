@@ -105,3 +105,5 @@ bool Helper::isIntersectTerrain(Vector2f position, TerrainObject& terrain, float
 	return (sqrt((position.x - f1.x)*(position.x - f1.x) + (position.y - f1.y)*(position.y - f1.y)) + sqrt((position.x - f2.x)*(position.x - f2.x) + (position.y - f2.y)*(position.y - f2.y))/* - dynamic.radius*/) <= terrain.getEllipseSize() + radius;
 }
 
+
+

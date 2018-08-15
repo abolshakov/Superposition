@@ -32,7 +32,7 @@ void InventoryMaker::initSpriteList()
 		cellsSpriteList.insert({ id, cell() });
 		auto itemSprite = &cellsSpriteList[id].sprite;
 		auto itemTexture = &cellsSpriteList[id].texture;
-		itemTexture->loadFromFile("World/inventorySprites/" + spriteName + ".png");
+		itemTexture->loadFromFile("Game/inventorySprites/" + spriteName + ".png");
 		itemSprite->setTexture(*itemTexture);
 		itemsMaxCount.push_back(maxCount);
 	}
@@ -40,7 +40,7 @@ void InventoryMaker::initSpriteList()
 
 	cellSize = Vector2f(screenSize.x / 30, screenSize.x / 30);
 
-	heroInventoryBackgroundTexture.loadFromFile("World/inventorySprites/box.png");
+	heroInventoryBackgroundTexture.loadFromFile("Game/inventorySprites/box.png");
 	heroInventoryBackgroundSprite.setTexture(heroInventoryBackgroundTexture);
 	heroInventoryBackgroundSprite.setOrigin(0, heroInventoryBackgroundTexture.getSize().y);
 	heroInventoryBackgroundSprite.setPosition(Vector2f(Helper::GetScreenSize().x / 1.5, Helper::GetScreenSize().y));
@@ -56,12 +56,6 @@ void InventoryMaker::inventoryBounding(std::vector<std::reference_wrapper<std::p
 
 void InventoryMaker::onMouseDownInteract()
 {
-	if (currentCell != -1 || currentHeroInventoryCell != -1 || heldItem != std::make_pair(-1, -1))
-		usedMouse = true;
-	else
-		usedMouse = false;
-
-
 	if (currentHeroInventoryCell != -1)
 	{
 		if (heldItem == std::make_pair(-1, -1))
@@ -178,6 +172,11 @@ int InventoryMaker::getHeroInventorySelectedCellNumber()
 
 void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 {
+	if (currentCell != -1 || currentHeroInventoryCell != -1)
+		usedMouse = true;
+	else
+		usedMouse = false;
+
 	if (heldItem.second <= 0)
 		heldItem = std::make_pair(-1, -1);
 

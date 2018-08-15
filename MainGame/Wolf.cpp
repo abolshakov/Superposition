@@ -64,22 +64,22 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		{
 			case up:
 			{
-				spriteName = "Wolf/hit/up/";
+				spriteName = "Game/worldSprites/wolf/hit/up/";
 				break;
 			}
 			case right:
 			{
-				spriteName = "Wolf/hit/right/";
+				spriteName = "Game/worldSprites/wolf/hit/right/";
 				break;
 			}
 			case down:
 			{
-				spriteName = "Wolf/hit/down/";
+				spriteName = "Game/worldSprites/wolf/hit/down/";
 				break;
 			}
 			case left:
 			{
-				spriteName = "Wolf/hit/left/";
+				spriteName = "Game/worldSprites/wolf/hit/left/";
 				break;
 			}
 		}
@@ -94,22 +94,22 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		{
 			case up:
 			{
-				spriteName = "Wolf/hit/up/";
+				spriteName = "Game/worldSprites/wolf/hit/up/";
 				break;
 			}
 			case right:
 			{
-				spriteName = "Wolf/hit/right/";
+				spriteName = "Game/worldSprites/wolf/hit/right/";
 				break;
 			}
 			case down:
 			{
-				spriteName = "Wolf/hit/down/";
+				spriteName = "Game/worldSprites/wolf/hit/down/";
 				break;
 			}
 			case left:
 			{
-				spriteName = "Wolf/hit/left/";
+				spriteName = "Game/worldSprites/wolf/hit/left/";
 				break;
 			}
 		}
@@ -124,22 +124,22 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		{
 			case up:
 			{
-				spriteName = "Wolf/hit/up/";
+				spriteName = "Game/worldSprites/wolf/hit/up/";
 				break;
 			}
 			case right:
 			{
-				spriteName = "Wolf/hit/right/";
+				spriteName = "Game/worldSprites/wolf/hit/right/";
 				break;
 			}
 			case down:
 			{
-				spriteName = "Wolf/hit/down/";
+				spriteName = "Game/worldSprites/wolf/hit/down/";
 				break;
 			}
 			case left:
 			{
-				spriteName = "Wolf/hit/left/";
+				spriteName = "Game/worldSprites/wolf/hit/left/";
 				break;
 			}
 		}
@@ -154,22 +154,22 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		{
 			case up:
 			{
-				spriteName = "Wolf/move/up/";
+				spriteName = "Game/worldSprites/wolf/move/up/";
 				break;
 			}
 			case right:
 			{
-				spriteName = "Wolf/move/right/";
+				spriteName = "Game/worldSprites/wolf/move/right/";
 				break;
 			}
 			case down:
 			{
-				spriteName = "Wolf/move/down/";
+				spriteName = "Game/worldSprites/wolf/move/down/";
 				break;
 			}
 			case left:
 			{
-				spriteName = "Wolf/move/left/";
+				spriteName = "Game/worldSprites/wolf/move/left/";
 				break;
 			}
 		}
@@ -180,7 +180,7 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 	case relax:
 	{
 		animationLength = 1;
-	    spriteName = "Wolf/stand/down/";				
+	    spriteName = "Game/worldSprites/wolf/stand/down/";				
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
@@ -188,7 +188,7 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 	case dead:
 	{
 		animationLength = 1;
-		spriteName = "Wolf/stand/down/1.png";
+		spriteName = "Game/worldSprites/wolf/stand/down/1.png";
 		currentSprite = 0;
 	}
 	}
@@ -199,42 +199,42 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 		switch (direction)
 		{
 		case LEFT:
-			spriteName = "Wolf/move/left/";
+			spriteName = "Game/worldSprites/wolf/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case RIGHT:
-			spriteName = "Wolf/move/right/";
+			spriteName = "Game/worldSprites/wolf/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UP:
-			spriteName = "Wolf/move/up/";
+			spriteName = "Game/worldSprites/wolf/move/up/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWN:
-			spriteName = "Wolf/move/down/";
+			spriteName = "Game/worldSprites/wolf/move/down/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UPLEFT:
-			spriteName = "Wolf/move/left/";
+			spriteName = "Game/worldSprites/wolf/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UPRIGHT:
-			spriteName = "Wolf/move/right/";
+			spriteName = "Game/worldSprites/wolf/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWNLEFT:
-			spriteName = "Wolf/move/left/";
+			spriteName = "Game/worldSprites/wolf/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWNRIGHT:
-			spriteName = "Wolf/move/right/";
+			spriteName = "Game/worldSprites/wolf/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;

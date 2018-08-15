@@ -27,13 +27,13 @@ void BuildSystemMaker::initializeButtons()
 	Vector2f screenSize = Helper::GetScreenSize();
 
 	//initialize buildStart button
-	buildStartButtonTexture.loadFromFile("World/buildSystem/buildStart.png");
+	buildStartButtonTexture.loadFromFile("Game/buildSystem/buildStart.png");
 	buildStartButton.setTexture(buildStartButtonTexture);
 	buildStartButton.setPosition(buildStartButton.getTextureRect().width / 8, 10);
 	buildStartButton.setScale(screenSize.y / 15 / buildStartButtonTexture.getSize().x, screenSize.y / 15 / buildStartButtonTexture.getSize().y);
 
 	//initialize buildStop button
-	buildStopButtonTexture.loadFromFile("World/buildSystem/buildStop.png");
+	buildStopButtonTexture.loadFromFile("Game/buildSystem/buildStop.png");
 	buildStopButton.setTexture(buildStopButtonTexture);
 	buildStopButton.setPosition(buildStopButton.getTextureRect().width / 8, 10);
 	buildStopButton.setScale(buildStartButton.getScale());
@@ -59,7 +59,7 @@ void BuildSystemMaker::inventoryBounding(std::vector<std::pair <int, int>>& inve
 
 void BuildSystemMaker::inicializeObjectsInfo()
 {
-	//recipeFrameTexture.loadFromFile("World/BuildSystemMaker/recipeFrame.png");
+	//recipeFrameTexture.loadFromFile("Game/BuildSystemMaker/recipeFrame.png");
 	//recipeFrame.setTexture(recipeFrameTexture);
 
 	std::string objectIconPath, objectImageType;
@@ -233,6 +233,9 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 			return;
 		}
 
+	if (selectedObject != -1 || currentObject != -1)
+		usedMouse = true;
+
 	if (isBuilding && currentObject != -1 && canAfford())
 	{
 		selectedObject = currentObject;
@@ -264,8 +267,11 @@ void BuildSystemMaker::buildHeldItem(Vector2f focusedObjectPosition, float scale
 		buildingPosition = Vector2f(-1, -1);
 	}
 	else
-		buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
-		(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
+		if (canBePlaced)
+		{
+			buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
+				(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
+		}
 }
 
 bool BuildSystemMaker::canAfford()

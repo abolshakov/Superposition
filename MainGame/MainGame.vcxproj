@@ -146,6 +146,7 @@
     <ClCompile Include="GridList.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="GroundConnection.cpp" />
+    <ClCompile Include="Hare.cpp" />
     <ClCompile Include="HareTrap.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="HomeCosiness.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="GridList.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="GroundConnection.h" />
+    <ClInclude Include="Hare.h" />
     <ClInclude Include="HareTrap.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="HomeCosiness.h" />

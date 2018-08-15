@@ -35,5 +35,5 @@ void Brazier::initPedestal()
 
 std::string Brazier::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/brazier/brazier" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/brazier/brazier" + std::to_string(typeOfObject) + ".png";
 }

@@ -36,11 +36,14 @@
 #include "Monster.h"
 #include "Deerchant.h"
 #include "Wolf.h"
+#include "Hare.h"
 
 using namespace sf;
 
 enum staticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13, brazier = 14, yarrow = 15, hareTrap = 16 };
-enum dynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3 };
+enum dynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3, hare = 4 };
+
+typedef void(*LPSEARCHFUNC)(LPCTSTR lpszFileName, std::unordered_map<std::string, BoardSprite> &spriteMap);
 
 class World
 {
@@ -60,15 +63,16 @@ private:
 	sf::View view;
 	std::shared_ptr<ltbl::LightPointEmission> brightner;
 	//hero
-	const std::string heroTextureName = "Hero/stand/down/1.png";
+	const std::string heroTextureName = "Game/worldSprites/hero/stand/down/1.png";
 	//world base
 	float width, height;
 	Vector2i blockSize;
 	Vector2f cameraPosition;
 	void initSpriteMap();
+	bool searchFiles(LPCTSTR lpszFileName, LPSEARCHFUNC lpSearchFunc, bool bInnerFolders = TRUE);
 	float World::getScaleFactor();
 	Vector2f bossSpawnPosition;
-	std::string spriteNameFileDirectory = "World/objects.txt";
+	std::string spriteNameFileDirectory = "Game/objects.txt";
 	const float heroToScreenRatio = 0.25f;
 	void inBlockGenerate(int blockIndex);
 	bool canBeRegenerated(int blockIndex);

@@ -16,7 +16,7 @@ void Grass::setType(int typeOfObject)
 		return;
 
 	this->typeOfObject = typeOfObject;
-	this->conditionalSizeUnits = Vector2f(500, 500);
+	this->conditionalSizeUnits = Vector2f(250, 250);
 	this->zCoords = 1;
 }
 
@@ -33,5 +33,5 @@ Vector2i Grass::calculateTextureOffset()
 
 std::string Grass::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/grass/grass" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/grass/grass" + std::to_string(typeOfObject) + ".png";
 }

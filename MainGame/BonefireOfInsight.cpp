@@ -39,6 +39,6 @@ void BonefireOfInsight::initPedestal()
 
 std::string BonefireOfInsight::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/bonefireOfInsight/bonefireOfInsight" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/bonefireOfInsight/bonefireOfInsight" + std::to_string(typeOfObject) + ".png";
 	//light->_emissionSprite.setPosition(Vector2f(Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2));
 }

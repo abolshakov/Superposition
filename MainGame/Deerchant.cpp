@@ -47,6 +47,9 @@ Vector2i Deerchant::calculateTextureOffset()
 
 void Deerchant::handleInput()
 {
+	if (currentAction == absorbs)
+		return;
+	
 	setHitDirection();
 	moveOffset = Vector2f(-1, -1);
 
@@ -251,25 +254,29 @@ void Deerchant::behavior(float elapsedTime)
 		{
 			case forestTreeTag:
 			{
-			currentAction = absorbs;
-			currentSprite = 1;
-			selectedTarget->setState(absorbed);
-			selectedTarget = nullptr;
-			break;
+				if (selectedTarget->getState() == absorbed)
+					break;
+
+				currentAction = absorbs;
+				currentSprite = 1;
+				setSide(selectedTarget->getPosition());
+				selectedTarget->setState(absorbed);
+				selectedTarget = nullptr;
+				break;
 			}
 			case chamomileTag:
 			{
-			auto item = dynamic_cast<PickedObject*>(selectedTarget);
-			item->pickUp(inventory);
-			selectedTarget = nullptr;
-			break;
+				auto item = dynamic_cast<PickedObject*>(selectedTarget);
+				item->pickUp(inventory);
+				selectedTarget = nullptr;
+				break;
 			}
 			case yarrowTag:
 			{
-			auto item = dynamic_cast<PickedObject*>(selectedTarget);
-			item->pickUp(inventory);
-			selectedTarget = nullptr;
-			break;
+				auto item = dynamic_cast<PickedObject*>(selectedTarget);
+				item->pickUp(inventory);
+				selectedTarget = nullptr;
+				break;
 			}
 		}
 	}
@@ -318,22 +325,22 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		{
 			case up:
 			{
-				spriteName = "Hero/hit/up/";
+				spriteName = "Game/worldSprites/hero/hit/up/";
 				break;
 			}
 			case right:
 			{
-				spriteName = "Hero/hit/right/";
+				spriteName = "Game/worldSprites/hero/hit/right/";
 				break;
 			}
 			case down:
 			{
-				spriteName = "Hero/hit/down/";
+				spriteName = "Game/worldSprites/hero/hit/down/";
 				break;
 			}
 			case left:
 			{
-				spriteName = "Hero/hit/left/";
+				spriteName = "Game/worldSprites/hero/hit/left/";
 				break;
 			}
 		}
@@ -346,22 +353,22 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		{
 			case up:
 			{
-				spriteName = "Hero/hit/up/";
+				spriteName = "Game/worldSprites/hero/hit/up/";
 				break;
 			}
 			case right:
 			{
-				spriteName = "Hero/hit/right/";
+				spriteName = "Game/worldSprites/hero/hit/right/";
 				break;
 			}
 			case down:
 			{
-				spriteName = "Hero/hit/down/";
+				spriteName = "Game/worldSprites/hero/hit/down/";
 				break;
 			}
 			case left:
 			{
-				spriteName = "Hero/hit/left/";
+				spriteName = "Game/worldSprites/hero/hit/left/";
 				break;
 			}
 		}
@@ -374,22 +381,22 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		{
 			case up:
 			{
-				spriteName = "Hero/hit/up/";
+				spriteName = "Game/worldSprites/hero/hit/up/";
 				break;
 			}
 			case right:
 			{
-				spriteName = "Hero/hit/right/";
+				spriteName = "Game/worldSprites/hero/hit/right/";
 				break;
 			}
 			case down:
 			{
-				spriteName = "Hero/hit/down/";
+				spriteName = "Game/worldSprites/hero/hit/down/";
 				break;
 			}
 			case left:
 			{
-				spriteName = "Hero/hit/left/";
+				spriteName = "Game/worldSprites/hero/hit/left/";
 				break;
 			}
 		}
@@ -397,27 +404,27 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		spriteName += ".png";
 		break;
 	case absorbs:
-		animationLength = 18;
+		animationLength = 19;
 		switch (side)
 		{
 		case up:
 		{
-			spriteName = "Hero/move/up/";
+			spriteName = "Game/worldSprites/hero/absorb/up/";
 			break;
 		}
 		case right:
 		{
-			spriteName = "Hero/move/right/";
+			spriteName = "Game/worldSprites/hero/absorb/right/";
 			break;
 		}
 		case down:
 		{
-			spriteName = "Hero/move/down/";
+			spriteName = "Game/worldSprites/hero/absorb/down/";
 			break;
 		}
 		case left:
 		{
-			spriteName = "Hero/move/left/";
+			spriteName = "Game/worldSprites/hero/absorb/left/";
 			break;
 		}
 		}
@@ -426,7 +433,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		break;
 	case transitionToEnotherWorld:
 		animationLength = 18;
-		spriteName = "Hero/move/down/";
+		spriteName = "Game/worldSprites/hero/move/down/";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
@@ -435,13 +442,13 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (side)
 		{
 		case up:
-			spriteName = "Hero/move/up/";
+			spriteName = "Game/worldSprites/hero/move/up/";
 		case right:
-			spriteName = "Hero/move/up/";
+			spriteName = "Game/worldSprites/hero/move/up/";
 		case down:
-			spriteName = "Hero/move/up/";
+			spriteName = "Game/worldSprites/hero/move/up/";
 		case left:
-			spriteName = "Hero/move/up/";
+			spriteName = "Game/worldSprites/hero/move/up/";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
@@ -454,42 +461,42 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 			{
 				case LEFT:
 				{
-					spriteName = "Hero/move/left/";
+					spriteName = "Game/worldSprites/hero/move/left/";
 					break;
 				}
 				case RIGHT:
 				{
-					spriteName = "Hero/move/right/";
+					spriteName = "Game/worldSprites/hero/move/right/";
 					break;
 				}
 				case UP:
 				{
-					spriteName = "Hero/move/up/";
+					spriteName = "Game/worldSprites/hero/move/up/";
 					break;
 				}
 				case DOWN:
 				{
-					spriteName = "Hero/move/down/";
+					spriteName = "Game/worldSprites/hero/move/down/";
 					break;
 				}
 				case UPLEFT:
 				{
-					spriteName = "Hero/move/left/";
+					spriteName = "Game/worldSprites/hero/move/left/";
 					break;
 				}
 				case UPRIGHT:
 				{
-					spriteName = "Hero/move/right/";
+					spriteName = "Game/worldSprites/hero/move/right/";
 					break;
 				}
 				case DOWNLEFT:
 				{
-					spriteName = "Hero/move/left/";
+					spriteName = "Game/worldSprites/hero/move/left/";
 					break;
 				}
 				case DOWNRIGHT:
 				{
-					spriteName = "Hero/move/right/";
+					spriteName = "Game/worldSprites/hero/move/right/";
 					break;
 				}
 				default:
@@ -504,22 +511,22 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 			{
 				case up:
 				{
-					spriteName = "Hero/move/up/";
+					spriteName = "Game/worldSprites/hero/move/up/";
 					break;
 				}
 				case right:
 				{
-					spriteName = "Hero/move/right/";
+					spriteName = "Game/worldSprites/hero/move/right/";
 					break;
 				}
 				case down:
 				{
-					spriteName = "Hero/move/down/";
+					spriteName = "Game/worldSprites/hero/move/down/";
 					break;
 				}
 				case left:
 				{
-					spriteName = "Hero/move/left/";
+					spriteName = "Game/worldSprites/hero/move/left/";
 					break;
 				}
 				default:
@@ -539,42 +546,42 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 			{
 				case LEFT:
 				{
-					spriteName = "Hero/move/left/";
+					spriteName = "Game/worldSprites/hero/move/left/";
 					break;
 				}
 				case RIGHT:
 				{
-					spriteName = "Hero/move/right/";
+					spriteName = "Game/worldSprites/hero/move/right/";
 					break;
 				}
 				case UP:
 				{
-					spriteName = "Hero/move/up/";
+					spriteName = "Game/worldSprites/hero/move/up/";
 					break;
 				}
 				case DOWN:
 				{
-					spriteName = "Hero/move/down/";
+					spriteName = "Game/worldSprites/hero/move/down/";
 					break;
 				}
 				case UPLEFT:
 				{
-					spriteName = "Hero/move/left/";
+					spriteName = "Game/worldSprites/hero/move/left/";
 					break;
 				}
 				case UPRIGHT:
 				{
-					spriteName = "Hero/move/right/";
+					spriteName = "Game/worldSprites/hero/move/right/";
 					break;
 				}
 				case DOWNLEFT:
 				{
-					spriteName = "Hero/move/left/";
+					spriteName = "Game/worldSprites/hero/move/left/";
 					break;
 				}
 				case DOWNRIGHT:
 				{
-					spriteName = "Hero/move/right/";
+					spriteName = "Game/worldSprites/hero/move/right/";
 					break;
 				}
 				default:
@@ -589,22 +596,22 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 			{
 				case up:
 				{
-					spriteName = "Hero/move/up/";
+					spriteName = "Game/worldSprites/hero/move/up/";
 					break;
 				}
 				case right:
 				{
-					spriteName = "Hero/move/right/";
+					spriteName = "Game/worldSprites/hero/move/right/";
 					break;
 				}
 				case down:
 				{
-					spriteName = "Hero/move/down/";
+					spriteName = "Game/worldSprites/hero/move/down/";
 					break;
 				}
 				case left:
 				{
-					spriteName = "Hero/move/left/"; 
+					spriteName = "Game/worldSprites/hero/move/left/"; 
 					break;
 				}
 			}
@@ -614,7 +621,7 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		break;
 	case openInventory:
 		animationLength = 7;
-		spriteName = "Hero/stand/down/";
+		spriteName = "Game/worldSprites/hero/stand/down/";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
@@ -625,22 +632,22 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		{
 			case up:
 			{
-				spriteName = "Hero/stand/up/";
+				spriteName = "Game/worldSprites/hero/stand/up/";
 				break;
 			}
 			case right:
 			{
-				spriteName = "Hero/stand/right/";
+				spriteName = "Game/worldSprites/hero/stand/right/";
 				break;
 			}
 			case down:
 			{
-				spriteName = "Hero/stand/down/";
+				spriteName = "Game/worldSprites/hero/stand/down/";
 				break;
 			}
 			case left:
 			{
-				spriteName = "Hero/stand/left/";
+				spriteName = "Game/worldSprites/hero/stand/left/";
 				break;
 			}
 		}
@@ -655,43 +662,43 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		switch (direction)
 		{
 		case LEFT:
-			spriteName = "Hero/move/left/";
+			spriteName = "Game/worldSprites/hero/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			
 			break;
 		case RIGHT:
-			spriteName = "Hero/move/right/";
+			spriteName = "Game/worldSprites/hero/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UP:
-			spriteName = "Hero/move/up/";
+			spriteName = "Game/worldSprites/hero/move/up/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWN:
-			spriteName = "Hero/move/down/";
+			spriteName = "Game/worldSprites/hero/move/down/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UPLEFT:
-			spriteName = "Hero/move/left/";
+			spriteName = "Game/worldSprites/hero/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case UPRIGHT:
-			spriteName = "Hero/move/right/";
+			spriteName = "Game/worldSprites/hero/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWNLEFT:
-			spriteName = "Hero/move/left/";
+			spriteName = "Game/worldSprites/hero/move/left/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;
 		case DOWNRIGHT:
-			spriteName = "Hero/move/right/";
+			spriteName = "Game/worldSprites/hero/move/right/";
 			spriteName += std::to_string(currentSprite);
 			spriteName += ".png";
 			break;

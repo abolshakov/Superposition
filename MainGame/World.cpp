@@ -42,12 +42,12 @@ void World::initShaders()
 
 	// Load shaders
 
-	if (!spiritWorldShader.loadFromFile("World/Shaders/water.frag", sf::Shader::Fragment))
+	if (!spiritWorldShader.loadFromFile("Game/Shaders/water.frag", sf::Shader::Fragment))
 	{
 		std::cerr << "Error while shaders" << std::endl;
 	}
 
-	if (!distortionMap.loadFromFile("World/Shaders/noiseWater.png"))
+	if (!distortionMap.loadFromFile("Game/Shaders/noiseWater.png"))
 	{
 		sf::err() << "Error while loading distortion map" << std::endl;
 	}
@@ -122,33 +122,85 @@ bool cmpImgDraw(WorldObject* first, WorldObject* second)
 	return first->getZCoords() < second->getZCoords();
 }
 
-void World::initSpriteMap()
+bool World::searchFiles(LPCTSTR lpszFileName, LPSEARCHFUNC lpSearchFunc, bool bInnerFolders)
 {
-	std::ifstream fin(spriteNameFileDirectory);
+	LPTSTR part;
+	char tmp[MAX_PATH]; // временный массив
+	char name[MAX_PATH];
 
-	int objectsNumber;
-	Vector2i maxSize;
-	std::string name;
+	HANDLE hSearch = NULL;
+	WIN32_FIND_DATA wfd;
+	memset(&wfd, 0, sizeof(WIN32_FIND_DATA));
 
-	while (fin >> name)
+	// сначала поиск внутри вложенных папок ...
+	if (bInnerFolders)
 	{
-		spriteMap.insert({ name, BoardSprite{} });
-		auto sprite = &spriteMap[name];
-		sprite->texture.loadFromFile("World/" + name);
-		sprite->sprite.setTexture(sprite->texture);
+		if (GetFullPathName(lpszFileName, MAX_PATH, tmp, &part) == 0) return FALSE;
+		strcpy(name, part);
+		strcpy(part, "*.*");
 
-		auto size = Vector2i(sprite->texture.getSize());
+		// если папки существуют, делаем поиск
+		wfd.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+		if (!((hSearch = FindFirstFile(tmp, &wfd)) == INVALID_HANDLE_VALUE))
+			do
+			{
+				// в каждой папке есть две папки с именами "." и ".."
+				// и эти папки мы не трогаем
 
-		if (size.x > maxSize.x)
-			maxSize.x = size.x;
+				// пропускаем папки "." и ".."
+				if (!strncmp(wfd.cFileName, ".", 1) || !strncmp(wfd.cFileName, "..", 2))
+					continue;
 
-		if (size.y > maxSize.y)
-			maxSize.y = size.y;
+				if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) // если мы нашли папку
+				{
+					char next[MAX_PATH];
+					if (GetFullPathName(lpszFileName, MAX_PATH, next, &part) == 0) return FALSE;
+					strcpy(part, wfd.cFileName);
+					strcat(next, "\\");
+					strcat(next, name);
+
+					searchFiles(next, lpSearchFunc, 1);
+				}
+			} while (FindNextFile(hSearch, &wfd)); // ищем следующий файл
+
+			FindClose(hSearch); // заканчиваем поиск
 	}
 
-	fin.close();
+	if ((hSearch = FindFirstFile(lpszFileName, &wfd)) == INVALID_HANDLE_VALUE)
+		return TRUE; // в противном случае выходим
+	do
+		if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) // если мы нашли файл
+		{
+			char file[MAX_PATH];
+			if (GetFullPathName(lpszFileName, MAX_PATH, file, &part) == 0) return FALSE;
+			strcpy(part, wfd.cFileName);
 
-	//return maxSize;
+			lpSearchFunc(file, spriteMap);
+		}
+	while (FindNextFile(hSearch, &wfd)); // ищем следующий файл
+	FindClose(hSearch); // заканчиваем поиск
+
+	return TRUE;
+}
+
+void putImageToMap(LPCTSTR lpszFileName, std::unordered_map<std::string, BoardSprite> &spriteMap)
+{
+	//std::string filePath = std::to_string(*lpszFileName);
+	std::string filePath = lpszFileName;
+	filePath.erase(0, filePath.find("\\Game") + 1);
+	std::replace(filePath.begin(), filePath.end(), '\\', '/');
+	spriteMap.insert({ filePath, BoardSprite{} });
+	auto sprite = &spriteMap[filePath];
+	sprite->texture.loadFromFile(filePath);
+	sprite->sprite.setTexture(sprite->texture);
+}
+
+void World::initSpriteMap()
+{
+	int objectsNumber;
+	std::string name;
+
+	searchFiles("Game/worldSprites/*.png", putImageToMap, 1);
 }
 
 void World::initLightSystem(RenderWindow &window)
@@ -220,85 +272,85 @@ void World::initializeStaticItem(staticItemsIdList itemClass, Vector2f itemPosit
 	case 1:
 	{
 		item = new ForestTree("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/ForestTree/ForestTree";
+		nameOfImage = "Game/worldSprites/terrainObjects/forestTree/forestTree";
 		break;
 	}
 	case 2:
 	{
 		item = new Grass("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/grass/grass";
+		nameOfImage = "Game/worldSprites/terrainObjects/grass/grass";
 		break;
 	}
 	case 3:
 	{
 		item = new Spawn("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/spawn/spawn";
+		nameOfImage = "Game/worldSprites/terrainObjects/spawn/spawn";
 		break;
 	}
 	case 4:
 	{
 		item = new BonefireOfInsight("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/bonefireOfInsight/bonefireOfInsight";
+		nameOfImage = "Game/worldSprites/terrainObjects/bonefireOfInsight/bonefireOfInsight";
 		break;
 	}
 	case 5:
 	{
 		item = new HomeCosiness("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/homeCosiness/homeCosiness";
+		nameOfImage = "Game/worldSprites/terrainObjects/homeCosiness/homeCosiness";
 		break;
 	}
 	case 6:
 	{
 		item = new MushroomStone("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/mushroomStone/t1_";
+		nameOfImage = "Game/worldSprites/terrainObjects/mushroomStone/t1_";
 		break;
 	}
 	case 7:
 	{
 		item = new MushroomsOnStone("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/mushroomsOnStone/t2_";
+		nameOfImage = "Game/worldSprites/terrainObjects/mushroomsOnStone/t2_";
 		break;
 	}
 	case 11:
 	{
 		item = new Ground("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/ground/ground";
+		nameOfImage = "Game/worldSprites/terrainObjects/ground/ground";
 		break;
 	}
 	case 12:
 	{
 		item = new GroundConnection("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/ground/groundConnection";
+		nameOfImage = "Game/worldSprites/terrainObjects/ground/groundConnection";
 		break;
 	}
 	case 13:
 	{
 		item = new Chamomile("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/chamomile/chamomile";
+		nameOfImage = "Game/worldSprites/terrainObjects/chamomile/chamomile";
 		break;
 	}
 	case 14:
 	{
 		item = new Brazier("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/brazier/brazier";
+		nameOfImage = "Game/worldSprites/terrainObjects/brazier/brazier";
 		break;
 	}
 	case 15:
 	{
 		item = new Yarrow("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/yarrow/yarrow";
+		nameOfImage = "Game/worldSprites/terrainObjects/yarrow/yarrow";
 		break;
 	}
 	case 16:
 	{
 		item = new HareTrap("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/hareTrap/hareTrap";
+		nameOfImage = "Game/worldSprites/terrainObjects/hareTrap/hareTrap";
 		break;
 	}
 	default:
 	{
 		item = new Spawn("item", Vector2f(0, 0), -1);
-		nameOfImage = "terrainObjects/spawn/spawn";
+		nameOfImage = "Game/worldSprites/terrainObjects/spawn/spawn";
 		break;
 	}
 	}
@@ -339,7 +391,7 @@ void World::initializeDynamicItem(dynamicItemsIdList itemClass, Vector2f itemPos
 		case 1:
 		{
 			item = new Deerchant("item", Vector2f(0, 0));
-			nameOfImage = "Hero/stand/down/1";
+			nameOfImage = "Game/worldSprites/hero/stand/down/1";
 			focusedObject = item;
 			cameraPosition = itemPosition;
 			break;
@@ -347,19 +399,25 @@ void World::initializeDynamicItem(dynamicItemsIdList itemClass, Vector2f itemPos
 		case 2:
 		{
 			item = new Monster("item", Vector2f(0, 0));
-			nameOfImage = "enemy/enemyF_0";
+			nameOfImage = "Game/enemy/enemyF_0";
 			break;
 		}
 		case 3:
 		{
 			item = new Wolf("item", Vector2f(0, 0));
-			nameOfImage = "Wolf/stand/down/1";
+			nameOfImage = "Game/worldSprites/wolf/stand/down/1";
+			break;
+		}
+		case 4:
+		{
+			item = new Hare("item", Vector2f(0, 0));
+			nameOfImage = "Game/worldSprites/hare/stand/down/1";
 			break;
 		}
 		default:
 		{
 			item = new Monster("item", Vector2f(0, 0));
-			nameOfImage = "enemy/enemyF_0";
+			nameOfImage = "Game/enemy/enemyF_0";
 			break;
 		}
 	}
@@ -513,7 +571,7 @@ void World::generate(int objCount)
 	//-----------------------------------------
 	//test enemy
 	initializeDynamicItem(wolf, Vector2f(6000, 6100), "testEnemy1");
-	initializeDynamicItem(wolf, Vector2f(5400, 5500), "testEnemy2");
+	initializeDynamicItem(hare, Vector2f(5400, 5500), "testEnemy2");
 	//------------------------------------------
 	//initializeHero(Vector2f(3800, 4000));
 	initializeDynamicItem(hero1, Vector2f(5800, 5000), "hero1");
@@ -547,7 +605,7 @@ void World::inBlockGenerate(int blockIndex)
 	
 	int randomGroundType = rand() % Ground("item", Vector2f(0, 0), -1).getVarietyOfTypes() + 1;
 	groundMatrix[groundIndX][groundIndY] = new Ground("ground" + std::to_string(blockIndex), Vector2f(groundIndX * blockSize.x, groundIndY * blockSize.y), randomGroundType);
-	auto textureBounds = spriteMap["terrainObjects/ground/ground1.png"].sprite.getGlobalBounds();
+	auto textureBounds = spriteMap["Game/worldSprites/terrainObjects/ground/ground1.png"].sprite.getGlobalBounds();
 	auto textureSize = Vector2i(int(textureBounds.width), int(textureBounds.height));
 	groundMatrix[groundIndX][groundIndY]->setTextureSize(textureSize);
 	staticGrid.addItem(groundMatrix[groundIndX][groundIndY], groundMatrix[groundIndX][groundIndY]->getName(), groundMatrix[groundIndX][groundIndY]->getPosition().x, groundMatrix[groundIndX][groundIndY]->getPosition().y);
@@ -878,7 +936,9 @@ void World::setTransparent(std::vector<WorldObject*> visibleItems)
 	mouseDisplayName = "";
 	Vector2f mousePos = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + cameraPosition.x*scaleFactor) / scaleFactor,
 		(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + cameraPosition.y*scaleFactor) / scaleFactor);
-	float minDistance = 10e8f;
+
+	float minCapacity = 10e8f, minDistance = 10e8f;
+
 	for (auto visibleItem : visibleItems)
 	{
 		if (visibleItem->getName() == focusedObject->getName())
@@ -900,11 +960,14 @@ void World::setTransparent(std::vector<WorldObject*> visibleItems)
 		{
 			visibleItem->isVisibleName = true;
 			//float distanceToBounds = abs(mousePos.x - visibleItem->getPosition().x) + abs(mousePos.y - visibleItem->getPosition().y);
-			float distanceToBounds = visibleItem->getConditionalSizeUnits().x + visibleItem->getConditionalSizeUnits().y;
+			float itemCapacity = visibleItem->getConditionalSizeUnits().x + visibleItem->getConditionalSizeUnits().y;
+			float distanceToItemCenter = abs(mousePos.x - (itemPos.x + visibleItem->getConditionalSizeUnits().x / 2)) +
+				abs(mousePos.y - (itemPos.y + visibleItem->getConditionalSizeUnits().y / 2));
 
-			if (distanceToBounds < minDistance)
+			if (itemCapacity < minCapacity || (itemCapacity == minCapacity && distanceToItemCenter <= minDistance))
 			{
-				minDistance = distanceToBounds;
+				minCapacity = itemCapacity;
+				minDistance = distanceToItemCenter;
 
 				bool isIntersect = (sqrt(pow(focusedObject->getPosition().x - visibleItem->getPosition().x, 2) + pow(focusedObject->getPosition().y - visibleItem->getPosition().y, 2)) <= (focusedObject->getRadius() + visibleItem->getRadius()));
 
@@ -968,15 +1031,16 @@ bool World::isClimbBeyond(Vector2f pos)
 
 void World::onMouseDownInteract()
 {
-	if (!buildSystem.getIsBuilding())
+	//if (!buildSystem.getIsBuilding())
 		inventorySystem.onMouseDownInteract();
 
-	if (buildSystem.succesInit && !inventorySystem.getUsedMouse())
+	if (buildSystem.succesInit && !inventorySystem.getUsedMouse()/* && inventorySystem.getHeldItem()->first == -1*/)
 		buildSystem.onMouseDownInteract(focusedObject->getPosition(), scaleFactor);
 
-	buildSystem.buildHeldItem(focusedObject->getPosition(), scaleFactor);
+	//if (!inventorySystem.getUsedMouse())
+		buildSystem.buildHeldItem(focusedObject->getPosition(), scaleFactor);
 
-	if (mouseDisplayName == ""  || buildSystem.getUsedMouse() || buildSystem.getIsBuilding() || inventorySystem.getUsedMouse())
+	if (mouseDisplayName == ""  || buildSystem.getUsedMouse() || /*buildSystem.getIsBuilding() ||*/ inventorySystem.getUsedMouse())
 		selectedObject = nullptr;
 	else
 	{
@@ -1241,8 +1305,8 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 	/*Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x), 30, 200, 200, &window);
 	Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y), 30, 350, 200, &window);*/
-	//Helper::drawText(std::to_string(focusedObject->getTargetPosition().x), 30, 200, 400, &window);
-	//Helper::drawText(std::to_string(spriteMap[heroTextureName].texture.getSize().y), 30, 500, 300, &window);
+	//Helper::drawText(std::to_string(inventorySystem.getHeroInventorySelectedCellNumber()), 30, 200, 300, &window);
+	//Helper::drawText(std::to_string(inventorySystem.getSelectedCellNumber()), 30, 200, 400, &window);
 	/*Helper::drawText(std::to_string(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)), 30, 200, 400, &window);*/
 	//int groundIndX = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x / blockSize.x;
 	//int groundIndY = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y / blockSize.y;

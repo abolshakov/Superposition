@@ -28,7 +28,7 @@ public:
 private:	
 	MenuStates menuState = mainMenu;
 	std::unordered_map<ButtonTag, ButtonMaker> buttonList;
-	std::string buttonsInfoFileDirectory = "World/MenuMaker/buttonsInfo.txt";
+	std::string buttonsInfoFileDirectory = "Game/MenuMaker/buttonsInfo.txt";
 	void initButtons();
 	bool wasActive;
 	Vector2f screenSize;

@@ -42,5 +42,5 @@ void Chamomile::initPedestal()
 
 std::string Chamomile::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/chamomile/chamomile" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/chamomile/chamomile" + std::to_string(typeOfObject) + ".png";
 }

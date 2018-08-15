@@ -161,13 +161,13 @@ std::string ForestTree::getSpriteName(long long elapsedTime)
 	{
 		case common:
 		{
-			return "terrainObjects/ForestTree/ForestTree" + std::to_string(typeOfObject) + ".png";
+			return "Game/worldSprites/terrainObjects/forestTree/forestTree" + std::to_string(typeOfObject) + ".png";
 			break;
 		}
 		case absorbed:
 		{
 			animationLength = 15;
-			spriteName = "terrainObjects/ForestTree/ForestTree" + std::to_string(typeOfObject) + ".png";
+			spriteName = "Game/worldSprites/terrainObjects/forestTree/forestTree" + std::to_string(typeOfObject) + ".png";
 			brightness = 100 - currentSprite * 100 / animationLength;
 			break;
 		}

@@ -37,5 +37,5 @@ void HareTrap::initPedestal()
 
 std::string HareTrap::getSpriteName(long long elapsedTime)
 {
-	return "terrainObjects/hareTrap/hareTrap" + std::to_string(typeOfObject) + ".png";
+	return "Game/worldSprites/terrainObjects/hareTrap/hareTrap" + std::to_string(typeOfObject) + ".png";
 }
