@@ -1,0 +1,9 @@
+Game/MenuMaker/newRunFramed.png 6.25 10 15 2
+
+Game/MenuMaker/continueFramed.png 6.25 25 15 1
+
+Game/MenuMaker/settingsFramed.png 6.25 40 15 3
+
+Game/MenuMaker/exitFramed.png 6.25 55 15 4
+
+Game/MenuMaker/menuFramed.png 6.25 55 15 6
