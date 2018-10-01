@@ -69,7 +69,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 	{
 		if (buttonList[newRunTag].isSelected(mousePos))
 		{
-			world.generate(3000);
+			world.generate(500);
 			menuState = closed;
 			wasActive = true;
 			return;
@@ -98,7 +98,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 	{
 		if (buttonList[newRunTag].isSelected(mousePos))
 		{
-			world.generate(3000);
+			world.generate(500);
 			menuState = closed;
 			wasActive = true;
 			return;

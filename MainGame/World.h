@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <windows.h>
 
 #include "GridList.h"
@@ -137,6 +138,7 @@ public:
 	Vector2i worldUpperLeft, worldBottomRight;
 	//zoom
 	float scaleFactor;
+	float mainScale;
 	void setScaleFactor(int delta);
 	void scaleSmoothing();
 	float scaleDecrease, timeForScaleDecrease = 0;
@@ -147,7 +149,7 @@ public:
 	DynamicObject* focusedObject;	
 	StaticObject* groundMatrix[100][100];
 	//events
-	void onMouseDownInteract();
+	void onMouseDownInteract(int currentMouseButton);
 };
 
 #endif

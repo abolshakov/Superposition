@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClCompile Include="DynamicObject.cpp" />
     <ClCompile Include="EventHandler.cpp" />
-    <ClCompile Include="GridList.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PickedObject.cpp" />
@@ -80,12 +79,12 @@
     <ClCompile Include="Hare.cpp">
       <Filter>Creatures</Filter>
     </ClCompile>
+    <ClCompile Include="GridList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoardSprite.h" />
     <ClInclude Include="DynamicObject.h" />
     <ClInclude Include="EventHandler.h" />
-    <ClInclude Include="GridList.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="PickedObject.h" />
     <ClInclude Include="StaticObject.h" />
@@ -162,6 +161,7 @@
     <ClInclude Include="Hare.h">
       <Filter>Creatures</Filter>
     </ClInclude>
+    <ClInclude Include="GridList.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Terrain">

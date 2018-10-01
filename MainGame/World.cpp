@@ -66,29 +66,34 @@ void World::initShaders()
 
 void World::setScaleFactor(int delta)
 {
-	if (delta == -1 && scaleFactor > 0.75)
+	if (delta == -1 && scaleFactor >= 0.75 * mainScale)
 	{
 		scaleFactor -= 0.01;
 		scaleDecrease = -0.03;
 	}
 	else
-		if (delta == 1 && scaleFactor < 1.5)
+		if (delta == 1 && scaleFactor <= 1.5 * mainScale)
 		{
 			scaleFactor += 0.01;
 			scaleDecrease = 0.03;
 		}
+
+	if (scaleDecrease < 0 && scaleFactor <= 0.75 * mainScale)
+		scaleFactor = 0.75 * mainScale;
+	if (scaleDecrease > 0 && scaleFactor >= 1.5 * mainScale)
+		scaleFactor = 1.5 * mainScale;
 }
 
 void World::scaleSmoothing()
 {
 	if (abs(scaleDecrease) >= 0.02 && timeForScaleDecrease >= 30000)
 	{
-		if (scaleFactor != 0.15 && scaleFactor != 1.5)
+		if (scaleFactor != 0.75 * mainScale && scaleFactor != 1.5 * mainScale)
 			scaleFactor += scaleDecrease;
-		if (scaleDecrease < 0 && scaleFactor < 0.75)
-			scaleFactor = 0.75;
-		if (scaleDecrease > 0 && scaleFactor > 1.5)
-			scaleFactor = 1.5;
+		if (scaleDecrease < 0 && scaleFactor <= 0.75 * mainScale)
+			scaleFactor = 0.75 * mainScale;
+		if (scaleDecrease > 0 && scaleFactor >= 1.5 * mainScale)
+			scaleFactor = 1.5 * mainScale;
 
 		if (scaleDecrease < 0)
 		{
@@ -103,6 +108,20 @@ void World::scaleSmoothing()
 
 		timeForScaleDecrease = 0;
 	}
+}
+
+float World::getScaleFactor()
+{
+	auto heroHeight = Vector2i(spriteMap[heroTextureName].texture.getSize()).y;
+	auto screenHeight = Helper::GetScreenSize().y;
+	auto ratio = heroHeight / float(screenHeight);
+
+	auto mainObject = Deerchant("loadInit", Vector2f(0, 0));
+	mainObject.calculateTextureOffset();
+	mainScale = screenHeight / (5 * mainObject.getConditionalSizeUnits().y);
+	mainScale = round(mainScale * 100) / 100;
+	return mainScale;
+	//return 1;
 }
 
 bool cmpImgDraw(WorldObject* first, WorldObject* second)
@@ -250,16 +269,6 @@ void World::renderLightSystem(View view, RenderWindow &window)
 	Lsprite.setTexture(ls.getLightingTexture());
 	lightRenderStates.blendMode = sf::BlendMultiply;
 	window.draw(Lsprite, lightRenderStates);
-}
-
-float World::getScaleFactor()
-{
-	auto heroHeight = Vector2i(spriteMap[heroTextureName].texture.getSize()).y;
-	auto screenHeight = Helper::GetScreenSize().y;
-	auto ratio = heroHeight / float(screenHeight);
-
-	//return heroToScreenRatio / ratio;
-	return 1;
 }
 
 void World::initializeStaticItem(staticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName)
@@ -570,12 +579,12 @@ void World::generate(int objCount)
 	/*dynamicGrid.addItem(new Monster("none", Vector2f(width, height)), "none", int(width), int(height));*/
 	//-----------------------------------------
 	//test enemy
-	initializeDynamicItem(wolf, Vector2f(6000, 6100), "testEnemy1");
-	initializeDynamicItem(hare, Vector2f(5400, 5500), "testEnemy2");
+	initializeDynamicItem(wolf, Vector2f(16000, 16100), "testEnemy1");
+	initializeDynamicItem(hare, Vector2f(15400, 15500), "testEnemy2");
 	//------------------------------------------
 	//initializeHero(Vector2f(3800, 4000));
-	initializeDynamicItem(hero1, Vector2f(5800, 5000), "hero1");
-	initializeStaticItem(hareTrap, Vector2f(6800, 6000), 1, "testItem");
+	initializeDynamicItem(hero1, Vector2f(15800, 15000), "hero1");
+	initializeStaticItem(hareTrap, Vector2f(16800, 16000), 1, "testItem");
 	Save();
 
 	std::vector<std::reference_wrapper<std::pair<int, int>>> heroInventory;
@@ -621,7 +630,7 @@ void World::inBlockGenerate(int blockIndex)
 	//block filling
 	Vector2f grassCellSize = Grass("", Vector2f(0, 0), 1).getConditionalSizeUnits();
 	
-	int saturation = rand() % 40 + 20;
+	int saturation = rand() % 20 + 20;
 
 	for (double i = blockTransform.left; i < blockTransform.left + blockTransform.width; i += grassCellSize.x)
 	{
@@ -1029,7 +1038,7 @@ bool World::isClimbBeyond(Vector2f pos)
 	return true;
 }
 
-void World::onMouseDownInteract()
+void World::onMouseDownInteract(int currentMouseButton)
 {
 	//if (!buildSystem.getIsBuilding())
 		inventorySystem.onMouseDownInteract();
@@ -1037,10 +1046,10 @@ void World::onMouseDownInteract()
 	if (buildSystem.succesInit && !inventorySystem.getUsedMouse()/* && inventorySystem.getHeldItem()->first == -1*/)
 		buildSystem.onMouseDownInteract(focusedObject->getPosition(), scaleFactor);
 
-	//if (!inventorySystem.getUsedMouse())
+	if (!inventorySystem.getUsedMouse())
 		buildSystem.buildHeldItem(focusedObject->getPosition(), scaleFactor);
 
-	if (mouseDisplayName == ""  || buildSystem.getUsedMouse() || /*buildSystem.getIsBuilding() ||*/ inventorySystem.getUsedMouse())
+	if (mouseDisplayName == ""  || buildSystem.getUsedMouse() || /*buildSystem.getIsBuilding() ||*/ inventorySystem.getUsedMouse() || currentMouseButton == 1)
 		selectedObject = nullptr;
 	else
 	{
@@ -1062,8 +1071,6 @@ void World::setItemFromBuildSystem()
 		else
 			inventorySystem.getHeldItem()->second--;
 
-		if (inventorySystem.getHeldItem()->second <= 0)
-			buildSystem.resetReadyToBuildHeldItem();
 		buildSystem.buildingPosition = Vector2f(-1, -1);
 	}
 }
@@ -1248,8 +1255,8 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 	auto screenSize = window.getSize();
 	auto screenCenter = Vector2i(screenSize.x / 2, screenSize.y / 2);
-	cameraPosition.x += (focusedObject->getPosition().x - cameraPosition.x) * pow(focusedObject->getSpeed(), 1.65) * elapsedTime;
-	cameraPosition.y += (focusedObject->getPosition().y - cameraPosition.y) * pow(focusedObject->getSpeed(), 1.65) * elapsedTime;
+	cameraPosition.x += (focusedObject->getPosition().x - cameraPosition.x) * pow(focusedObject->getSpeed(), mainScale * 1.5) * elapsedTime;
+	cameraPosition.y += (focusedObject->getPosition().y - cameraPosition.y) * pow(focusedObject->getSpeed(), mainScale * 1.5) * elapsedTime;
 	worldUpperLeft = Vector2i(int(cameraPosition.x - (screenCenter.x + extra.x) / scaleFactor), int(cameraPosition.y - (screenCenter.y + extra.y) / scaleFactor));
 	worldBottomRight = Vector2i(int(cameraPosition.x + (screenCenter.x + extra.x) / scaleFactor), int(cameraPosition.y + (screenCenter.y + extra.y) / scaleFactor));
 
@@ -1305,8 +1312,8 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 
 	/*Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x), 30, 200, 200, &window);
 	Helper::drawText(std::to_string(staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y), 30, 350, 200, &window);*/
-	//Helper::drawText(std::to_string(inventorySystem.getHeroInventorySelectedCellNumber()), 30, 200, 300, &window);
-	//Helper::drawText(std::to_string(inventorySystem.getSelectedCellNumber()), 30, 200, 400, &window);
+	//Helper::drawText(std::to_string(mainScale * 1.5), 30, 200, 300, &window);
+	//Helper::drawText(std::to_string(scaleFactor), 30, 200, 400, &window);
 	/*Helper::drawText(std::to_string(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)), 30, 200, 400, &window);*/
 	//int groundIndX = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).x / blockSize.x;
 	//int groundIndY = staticGrid.getPointByIndex(staticGrid.getIndexByPoint(focusedObject->getPosition().x, focusedObject->getPosition().y)).y / blockSize.y;
@@ -1344,7 +1351,7 @@ void World::drawVisibleItems(RenderWindow& window, long long elapsedTime, std::v
 		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
 
 		if (!worldItem->isBackground)
-			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor*pow(scaleFactor, double(1) / 6));
+			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor * pow(scaleFactor, double(1) / 6));
 		else
 			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor/* / pow(scaleFactor, double(1) / 8)*/);
 

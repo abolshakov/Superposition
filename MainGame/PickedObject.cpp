@@ -7,7 +7,7 @@ PickedObject::PickedObject(std::string objectName, Vector2f centerPosition) : Te
 	
 }
 
-void PickedObject::pickUp(std::vector<std::pair <int, int>>& inventory)
+bool PickedObject::pickUp(std::vector<std::pair <int, int>>& inventory)
 {
 	for (auto curInvItem = inventory.begin(); curInvItem != inventory.end(); ++curInvItem)
 	{
@@ -20,7 +20,7 @@ void PickedObject::pickUp(std::vector<std::pair <int, int>>& inventory)
 				//currentInventory.erase(currentInventory.begin() + currentCell);
 				count = 0;
 				delatePromiseOn();
-				return;
+				return true;
 			}
 			else
 			{
@@ -32,7 +32,14 @@ void PickedObject::pickUp(std::vector<std::pair <int, int>>& inventory)
 	}
 
 	if (count <= 0)
+	{
 		delatePromiseOn();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 PickedObject::~PickedObject()

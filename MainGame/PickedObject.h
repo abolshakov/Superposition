@@ -12,7 +12,7 @@ protected:
 public:
 	PickedObject::PickedObject(std::string objectName, Vector2f centerPosition);
 	~PickedObject();
-	void pickUp(std::vector<std::pair <int, int>>& inventory);
+	bool pickUp(std::vector<std::pair <int, int>>& inventory);
 	int getId() { return id; }
 	int getCount() { return count; }
 };

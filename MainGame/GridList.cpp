@@ -1,12 +1,9 @@
 #pragma once
-
 #ifndef GRIDLIST_CPP
 #define GRIDLIST_CPP
 
 #include <cmath>
-// ReSharper disable once CppUnusedIncludeDirective
 #include "GridList.h"
-#include <iostream>
 
 template <class T>
 GridList<T>::GridList() : width(0), height(0), size(0, 0)
@@ -68,6 +65,13 @@ Vector2f GridList<T>::getPointByIndex(int index) const
 	result.y = (inRawNumber * size.y);
 
 	return result;
+}
+
+template <class T>
+bool GridList<T>::isIntersectWithOthers(T* item, int index)
+{
+
+	return false;
 }
 
 template <class T>

@@ -32,12 +32,20 @@ int main() {
 	test.setTexture(testTexture);
 	test.setPosition(Vector2f(0, 0));
 
+	int currentMouseButton = 0;
+
 	while (mainWindow.isOpen())
 	{
 		Event event;
 		
 		while (mainWindow.pollEvent(event))
-		{						
+		{					
+			if (Mouse::isButtonPressed(Mouse::Left))
+				currentMouseButton = 1;
+			else
+				if (Mouse::isButtonPressed(Mouse::Right))
+					currentMouseButton = 2;
+
 			if (event.type == sf::Event::MouseWheelMoved)
 			{
 				if (menuSystem.getState() == closed)
@@ -45,11 +53,12 @@ int main() {
 			}	
 
 			if (event.type == Event::MouseButtonReleased)
-			{										
+			{			
 				if (menuSystem.getState() == closed)
-					world.onMouseDownInteract();
-
-				menuSystem.interact(world, mainWindow);
+					world.onMouseDownInteract(currentMouseButton);
+					
+				if (currentMouseButton == 1)
+					menuSystem.interact(world, mainWindow);
 			}
 
 			if (event.type == Event::KeyReleased)
@@ -115,7 +124,8 @@ int main() {
 		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
 
-		//Helper::drawText(to_string(), 30, 200, 300, &mainWindow);
+		//Helper::drawText(to_string(world.mainScale * 1.5), 30, 200, 300, &mainWindow);
+		Helper::drawText(to_string(interactTime), 30, 200, 300, &mainWindow);
 
 		mainWindow.display();
 	}

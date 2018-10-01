@@ -15,7 +15,7 @@ Wolf::Wolf(std::string objectName, Vector2f centerPosition) : Creature(objectNam
 	sightRange = Helper::GetScreenSize().y * 1 / 2; 
 	morality = 5; // from 1 to 10
 	fear = 0;
-	healthPoint = 50;
+	healthPoint = 0;
 	currentAction = relax;
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;

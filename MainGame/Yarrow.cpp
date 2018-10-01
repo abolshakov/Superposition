@@ -7,6 +7,7 @@ Yarrow::Yarrow(std::string objectName, Vector2f centerPosition, int typeOfObject
 	this->typeOfObject = typeOfObject;
 	toSaveName = "yarrow";
 	setType(typeOfObject);
+	radius = 50;
 	tag = yarrowTag;
 
 	count = 1;

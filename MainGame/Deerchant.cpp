@@ -47,7 +47,7 @@ Vector2i Deerchant::calculateTextureOffset()
 
 void Deerchant::handleInput()
 {
-	if (currentAction == absorbs)
+	if (currentAction == absorbs || currentAction == grab)
 		return;
 	
 	setHitDirection();
@@ -135,17 +135,17 @@ void Deerchant::handleInput()
 		currentSprite = 1;
 	}
 	else
-	if (Mouse::isButtonPressed(Mouse::Left) && (currentAction == relax || currentAction == combatState) && lastAction != openInventory)
+	if (Mouse::isButtonPressed(Mouse::Left) && (currentAction == relax || currentAction == combatState))
 	{
 		currentAction = commonHit;
 		currentSprite = 1;
 	}
-	else
+	/*else
 	if (Mouse::isButtonPressed(Mouse::Right) && (currentAction == relax || currentAction == combatState))
 	{
 		currentAction = hardHit;
 		currentSprite = 1;
-	}
+	}*/
 	else
 	if (Keyboard::isKeyPressed(Keyboard::F) && (currentAction == relax || currentAction == combatState) && energy >= energyForSpecial)
 	{
@@ -168,8 +168,8 @@ void Deerchant::handleInput()
 		currentSprite = 1;
 	}
 
-	if (!(currentAction == relax && lastAction == openInventory))
-		lastAction = currentAction;
+	/*if (!(currentAction == relax && lastAction == openInventory))
+		lastAction = currentAction;*/
 }
 
 void Deerchant::setHitDirection()
@@ -241,7 +241,43 @@ void Deerchant::behaviorWithStatic(WorldObject& target, float elapsedTime)
 
 void Deerchant::behavior(float elapsedTime)
 {
+	if (lastAction == transitionToEnotherWorld)
+	{
+		if (currentWorld == "common")
+			currentWorld = "spirit";
+		else
+			currentWorld = "common";
+		currentAction = relax;
+	}
+	if (lastAction == commonHit || lastAction == hardHit || lastAction == specialHit || lastAction == evasionDown || lastAction == evasionUp)
+	{
+		currentAction = relax;
+	}
+	if (lastAction == openInventory)
+	{
+		currentAction = relax;
+	}
+	if (lastAction == absorbs)
+	{
+		currentAction = relax;
+	}
+	if (lastAction == grab)
+	{
+		if (selectedTarget)
+		{
+			selectedTarget->isProcessed = false;
+			auto item = dynamic_cast<PickedObject*>(selectedTarget);
+			if (item)
+				item->pickUp(this->inventory);
+			selectedTarget = nullptr;
+			currentAction = relax;
+		}
+	}
+
 	if (!selectedTarget)
+		return;
+
+	if (selectedTarget->isProcessed)
 		return;
 
 	targetPosition = selectedTarget->getPosition();
@@ -250,6 +286,7 @@ void Deerchant::behavior(float elapsedTime)
 
 	if (isIntersect)
 	{
+		selectedTarget->isProcessed = true;
 		switch (selectedTarget->tag)
 		{
 			case forestTreeTag:
@@ -266,51 +303,34 @@ void Deerchant::behavior(float elapsedTime)
 			}
 			case chamomileTag:
 			{
-				auto item = dynamic_cast<PickedObject*>(selectedTarget);
-				item->pickUp(inventory);
-				selectedTarget = nullptr;
+				currentAction = grab;
+				currentSprite = 1;
+				setSide(selectedTarget->getPosition());
 				break;
 			}
 			case yarrowTag:
 			{
-				auto item = dynamic_cast<PickedObject*>(selectedTarget);
-				item->pickUp(inventory);
-				selectedTarget = nullptr;
+				currentAction = grab;
+				currentSprite = 1;
+				setSide(selectedTarget->getPosition());
 				break;
 			}
 		}
 	}
+	else
+		selectedTarget->isProcessed = false;
 }
 
 void Deerchant::onMouseDownBehavior(WorldObject *object)
 {
 	if (!object)
 		return;
+	if (selectedTarget != nullptr)
+		if (selectedTarget->isProcessed)
+			return;
 
 	selectedTarget = object;
 	targetPosition = object->getPosition();
-	/*sbool isIntersect = (sqrt(pow(this->position.x - object->getPosition().x, 2) + pow(this->position.y - object->getPosition().y, 2)) <= (this->radius + object->getRadius()));
-
-	if (isIntersect)
-	{
-		switch (object->tag)
-		{
-		case forestTreeTag:
-		{
-			//object->delatePromiseOn();
-			currentAction = absorbs;
-			currentSprite = 1;
-			//object->setState(absorbed);
-			break;
-		}
-		case chamomileTag:
-		{
-			auto item = dynamic_cast<PickedObject*>(object);
-			item->pickUp(inventory);
-			break;
-		}
-		}
-	}*/		
 }
 
 std::string Deerchant::getSpriteName(long long elapsedTime)
@@ -407,26 +427,54 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		animationLength = 19;
 		switch (side)
 		{
-		case up:
-		{
-			spriteName = "Game/worldSprites/hero/absorb/up/";
-			break;
+			case up:
+			{
+				spriteName = "Game/worldSprites/hero/absorb/up/";
+				break;
+			}
+			case right:
+			{
+				spriteName = "Game/worldSprites/hero/absorb/right/";
+				break;
+			}
+			case down:
+			{
+				spriteName = "Game/worldSprites/hero/absorb/down/";
+				break;
+			}
+			case left:
+			{
+				spriteName = "Game/worldSprites/hero/absorb/left/";
+				break;
+			}
 		}
-		case right:
+		spriteName += std::to_string(currentSprite);
+		spriteName += ".png";
+		break;
+	case grab:
+		animationLength = 12;
+		switch (side)
 		{
-			spriteName = "Game/worldSprites/hero/absorb/right/";
-			break;
-		}
-		case down:
-		{
-			spriteName = "Game/worldSprites/hero/absorb/down/";
-			break;
-		}
-		case left:
-		{
-			spriteName = "Game/worldSprites/hero/absorb/left/";
-			break;
-		}
+			case up:
+			{
+				spriteName = "Game/worldSprites/hero/grab/up/";
+				break;
+			}
+			case right:
+			{
+				spriteName = "Game/worldSprites/hero/grab/right/";
+				break;
+			}
+			case down:
+			{
+				spriteName = "Game/worldSprites/hero/grab/down/";
+				break;
+			}
+			case left:
+			{
+				spriteName = "Game/worldSprites/hero/grab/left/";
+				break;
+			}
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
@@ -441,14 +489,14 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		animationLength = 5;
 		switch (side)
 		{
-		case up:
-			spriteName = "Game/worldSprites/hero/move/up/";
-		case right:
-			spriteName = "Game/worldSprites/hero/move/up/";
-		case down:
-			spriteName = "Game/worldSprites/hero/move/up/";
-		case left:
-			spriteName = "Game/worldSprites/hero/move/up/";
+			case up:
+				spriteName = "Game/worldSprites/hero/move/up/";
+			case right:
+				spriteName = "Game/worldSprites/hero/move/up/";
+			case down:
+				spriteName = "Game/worldSprites/hero/move/up/";
+			case left:
+				spriteName = "Game/worldSprites/hero/move/up/";
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
@@ -620,8 +668,8 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 		spriteName += ".png";
 		break;
 	case openInventory:
-		animationLength = 7;
-		spriteName = "Game/worldSprites/hero/stand/down/";
+		animationLength = 12;
+		spriteName = "Game/worldSprites/hero/grab/down/";
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";
 		break;
@@ -714,30 +762,12 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 
 		if (++currentSprite > animationLength)
 		{
-			if (currentAction == transitionToEnotherWorld)
-			{
-				if (currentWorld == "common")
-					currentWorld = "spirit";
-				else
-					currentWorld = "common";
-				currentAction = relax;
-			}
-			if (currentAction == commonHit || currentAction == hardHit || currentAction == specialHit || currentAction == evasionDown || currentAction == evasionUp)
-			{
-				lastAction = relax;
-				currentAction = relax;
-			}
-			if (currentAction == openInventory)
-			{
-				currentAction = relax;
-				lastAction = openInventory;
-			}
-			if (currentAction == absorbs)
-			{
-				currentAction = relax;
-				lastAction = absorbs;
-			}
+			lastAction = currentAction;
 			currentSprite = 1;
+		}
+		else
+		{
+			lastAction = relax;
 		}
 	}
 

@@ -68,6 +68,7 @@ public:
 	void setState(State state) { this->state = state; }
 
 	bool isTransparent = false, isVisibleName = false, isSelected = false;
+	bool isProcessed = false;
 	bool isBackground = false, isTerrain = false;
 
 	virtual Vector2i calculateTextureOffset();

@@ -36,9 +36,9 @@ public:
 	void deleteItem(std::string name);
 	int getSize() { return items.size(); }
 	std::vector<int> getBlocksAround(int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY);
+	bool isIntersectWithOthers(T* item, int index);
 };
 
-// ReSharper disable once CppUnusedIncludeDirective
 #include "GridList.cpp"
 #endif
 

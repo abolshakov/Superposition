@@ -46,11 +46,9 @@ public:
 	bool canBePlaced = false;
 	int selectedObject = -1;
 	void setHeldItem(std::pair<int, int>& heldItem) { this->heldItem = &heldItem; }
-	void resetReadyToBuildHeldItem() { readyToBuildHeldItem = false; }
 private:	
 	std::unordered_map<int, cell> craftIngredientsSpriteList;
 	std::pair<int, int> *heldItem;
-	bool readyToBuildHeldItem = false;
 	Vector2f currentSpritePos, currentSpriteOffset, currentSpriteSize, currentSpriteScale;
 	void initializeButtons();
 	void inicializeObjectsInfo();

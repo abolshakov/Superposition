@@ -110,8 +110,8 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 		canBePlaced = true;
 		for (auto item : visibleItems)
 		{
-			if (item->isBackground)
-				continue;
+			//if (item->isBackground)
+				//continue;
 			auto currentTerrain = dynamic_cast<TerrainObject*>(item);
 			if (currentTerrain)
 				if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->getRadius()))
@@ -256,22 +256,15 @@ void BuildSystemMaker::buildHeldItem(Vector2f focusedObjectPosition, float scale
 
 	if (heldItem->first == -1)
 	{
-		readyToBuildHeldItem = false;
 		buildingPosition = Vector2f(-1, -1);
 		return;
 	}
 
-	if (!readyToBuildHeldItem)
+	if (canBePlaced)
 	{
-		readyToBuildHeldItem = true;
-		buildingPosition = Vector2f(-1, -1);
+		buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
+			(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
 	}
-	else
-		if (canBePlaced)
-		{
-			buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
-				(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
-		}
 }
 
 bool BuildSystemMaker::canAfford()
