@@ -1,5 +1,6 @@
 #include "Deerchant.h"
 #include "Helper.h"
+#include "PickedObject.h"
 
 using namespace sf;
 
@@ -7,10 +8,10 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 {
 	currentSprite = 1;
 	timeForNewSprite = 0;
-	speed = 0.0005f;
+	speed = 0.001f;
 	animationSpeed = 0.0010f;
 	animationLength = 8;
-	radius = 100;
+	radius = 50;
 	strength = 20;
 	maxHealthPointValue = 1000;
 	healthPoint = maxHealthPointValue;
@@ -30,6 +31,7 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	inventory[0] = std::make_pair(1, 1);
 	inventory[1] = std::make_pair(2, 2);
 	inventory[2] = std::make_pair(1, 1);
+	inventory[3] = std::make_pair(4, 1);
 }
 
 Deerchant::~Deerchant()
@@ -39,19 +41,19 @@ Deerchant::~Deerchant()
 
 Vector2i Deerchant::calculateTextureOffset()
 {
-	conditionalSizeUnits = Vector2f(250, 250);
-	textureBox.width *= getScaleRatio().x;
-	textureBox.height *= getScaleRatio().y;
-	return Vector2i(textureBox.width / 2, textureBox.height * 13 / 16);
+	conditionalSizeUnits = Vector2i (250, 250);
+	textureBox.width = int(float(textureBox.width)*getScaleRatio().x);
+	textureBox.height = int(float(textureBox.height)*getScaleRatio().y);
+	return Vector2i (textureBox.width / 2, textureBox.height * 13 / 16);
 }
 
 void Deerchant::handleInput()
 {
-	if (currentAction == absorbs || currentAction == grab)
+	if (currentAction == absorbs || currentAction == grab || currentAction == builds)
 		return;
 	
 	setHitDirection();
-	moveOffset = Vector2f(-1, -1);
+	moveOffset = Vector2f (-1, -1);
 
 	if (Keyboard::isKeyPressed(Keyboard::E))
 	{
@@ -65,7 +67,14 @@ void Deerchant::handleInput()
 	if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::S) ||
 		Keyboard::isKeyPressed(Keyboard::Z) || Keyboard::isKeyPressed(Keyboard::F) || Keyboard::isKeyPressed(Keyboard::E) || Keyboard::isKeyPressed(Keyboard::LControl) ||
 		Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left) || Mouse::isButtonPressed(Mouse::Right))
-		selectedTarget = nullptr;
+	{
+		if (selectedTarget != nullptr)
+		{
+			selectedTarget->isProcessed = false;
+			selectedTarget = nullptr;			
+		}
+		movePosition = Vector2f(-1, -1);
+	}
 	
 	if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::W))
 	{
@@ -108,10 +117,9 @@ void Deerchant::handleInput()
 								}
 								else
 								{			
-									bool isIntersect;
+									bool isIntersect = false;
 									if (selectedTarget)
-										isIntersect = (sqrt(pow(this->position.x - targetPosition.x, 2) + pow(this->position.y - targetPosition.y, 2)) <= (this->radius + selectedTarget->getRadius()));
-
+										isIntersect = (sqrt(pow(this->position.x - movePosition.x, 2) + pow(this->position.y - movePosition.y, 2)) <= (this->radius + selectedTarget->getRadius()));
 									if (isIntersect || !selectedTarget)
 									{
 										direction = STAND;
@@ -122,7 +130,7 @@ void Deerchant::handleInput()
 									{
 										if (selectedTarget)
 										{
-											moveToTarget(selectedTarget->getRadius());
+											setMoveOffset();
 											currentAction = move;
 										}
 									}
@@ -140,12 +148,6 @@ void Deerchant::handleInput()
 		currentAction = commonHit;
 		currentSprite = 1;
 	}
-	/*else
-	if (Mouse::isButtonPressed(Mouse::Right) && (currentAction == relax || currentAction == combatState))
-	{
-		currentAction = hardHit;
-		currentSprite = 1;
-	}*/
 	else
 	if (Keyboard::isKeyPressed(Keyboard::F) && (currentAction == relax || currentAction == combatState) && energy >= energyForSpecial)
 	{
@@ -167,9 +169,6 @@ void Deerchant::handleInput()
 		direction = STAND;
 		currentSprite = 1;
 	}
-
-	/*if (!(currentAction == relax && lastAction == openInventory))
-		lastAction = currentAction;*/
 }
 
 void Deerchant::setHitDirection()
@@ -190,9 +189,14 @@ void Deerchant::setHitDirection()
 					side = left;
 }
 
+void Deerchant::setTarget(DynamicObject& object)
+{
+	return;
+}
+
 void Deerchant::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 {
-	bool isIntersect = (sqrt(pow(this->position.x - target.getPosition().x, 2) + pow(this->position.y - target.getPosition().y, 2)) <= (this->radius + target.getRadius()));
+	bool isIntersect = (sqrt(pow(this->position.x - target.getPosition().x, 2) + pow(this->position.y - target.getPosition().y, 2)) <= (this->radius + target.getRadius()) + 10);
 
 	if (target.getCurrentAction() == dead)
 	{			
@@ -261,6 +265,10 @@ void Deerchant::behavior(float elapsedTime)
 	{
 		currentAction = relax;
 	}
+	if (lastAction == builds)
+	{
+		currentAction = relax;
+	}
 	if (lastAction == grab)
 	{
 		if (selectedTarget)
@@ -270,19 +278,20 @@ void Deerchant::behavior(float elapsedTime)
 			if (item)
 				item->pickUp(this->inventory);
 			selectedTarget = nullptr;
+			movePosition = Vector2f(-1, -1);
 			currentAction = relax;
 		}
 	}
 
-	if (!selectedTarget)
+	if (!selectedTarget || selectedTarget->isProcessed)
+	{
+		movePosition = Vector2f(-1, -1);
 		return;
+	}
 
-	if (selectedTarget->isProcessed)
-		return;
+	movePosition = selectedTarget->getPosition();
 
-	targetPosition = selectedTarget->getPosition();
-
-	bool isIntersect = (sqrt(pow(this->position.x - targetPosition.x, 2) + pow(this->position.y - targetPosition.y, 2)) <= (this->radius + selectedTarget->getRadius()));
+	bool isIntersect = (sqrt(pow(this->position.x - movePosition.x, 2) + pow(this->position.y - movePosition.y, 2)) <= (this->radius + selectedTarget->getRadius()));
 
 	if (isIntersect)
 	{
@@ -296,33 +305,76 @@ void Deerchant::behavior(float elapsedTime)
 
 				currentAction = absorbs;
 				currentSprite = 1;
-				setSide(selectedTarget->getPosition());
+				setSide(Vector2i(selectedTarget->getPosition()), elapsedTime);
 				selectedTarget->setState(absorbed);
+				selectedTarget->isProcessed = false;
 				selectedTarget = nullptr;
+				movePosition = Vector2f(-1, -1);
+				direction = STAND;
 				break;
 			}
 			case chamomileTag:
 			{
 				currentAction = grab;
 				currentSprite = 1;
-				setSide(selectedTarget->getPosition());
+				direction = STAND;
+				movePosition = Vector2f(-1, -1);
 				break;
 			}
 			case yarrowTag:
 			{
 				currentAction = grab;
 				currentSprite = 1;
-				setSide(selectedTarget->getPosition());
+				direction = STAND;
+				movePosition = Vector2f(-1, -1);
+				break;
+			}
+			case buildedObjectTag:
+			{
+				currentAction = builds;
+				currentSprite = 1;
+				setSide(Vector2i(selectedTarget->getPosition()), elapsedTime);
+				selectedTarget->isProcessed = false;
+				selectedTarget = nullptr;
+				direction = STAND;
+				movePosition = Vector2f(-1, -1);
+				break;
+			}
+			default:
+			{
+				currentAction = relax;
+				if (selectedTarget)
+				{
+					selectedTarget->isProcessed = false;
+					setSide(Vector2i(selectedTarget->getPosition()), elapsedTime);
+					selectedTarget = nullptr;
+					movePosition = Vector2f(-1, -1);
+				}					
 				break;
 			}
 		}
 	}
 	else
+	{
 		selectedTarget->isProcessed = false;
+	}
 }
 
-void Deerchant::onMouseDownBehavior(WorldObject *object)
+void Deerchant::onMouseDownBehavior(WorldObject *object, Vector2f mouseWorldPos, bool isBuilding)
 {
+	if (isBuilding)
+	{
+		if (selectedTarget != nullptr)
+		{
+			selectedTarget = nullptr;
+			selectedTarget->isProcessed = false;
+		}
+		selectedTarget = new EmptyObject("buildItem", mouseWorldPos);
+		selectedTarget->tag = buildedObjectTag;		
+		movePosition = mouseWorldPos;
+		return;
+	}
+
 	if (!object)
 		return;
 	if (selectedTarget != nullptr)
@@ -330,7 +382,17 @@ void Deerchant::onMouseDownBehavior(WorldObject *object)
 			return;
 
 	selectedTarget = object;
-	targetPosition = object->getPosition();
+	movePosition = object->getPosition();
+}
+
+Vector2f Deerchant::getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition)
+{
+	return { -1, -1 };
+}
+
+int Deerchant::getBuildType(Vector2f ounPos, Vector2f otherPos)
+{
+	return 1;
 }
 
 std::string Deerchant::getSpriteName(long long elapsedTime)
@@ -447,6 +509,34 @@ std::string Deerchant::getSpriteName(long long elapsedTime)
 				spriteName = "Game/worldSprites/hero/absorb/left/";
 				break;
 			}
+		}
+		spriteName += std::to_string(currentSprite);
+		spriteName += ".png";
+		break;
+	case builds:
+		animationLength = 19;
+		switch (side)
+		{
+		case up:
+		{
+			spriteName = "Game/worldSprites/hero/absorb/up/";
+			break;
+		}
+		case right:
+		{
+			spriteName = "Game/worldSprites/hero/absorb/right/";
+			break;
+		}
+		case down:
+		{
+			spriteName = "Game/worldSprites/hero/absorb/down/";
+			break;
+		}
+		case left:
+		{
+			spriteName = "Game/worldSprites/hero/absorb/left/";
+			break;
+		}
 		}
 		spriteName += std::to_string(currentSprite);
 		spriteName += ".png";

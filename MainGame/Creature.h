@@ -26,6 +26,7 @@ public:
 	void behaviorWithDynamic(DynamicObject& target, float elapsedTime) override;
 	virtual void behaviorWithStatic(WorldObject& target, float elapsedTime) = 0;
 	virtual void behavior(float elapsedTime) = 0;
+	void setTarget(DynamicObject& object);
 };
 
 #endif

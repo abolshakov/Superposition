@@ -7,11 +7,10 @@ WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 	position = centerPosition;
 	WorldObject::initPedestal();
 	inventoryVisibility = false;
-	transparensy = 255;
-	randomSizeIncrease = Vector2i(0, 0);
+	randomSizeIncrease = Vector2i (0, 0);
 }
 
-void WorldObject::setTextureSize(Vector2i textureSize)
+void WorldObject::setTextureSize(Vector2f textureSize)
 {
 	textureBox.width = textureSize.x;
 	textureBox.height = textureSize.y;
@@ -26,12 +25,12 @@ void WorldObject::setTextureSize(Vector2i textureSize)
 
 Vector2f WorldObject::getScaleRatio()
 {
-	return Vector2f(conditionalSizeUnits.x / originalTextureBox.width, conditionalSizeUnits.y / originalTextureBox.height);
+	return Vector2f (float(conditionalSizeUnits.x) / originalTextureBox.width, float(conditionalSizeUnits.y) / originalTextureBox.height);
 }
 
 Vector2i WorldObject::calculateTextureOffset()
 {
-	return Vector2i();
+	return Vector2i(0, 0);
 }
 
 void WorldObject::initPedestal()
@@ -40,7 +39,9 @@ void WorldObject::initPedestal()
 
 void WorldObject::setPosition(Vector2f newPosition)
 {
-	position = newPosition;
+	posOffset = Vector2f(position.x - previousPosition.x, position.y - previousPosition.y);
+	previousPosition = position;
+	position = Vector2f(newPosition);
 	textureBox.left = int(newPosition.x) - textureBoxOffset.x;
 	textureBox.top = int(newPosition.y) - textureBoxOffset.y;
 }

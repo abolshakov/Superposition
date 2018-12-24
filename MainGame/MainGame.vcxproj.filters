@@ -16,9 +16,6 @@
     <ClCompile Include="Chamomile.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
-    <ClCompile Include="Constraint.cpp">
-      <Filter>Terrain</Filter>
-    </ClCompile>
     <ClCompile Include="ForestTree.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
@@ -80,6 +77,16 @@
       <Filter>Creatures</Filter>
     </ClCompile>
     <ClCompile Include="GridList.cpp" />
+    <ClCompile Include="Stump.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Rock.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Fence.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="EmptyObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoardSprite.h" />
@@ -96,9 +103,6 @@
       <Filter>Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Chamomile.h">
-      <Filter>Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Constraint.h">
       <Filter>Terrain</Filter>
     </ClInclude>
     <ClInclude Include="ForestTree.h">
@@ -162,6 +166,16 @@
       <Filter>Creatures</Filter>
     </ClInclude>
     <ClInclude Include="GridList.h" />
+    <ClInclude Include="Stump.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Rock.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Fence.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="EmptyObject.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Terrain">

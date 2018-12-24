@@ -3,7 +3,7 @@
 
 GroundConnection::GroundConnection(std::string objectName, Vector2f centerPosition, int typeOfObject) : StaticObject(objectName, centerPosition)
 {
-	varietyOfTypes = 20;
+	varietyOfTypes = 12;
 	this->typeOfObject = typeOfObject;
 	isBackground = true;
 	toSaveName = "groundConnection";
@@ -18,22 +18,22 @@ void GroundConnection::setType(int typeOfObject)
 	this->typeOfObject = typeOfObject;
 	if ((typeOfObject - 1) % 4 == 0)
 	{
-		this->conditionalSizeUnits = Vector2f(276, 1000);
+		this->conditionalSizeUnits = Vector2i (276, 1000);
 	}
 	else
 		if ((typeOfObject - 1) % 4 == 1)
 		{
-			this->conditionalSizeUnits = Vector2f(276, 1000);
+			this->conditionalSizeUnits = Vector2i (276, 1000);
 		}
 		else
 			if ((typeOfObject - 1) % 4 == 2)
 			{
-				this->conditionalSizeUnits = Vector2f(1000, 276);
+				this->conditionalSizeUnits = Vector2i (1000, 276);
 			}
 			else
 				if ((typeOfObject - 1) % 4 == 3)
 				{
-					this->conditionalSizeUnits = Vector2f(1000, 276);
+					this->conditionalSizeUnits = Vector2i (1000, 276);
 				}
 	
 	if (typeOfObject >= 1 && typeOfObject <= 4)
@@ -50,23 +50,34 @@ void GroundConnection::setType(int typeOfObject)
 				else
 					if (typeOfObject >= 17 && typeOfObject <= 20)
 						this->zCoords = 5;
+	this->zCoords *= 10;
 }
 
 Vector2i GroundConnection::calculateTextureOffset()
 {
 	if ((typeOfObject - 1) % 4 == 0)
-		return Vector2i(textureBox.width, 0);
+		return Vector2i (textureBox.width, 0);
 	else
 		if ((typeOfObject - 1) % 4 == 1)
-			return Vector2i(0, 0);
+			return Vector2i (0, 0);
 		else
 			if ((typeOfObject - 1) % 4 == 2)
-				return Vector2i(0, textureBox.height);
+				return Vector2i (0, textureBox.height);
 			else
 				if ((typeOfObject - 1) % 4 == 3)
-					return Vector2i(0, 0);
+					return Vector2i (0, 0);
 
-	return Vector2i(0, 0);
+	return Vector2i (0, 0);
+}
+
+Vector2f GroundConnection::getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition)
+{
+	return { -1, -1 };
+}
+
+int GroundConnection::getBuildType(Vector2f ounPos, Vector2f otherPos)
+{
+	return 1;
 }
 
 std::string GroundConnection::getSpriteName(long long elapsedTime)

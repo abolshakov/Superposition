@@ -26,6 +26,9 @@ public:
 	void behaviorWithDynamic(DynamicObject& target, float elapsedTime) override;
 	void behaviorWithStatic(WorldObject& target, float elapsedTime) override;
 	void behavior(float elapsedTime) override;
+	Vector2f getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition) override;
+	int getBuildType(Vector2f ounPos, Vector2f otherPos) override;
+	void setTarget(DynamicObject& object) override;
 };
 
 #endif

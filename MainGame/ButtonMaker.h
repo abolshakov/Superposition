@@ -13,14 +13,14 @@ private:
 	Sprite sprite;
 	Texture texture;
 	ButtonTag tag;
-	bool selected = false;
+	bool selected = false;	
 public:
 	ButtonMaker();	
 	void initialize(Texture &texture, Vector2f position, Vector2f size, ButtonTag tag);
 	void initialize(Texture &texture, FloatRect rect, ButtonTag tag);
 	void draw(RenderWindow &window);
 	bool isSelected(Vector2f mousePos);
-	Vector2f getScale() { return sprite.getScale(); }
+	Vector2f getScale() { return Vector2f(sprite.getScale()); }
 	ButtonTag getTag() { return tag; }	
 };
 #endif

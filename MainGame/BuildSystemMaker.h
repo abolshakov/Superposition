@@ -20,7 +20,7 @@ struct objectInfo {
 class BuildSystemMaker
 {
 protected:
-
+	void drawRecipeFrame(RenderWindow &window);
 public:	
 	BuildSystemMaker();
 	~BuildSystemMaker();
@@ -30,11 +30,12 @@ public:
 	std::reference_wrapper<datatype> currentInventory = blankref;
 
 	void Init(std::unordered_map<int, cell> itemsSpriteList);
-	void draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f focusedObjectPosition, std::vector<WorldObject*> visibleItems);
+	void draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f cameraPosition, std::vector<WorldObject*> visibleItems, bool showPositioning = true);
 	void onMouseDownInteract(Vector2f focusedObjectPosition, float scaleFactor);
 	void buildHeldItem(Vector2f focusedObjectPosition, float scaleFactor);
 	void interact();
 	int getCurrentObject() { return currentObject; }
+	int getBuildType() { return buildType; }
 	void setCurrentObject(int n) { currentObject = n; }
 	void wasPlaced();
 	int getBuiltObjectType();
@@ -50,11 +51,12 @@ private:
 	std::unordered_map<int, cell> craftIngredientsSpriteList;
 	std::pair<int, int> *heldItem;
 	Vector2f currentSpritePos, currentSpriteOffset, currentSpriteSize, currentSpriteScale;
+	Vector2f spriteBuildPos = Vector2f (-1, -1);
+	int buildType = 1;
 	void initializeButtons();
 	void inicializeObjectsInfo();
 	void animator(float elapsedTime);
-	//void buildObject(Vector2f position, World& world);
-	float originalAnimationSpeed = 0.001, animationSpeed = 0.001;
+	float originalAnimationSpeed = 0.001f, animationSpeed = 0.001f;
 	bool isBuilding = false, isPressed = false, isRecipeFrame, usedMouse = false;
 	Sprite buildStartButton, buildStopButton, recipeFrame;
 	std::vector<objectInfo> builtObjects;

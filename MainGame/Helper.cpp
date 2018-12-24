@@ -32,7 +32,7 @@ void Helper::drawText(std::string text, int size, int Posx, int Posy, RenderWind
 	Text result(text, font, size);
 	result.setFillColor(Color::White);
 	Vector2f pos(static_cast<float>(Posx),static_cast<float>(Posy));
-	result.setPosition(pos);
+	result.setPosition(Vector2f(pos));
 	window->draw(result);
 }
 
@@ -43,7 +43,7 @@ void Helper::drawTextWithSettings(std::string text, int size, int Posx, int Posy
 	Text result(text, font, size);
 	result.setFillColor(color);
 	Vector2f pos(static_cast<float>(Posx), static_cast<float>(Posy));
-	result.setPosition(pos);
+	result.setPosition(Vector2f(pos));
 	window->draw(result);
 }
 
@@ -103,6 +103,24 @@ bool Helper::isIntersectTerrain(Vector2f position, TerrainObject& terrain, float
 	auto f1 = terrain.getFocus1();
 	auto f2 = terrain.getFocus2();
 	return (sqrt((position.x - f1.x)*(position.x - f1.x) + (position.y - f1.y)*(position.y - f1.y)) + sqrt((position.x - f2.x)*(position.x - f2.x) + (position.y - f2.y)*(position.y - f2.y))/* - dynamic.radius*/) <= terrain.getEllipseSize() + radius;
+}
+
+Side Helper::getSide(Vector2f position, Vector2f anotherPosition)
+{
+	Side answer;
+	float alpha = atan((float(anotherPosition.y) - position.y) / (float(anotherPosition.x) - position.x)) * 180 / pi;
+	if (position.y >= anotherPosition.y && abs(alpha) >= 45 && abs(alpha) <= 90)
+		answer = up;
+	else
+		if (position.x <= anotherPosition.x && abs(alpha) >= 0 && abs(alpha) <= 45)
+			answer = right;
+		else
+			if (position.y <= anotherPosition.y && abs(alpha) >= 45 && abs(alpha) <= 90)
+				answer = down;
+			else
+				if (position.x >= anotherPosition.x && abs(alpha) >= 0 && abs(alpha) <= 45)
+					answer = left;
+	return answer;
 }
 
 

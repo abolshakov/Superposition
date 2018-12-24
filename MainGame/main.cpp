@@ -54,7 +54,7 @@ int main() {
 
 			if (event.type == Event::MouseButtonReleased)
 			{			
-				if (menuSystem.getState() == closed)
+				if (menuSystem.getState() == closed && world.getBuildSystem().succesInit)
 					world.onMouseDownInteract(currentMouseButton);
 					
 				if (currentMouseButton == 1)
@@ -92,6 +92,7 @@ int main() {
 		if (windowFocus && menuSystem.getState() != gameMenu)
 		{
 			interactTime = interactClock.getElapsedTime().asMicroseconds();
+
 			interactClock.restart();
 
 			drawTime = drawClock.getElapsedTime().asMicroseconds();
@@ -112,7 +113,7 @@ int main() {
 			drawClock.restart();
 		}
 
-		auto hero = dynamic_cast<Deerchant*>(world.focusedObject);
+		auto hero = dynamic_cast<DynamicObject*>(world.focusedObject);
 
 		if (hero->getHealthPoint() <= 0)
 		{
@@ -124,8 +125,8 @@ int main() {
 		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
 
-		//Helper::drawText(to_string(world.mainScale * 1.5), 30, 200, 300, &mainWindow);
-		Helper::drawText(to_string(interactTime), 30, 200, 300, &mainWindow);
+		//Helper::drawText(to_string(world.focusedObject->getMovePosition().x), 30, 200, 300, &mainWindow);
+		//Helper::drawText(to_string(interactTime), 30, 200, 300, &mainWindow);
 
 		mainWindow.display();
 	}

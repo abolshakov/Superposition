@@ -38,7 +38,7 @@ void InventoryMaker::initSpriteList()
 	}
 	fin.close();
 
-	cellSize = Vector2f(screenSize.x / 30, screenSize.x / 30);
+	cellSize = Vector2f (screenSize.x / 30, screenSize.x / 30);
 
 	heroInventoryBackgroundTexture.loadFromFile("Game/inventorySprites/box.png");
 	heroInventoryBackgroundSprite.setTexture(heroInventoryBackgroundTexture);
@@ -51,7 +51,7 @@ void InventoryMaker::initSpriteList()
 void InventoryMaker::inventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory)
 {
 	boundInventory = inventory;
-	heroInventoryCellSize = Vector2f(heroInventoryZoneSize.x / 8, heroInventoryZoneSize.x / 8);
+	heroInventoryCellSize = Vector2f (heroInventoryZoneSize.x / 8, heroInventoryZoneSize.x / 8);
 }
 
 void InventoryMaker::onMouseDownInteract()
@@ -142,12 +142,12 @@ int InventoryMaker::getSelectedCellNumber()
 {
 	Vector2f screenSize = Helper::GetScreenSize();
 	int answer = 0;
-	Vector2f mousePosition = Vector2f(Mouse::getPosition());
+	Vector2f mousePosition = Vector2f (Mouse::getPosition());
 	if (!Helper::isIntersects(mousePosition, IntRect(currentPosition.x, currentPosition.y, int(ceil(sqrt(currentInventorySize)))*cellSize.x, int(ceil(sqrt(currentInventorySize)))*cellSize.y)))
 		return -1;
-	Vector2i positionOffset = Vector2i(int(mousePosition.x - currentPosition.x), int(mousePosition.y - currentPosition.y));
-	answer += (positionOffset.y / int(cellSize.y)) * int(ceil(sqrt(currentInventorySize)));
-	answer += (positionOffset.x / int(cellSize.x));
+	Vector2f positionOffset = Vector2f (int(mousePosition.x - currentPosition.x), int(mousePosition.y - currentPosition.y));
+	answer += (int(positionOffset.y) / int(cellSize.y)) * int(ceil(sqrt(currentInventorySize)));
+	answer += (int(positionOffset.x) / int(cellSize.x));
 	if (answer >= visibleItemsNumber)
 		return -1;
 	else
@@ -158,12 +158,12 @@ int InventoryMaker::getHeroInventorySelectedCellNumber()
 {
 	Vector2f screenSize = Helper::GetScreenSize();
 	int answer = 0;
-	Vector2f mousePosition = Vector2f(Mouse::getPosition());
+	Vector2f mousePosition = Vector2f (Mouse::getPosition());
 	if (!Helper::isIntersects(mousePosition, IntRect(currentHeroInventoryPosition.x, currentHeroInventoryPosition.y, 8 * heroInventoryCellSize.x, 2 * heroInventoryCellSize.y)))
 		return -1;
-	Vector2i positionOffset = Vector2i(int(mousePosition.x - currentHeroInventoryPosition.x), int(mousePosition.y - currentHeroInventoryPosition.y));
-	answer += (positionOffset.y / int(heroInventoryCellSize.y)) * 8;
-	answer += (positionOffset.x / int(heroInventoryCellSize.x));
+	Vector2f positionOffset = Vector2f (int(mousePosition.x - currentHeroInventoryPosition.x), int(mousePosition.y - currentHeroInventoryPosition.y));
+	answer += (int(positionOffset.y) / int(heroInventoryCellSize.y)) * 8;
+	answer += (int(positionOffset.x) / int(heroInventoryCellSize.x));
 	if (answer >= boundInventory.size())
 		return -1;
 	else
@@ -182,11 +182,11 @@ void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 
 	window.draw(heroInventoryBackgroundSprite);
 
-	currentHeroInventoryPosition = Vector2f(heroInventoryBackgroundSprite.getPosition().x, Helper::GetScreenSize().y - heroInventoryZoneSize.y);
+	currentHeroInventoryPosition = Vector2f (heroInventoryBackgroundSprite.getPosition().x, Helper::GetScreenSize().y - heroInventoryZoneSize.y);
 
 	currentHeroInventoryCell = getHeroInventorySelectedCellNumber();
 
-	Vector2f drawCellPosition = Vector2f(heroInventoryBackgroundSprite.getPosition().x, Helper::GetScreenSize().y - heroInventoryZoneSize.y);
+	Vector2f drawCellPosition = Vector2f (heroInventoryBackgroundSprite.getPosition().x, Helper::GetScreenSize().y - heroInventoryZoneSize.y);
 
 	int inRaw = 0;
 

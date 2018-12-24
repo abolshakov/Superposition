@@ -18,7 +18,7 @@ void BuildSystemMaker::Init(std::unordered_map<int, cell> itemsSpriteList)
 
 	font.loadFromFile("Fonts/Bebas.ttf");
 	numberOfObjects.setFont(font);
-	numberOfObjects.setCharacterSize(30 * Helper::GetScreenSize().y / 1440);
+	numberOfObjects.setCharacterSize(unsigned int(30 * Helper::GetScreenSize().y / 1440));
 	numberOfObjects.setFillColor(Color(200, 200, 200, 255));
 }
 
@@ -29,13 +29,13 @@ void BuildSystemMaker::initializeButtons()
 	//initialize buildStart button
 	buildStartButtonTexture.loadFromFile("Game/buildSystem/buildStart.png");
 	buildStartButton.setTexture(buildStartButtonTexture);
-	buildStartButton.setPosition(buildStartButton.getTextureRect().width / 8, 10);
+	buildStartButton.setPosition(float(buildStartButton.getTextureRect().width / 8), float(10));
 	buildStartButton.setScale(screenSize.y / 15 / buildStartButtonTexture.getSize().x, screenSize.y / 15 / buildStartButtonTexture.getSize().y);
 
 	//initialize buildStop button
 	buildStopButtonTexture.loadFromFile("Game/buildSystem/buildStop.png");
 	buildStopButton.setTexture(buildStopButtonTexture);
-	buildStopButton.setPosition(buildStopButton.getTextureRect().width / 8, 10);
+	buildStopButton.setPosition(float(buildStopButton.getTextureRect().width / 8), float(10));
 	buildStopButton.setScale(buildStartButton.getScale());
 
 	//initialize icons of built objects 
@@ -44,7 +44,7 @@ void BuildSystemMaker::initializeButtons()
 		builtObjects[i].iconTexture.loadFromFile(builtObjects[i].icon);
 		builtObjects[i].iconSprite.setTexture(builtObjects[i].iconTexture);		
 		builtObjects[i].iconSprite.setScale(buildStartButton.getScale());
-		builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getTextureRect().width*-1, (i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25);
+		builtObjects[i].iconSprite.setPosition(float(builtObjects[0].iconSprite.getTextureRect().width*-1), float((i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25));
 	}
 
 	//initialize frame for recipes
@@ -86,54 +86,70 @@ void BuildSystemMaker::inicializeObjectsInfo()
 	fin.close();
 }
 
-void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f focusedObjectPosition, std::vector<WorldObject*> visibleItems)
+void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f cameraPosition, std::vector<WorldObject*> visibleItems, bool showPositioning)
 {
-	Vector2f mousePos = (Vector2f)Mouse::getPosition();
+	Vector2f mousePos = (Vector2f )Mouse::getPosition();
 
 	if (!isBuilding)
 		window.draw(buildStartButton);
 	else
 		animator(elapsedTime);
 
-	if (selectedObject != -1)
+	if (showPositioning && selectedObject != -1)
 	{
 		//initialize spriteSilhouette
-		auto terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[selectedObject].type));
+		auto terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[selectedObject].type + '1'));
+		
+		Vector2f mouseWorldPos = Vector2f ((mousePos.x - Helper::GetScreenSize().x / 2 + cameraPosition.x*scaleFactor) / scaleFactor,
+			(mousePos.y - Helper::GetScreenSize().y / 2 + cameraPosition.y*scaleFactor) / scaleFactor);
+
+		Vector2f terrainPos = terrain->getBuildPosition(visibleItems, scaleFactor, cameraPosition);
+
+		const int terrainType = terrain->getBuildType(Vector2f(mouseWorldPos), Vector2f (terrain->getCurrentDot()));		
+		terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[selectedObject].type + std::to_string(terrainType)));
+		terrainPos = terrain->getBuildPosition(visibleItems, scaleFactor, cameraPosition);
+
 		auto sprite = (&spriteMap[terrain->getSpriteName(0)])->sprite;
-
-		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
+		sprite.setOrigin(float(sprite.getTextureRect().left), float(sprite.getTextureRect().top + sprite.getTextureRect().height));
 		sprite.setScale(terrain->getScaleRatio().x*scaleFactor, terrain->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
-		Vector2f mouseWorldPos = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x*scaleFactor) / scaleFactor,
-			(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
 
-		//enumeration of intersecting elements
-		canBePlaced = true;
-		for (auto item : visibleItems)
+		if (terrainPos != Vector2f (-1, -1))
 		{
-			//if (item->isBackground)
-				//continue;
-			auto currentTerrain = dynamic_cast<TerrainObject*>(item);
-			if (currentTerrain)
-				if (Helper::isIntersectTerrain(mouseWorldPos, *currentTerrain, terrain->getRadius()))
-				{
-					sprite.setColor(Color::Red);
-					canBePlaced = false;
-					break;
-				}
+			spriteBuildPos = terrainPos;
+			sprite.setPosition((terrainPos.x - cameraPosition.x) * scaleFactor + Helper::GetScreenSize().x / 2 - terrain->getTextureOffset().x*scaleFactor, (terrainPos.y - cameraPosition.y) * scaleFactor + Helper::GetScreenSize().y / 2 + (terrain->getTextureSize().y - terrain->getTextureOffset().y)*scaleFactor);
+		}
+		else
+		{
+			spriteBuildPos = Vector2f(mouseWorldPos);
+			sprite.setPosition(Vector2f (mousePos.x - terrain->getTextureOffset().x*scaleFactor, mousePos.y + (terrain->getTextureSize().y - terrain->getTextureOffset().y)*scaleFactor));
 		}
 
-		if (canBePlaced)
+		canBePlaced = true;
+
+		if (staticGrid.isIntersectWithOthers(spriteBuildPos, float(terrain->getRadius()), visibleItems, terrain->isDotsAdjusted))
+		{
+			sprite.setColor(Color::Red);
+			canBePlaced = false;
+		}
+		else
 			sprite.setColor(Color::Green);
-		Vector2f testPosition = Vector2f(mousePos.x - terrain->getTextureOffset().x*scaleFactor, mousePos.y + (terrain->getTextureSize().y - terrain->getTextureOffset().y)*scaleFactor);
-		sprite.setPosition(Vector2f(mousePos.x - terrain->getTextureOffset().x*scaleFactor, mousePos.y + (terrain->getTextureSize().y - terrain->getTextureOffset().y)*scaleFactor));
+
+		buildType = terrain->getType();
+
+		if (!canBePlaced)
+		{
+			buildType = 1;
+			spriteBuildPos = Vector2f (-1, -1);
+		}
 
 		window.draw(sprite);
+		//Helper::drawText(std::to_string(terrainPos.y), 50, 300, 300, &window);
 	}
 
 	if (!isBuilding)
 		return;
 
-	window.draw(buildStopButton);
+	window.draw(buildStopButton);	
 
 	//draw icons
 	for (int i = 0; i < builtObjects.size(); i++)
@@ -141,6 +157,11 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 		window.draw(builtObjects[i].iconSprite);
 	}
 
+	drawRecipeFrame(window);
+}
+
+void BuildSystemMaker::drawRecipeFrame(RenderWindow &window)
+{
 	if (isRecipeFrame)
 	{
 		//window.draw(recipeFrame);
@@ -150,14 +171,14 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 			currentRecipeItem->setPosition(recipeFrame.getPosition().x + i * currentRecipeItem->getGlobalBounds().width, recipeFrame.getPosition().y);
 			Vector2f scale = buildStartButton.getScale();
 			currentRecipeItem->setScale(scale);
-			
+
 			window.draw(*currentRecipeItem);
 
 			int boundInventoryObjectsCount = 0;
 			for (auto item = currentInventory.get().begin(); item != currentInventory.get().end(); ++item)
 			{
 				if (item->first == builtObjects[currentObject].recipe[i].first)
-					boundInventoryObjectsCount+= item->second;
+					boundInventoryObjectsCount += item->second;
 			}
 
 			numberOfObjects.setString(std::to_string(boundInventoryObjectsCount) + '/' + std::to_string(builtObjects[currentObject].recipe[i].second));
@@ -168,13 +189,13 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 			window.draw(numberOfObjects);
 			numberOfObjects.setFillColor(Color(200, 200, 200, 255));
 		}
-		 
+
 	}
 }
 
 void BuildSystemMaker::interact()
 {
-	Vector2f mousePos = (Vector2f)Mouse::getPosition();
+	Vector2f mousePos = (Vector2f )Mouse::getPosition();
 	if (isBuilding)
 	{
 		bool f = false;
@@ -184,7 +205,7 @@ void BuildSystemMaker::interact()
 			{
 				currentObject = i;
 				isRecipeFrame = true;
-				recipeFrame.setPosition(builtObjects[i].iconSprite.getPosition().x + builtObjects[i].iconSprite.getGlobalBounds().width*1.25, builtObjects[i].iconSprite.getPosition().y);
+				recipeFrame.setPosition(float(builtObjects[i].iconSprite.getPosition().x + builtObjects[i].iconSprite.getGlobalBounds().width*1.25f), float(builtObjects[i].iconSprite.getPosition().y));
 				f = true;
 				break;
 			}
@@ -210,7 +231,7 @@ void BuildSystemMaker::interact()
 
 void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float scaleFactor)
 {
-	Vector2f mousePos = (Vector2f)Mouse::getPosition();
+	Vector2f mousePos = (Vector2f )Mouse::getPosition();
 
 	usedMouse = false;
 
@@ -224,10 +245,10 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 		if (Helper::isIntersects(mousePos, sf::IntRect(buildStopButton.getGlobalBounds())) && isBuilding)
 		{
 			isBuilding = false;
-			animationSpeed = 0.001;
+			animationSpeed = 0.001f;
 			for (int i = 0; i < builtObjects.size(); i++)
 			{
-				builtObjects[i].iconSprite.setPosition(builtObjects[0].iconSprite.getGlobalBounds().width*-1, (i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25);
+				builtObjects[i].iconSprite.setPosition(float(builtObjects[0].iconSprite.getGlobalBounds().width*-1), float((i + 1)*builtObjects[i].iconSprite.getGlobalBounds().height * 1.25f));
 			}
 			usedMouse = true;
 			return;
@@ -243,10 +264,15 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 	}
 
 	if (isBuilding && selectedObject != -1 && currentObject == -1 && canBePlaced)
-		buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
-			(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
+	{
+		if (spriteBuildPos != Vector2f (-1, -1))
+			buildingPosition = spriteBuildPos;
+		else
+			buildingPosition = Vector2f ((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
+				(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
+	}
 	else
-		buildingPosition = Vector2f(-1, -1);
+		buildingPosition = Vector2f (-1, -1);
 }
 
 void BuildSystemMaker::buildHeldItem(Vector2f focusedObjectPosition, float scaleFactor)
@@ -256,13 +282,13 @@ void BuildSystemMaker::buildHeldItem(Vector2f focusedObjectPosition, float scale
 
 	if (heldItem->first == -1)
 	{
-		buildingPosition = Vector2f(-1, -1);
+		buildingPosition = Vector2f (-1, -1);
 		return;
 	}
 
 	if (canBePlaced)
 	{
-		buildingPosition = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
+		buildingPosition = Vector2f ((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + focusedObjectPosition.x * scaleFactor) / scaleFactor,
 			(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + focusedObjectPosition.y*scaleFactor) / scaleFactor);
 	}
 }
@@ -328,7 +354,7 @@ void BuildSystemMaker::wasPlaced()
 	}
 
 	selectedObject = -1;
-	buildingPosition = Vector2f(-1, -1);
+	buildingPosition = Vector2f (-1, -1);
 }
 
 void BuildSystemMaker::animator(float elapsedTime)
@@ -342,7 +368,6 @@ void BuildSystemMaker::animator(float elapsedTime)
 		{
 			builtObjects[i].iconSprite.setPosition(builtObjects[i].iconSprite.getTextureRect().width / 8 + animationSpeed * elapsedTime, builtObjects[i].iconSprite.getPosition().y);
 		}
-		exit;
 	}
 	for (int i = 0; i < builtObjects.size(); i++)
 	{
@@ -356,10 +381,12 @@ int BuildSystemMaker::getBuiltObjectType()
 		return -1;
 
 	std::string objectType = builtObjects[selectedObject].type;
-	if (objectType == "hareTrap")
+	if (objectType == "_fence")
+		return 18;
+	if (objectType == "_hareTrap")
 		return 16;
-	if (objectType == "bonefireOfInsight")
+	if (objectType == "_bonefireOfInsight")
 		return 4;
-	if (objectType == "homeCosiness")
+	if (objectType == "_homeCosiness")
 		return 5;
 }

@@ -12,7 +12,7 @@ class Deerchant : public DynamicObject
 private:
 	void setHitDirection();
 	float energy, maxEnergyValue, energyForSpecial;	
-	WorldObject *selectedTarget;
+	
 public:	
 	Deerchant(std::string objectName, Vector2f centerPosition);
 	~Deerchant();
@@ -30,12 +30,14 @@ public:
 	Vector2i calculateTextureOffset() override;
 	std::string getSpriteName(long long elapsedTime) override;
 	//control
-	void handleInput() override;	
-	WorldObject *getSelectedTarget() { return selectedTarget; }
+	void handleInput() override;		
 	void behaviorWithDynamic(DynamicObject& target, float elapsedTime) override;
 	void behaviorWithStatic(WorldObject& target, float elapsedTime) override;
 	void behavior(float elapsedTime) override;
-	void onMouseDownBehavior(WorldObject *object);
+	void onMouseDownBehavior(WorldObject *object, Vector2f mouseWorldPos, bool isBuilding = false);
+	void setTarget(DynamicObject& object) override;
+	Vector2f getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition) override;
+	int getBuildType(Vector2f ounPos, Vector2f otherPos) override;
 };
 
 #endif

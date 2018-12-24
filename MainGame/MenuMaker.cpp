@@ -63,7 +63,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 
 	wasActive = false;
 
-	Vector2f mousePos = (Vector2f)Mouse::getPosition();
+	Vector2f mousePos = (Vector2f )Mouse::getPosition();
 
 	if (menuState == mainMenu)
 	{

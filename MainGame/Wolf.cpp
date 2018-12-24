@@ -4,7 +4,7 @@ using namespace sf;
 
 Wolf::Wolf(std::string objectName, Vector2f centerPosition) : Creature(objectName, centerPosition)
 {
-	conditionalSizeUnits = Vector2f(250, 200);
+	conditionalSizeUnits = Vector2i (250, 200);
 	currentSprite = 1;
 	timeForNewSprite = 0;
 	speed = 0.0005f;
@@ -34,6 +34,11 @@ Wolf::~Wolf()
 {
 }
 
+void Wolf::setTarget(DynamicObject& object)
+{
+	return;
+}
+
 void Wolf::behaviorWithStatic(WorldObject& target, float elapsedTime)
 {
 
@@ -46,9 +51,19 @@ void Wolf::behavior(float elapsedTime)
 
 Vector2i Wolf::calculateTextureOffset()
 {
-	textureBox.width *= getScaleRatio().x;
-	textureBox.height *= getScaleRatio().y;
-	return Vector2i(textureBox.width / 2, textureBox.height * 7 / 8);
+	textureBox.width = int(float(textureBox.width)*getScaleRatio().x);
+	textureBox.height = int(float(textureBox.height)*getScaleRatio().y);
+	return Vector2i (textureBox.width / 2, textureBox.height * 7 / 8);
+}
+
+Vector2f Wolf::getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition)
+{
+	return { -1, -1 };
+}
+
+int Wolf::getBuildType(Vector2f ounPos, Vector2f otherPos)
+{
+	return 1;
 }
 
 std::string Wolf::getSpriteName(long long elapsedTime)
