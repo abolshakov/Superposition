@@ -2,6 +2,9 @@
 #include "World.h"
 #include "MenuMaker.h"
 #include "ButtonMaker.h"
+#include "HeroBook.h"
+#include "TextWriter.h"
+
 #include <cmath>
 #include <thread>
 #include <vector>
@@ -25,14 +28,12 @@ int main() {
 	Clock scaleDecreaseClock;	
 
 	float interactTime = 0, drawTime = 0;
-
-	Sprite test;
-	Texture testTexture;
-	testTexture.loadFromFile("Game/worldSprites/hero/stand/down/1.png");
-	test.setTexture(testTexture);
-	test.setPosition(Vector2f(0, 0));
-
 	int currentMouseButton = 0;
+
+	HeroBook mainBook;
+	mainBook.worldBinding(&world);
+
+	TextWriter textWriter;
 
 	while (mainWindow.isOpen())
 	{
@@ -55,7 +56,10 @@ int main() {
 			if (event.type == Event::MouseButtonReleased)
 			{			
 				if (menuSystem.getState() == closed && world.getBuildSystem().succesInit)
+				{
 					world.onMouseDownInteract(currentMouseButton);
+					mainBook.onMouseDown();
+				}
 					
 				if (currentMouseButton == 1)
 					menuSystem.interact(world, mainWindow);
@@ -104,6 +108,9 @@ int main() {
 			mainWindow.clear(Color::White);
 
 			world.draw(mainWindow, drawTime);
+			world.runBuildSystemDrawing(mainWindow, drawTime);
+			mainBook.draw(&mainWindow, drawTime);
+			world.runInventorySystemDrawing(mainWindow, drawTime);
 		}	
 		else
 		{
@@ -125,8 +132,15 @@ int main() {
 		healthRect.setFillColor(Color(184, 37, 37));
 		mainWindow.draw(healthRect);
 
-		//Helper::drawText(to_string(world.focusedObject->getMovePosition().x), 30, 200, 300, &mainWindow);
-		//Helper::drawText(to_string(interactTime), 30, 200, 300, &mainWindow);
+		Sprite testS;
+		Texture testT;
+		for (int i = 0; i < 100; i++)
+		{
+			testT.loadFromFile("Game/heroBook/Sprites/nightmareBlock.png");
+			testS.setTexture(testT);
+			mainWindow.draw(testS);
+		}
+
 
 		mainWindow.display();
 	}

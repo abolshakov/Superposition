@@ -3,7 +3,7 @@
 
 ForestTree::ForestTree(std::string objectName, Vector2f centerPosition, int typeOfObject) : TerrainObject(objectName, centerPosition)
 {
-	varietyOfTypes = 9;
+	varietyOfTypes = 12;
 	this->typeOfObject = typeOfObject;
 	strength = 0;
 	radius = 50;
@@ -34,6 +34,12 @@ void ForestTree::setType(int typeOfObject)
 		conditionalSizeUnits = Vector2i (400, 800);
 	if (typeOfObject == 9)
 		conditionalSizeUnits = Vector2i (350, 800);
+	if (typeOfObject == 10)
+		conditionalSizeUnits = Vector2i(560, 800);
+	if (typeOfObject == 11)
+		conditionalSizeUnits = Vector2i(540, 800);
+	if (typeOfObject == 12)
+		conditionalSizeUnits = Vector2i(800, 800);
 }
 
 Vector2i ForestTree::calculateTextureOffset()
@@ -59,6 +65,12 @@ Vector2i ForestTree::calculateTextureOffset()
 		return Vector2i (textureBox.width / 2, int(textureBox.height / 1.05));
 	if (typeOfObject == 9)
 		return Vector2i (textureBox.width / 2, int(textureBox.height / 1.05));
+	if (typeOfObject == 10)
+		return Vector2i(textureBox.width / 2.4, int(textureBox.height / 1.1));
+	if (typeOfObject == 11)
+		return Vector2i(textureBox.width / 1.8, int(textureBox.height / 1.1));
+	if (typeOfObject == 12)
+		return Vector2i(textureBox.width / 2.4, int(textureBox.height / 1.1));
 
 	return Vector2i (textureBox.width / 2, int(textureBox.height / 1.25));
 }
@@ -130,6 +142,28 @@ void ForestTree::initPedestal()
 										focus2 = Vector2f (position.x + textureBox.width / 8, position.y);
 										ellipseSize = float((focus2.x - focus1.x) * 1.4);
 									}
+									else
+										if (typeOfObject == 10)
+										{
+											focus1 = Vector2f(position.x - textureBox.width / 8, position.y);
+											focus2 = Vector2f(position.x + textureBox.width / 8, position.y);
+
+											ellipseSize = float((focus2.x - focus1.x) * 1.4);
+										}
+										else
+											if (typeOfObject == 11)
+											{
+												focus1 = Vector2f(position.x - textureBox.width / 8, position.y);
+												focus2 = Vector2f(position.x + textureBox.width / 8, position.y);
+												ellipseSize = float((focus2.x - focus1.x) * 1.4);
+											}
+											else
+												if (typeOfObject == 12)
+												{
+													focus1 = Vector2f(position.x - textureBox.width / 8, position.y);
+													focus2 = Vector2f(position.x + textureBox.width / 8, position.y);
+													ellipseSize = float((focus2.x - focus1.x) * 1.2);
+												}
 	//textureBoxOffset = Vector2f ((focus1.x + focus2.x) / 2 - textureBox.left, focus1.y - textureBox.top);
 }
 

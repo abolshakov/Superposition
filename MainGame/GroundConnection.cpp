@@ -3,7 +3,7 @@
 
 GroundConnection::GroundConnection(std::string objectName, Vector2f centerPosition, int typeOfObject) : StaticObject(objectName, centerPosition)
 {
-	varietyOfTypes = 12;
+	varietyOfTypes = 16;
 	this->typeOfObject = typeOfObject;
 	isBackground = true;
 	toSaveName = "groundConnection";
@@ -37,20 +37,20 @@ void GroundConnection::setType(int typeOfObject)
 				}
 	
 	if (typeOfObject >= 1 && typeOfObject <= 4)
-		this->zCoords = 1;
+		this->zCoord = 1;
 	else
 		if (typeOfObject >= 5 && typeOfObject <= 8)
-			this->zCoords = 2;
+			this->zCoord = 2;
 		else
 			if (typeOfObject >= 9 && typeOfObject <= 12)
-				this->zCoords = 3;
+				this->zCoord = 3;
 			else
 				if (typeOfObject >= 13 && typeOfObject <= 16)
-					this->zCoords = 4;
+					this->zCoord = 4;
 				else
 					if (typeOfObject >= 17 && typeOfObject <= 20)
-						this->zCoords = 5;
-	this->zCoords *= 10;
+						this->zCoord = 5;
+	this->zCoord *= 10;
 }
 
 Vector2i GroundConnection::calculateTextureOffset()

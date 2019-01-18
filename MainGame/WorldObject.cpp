@@ -7,7 +7,7 @@ WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 	position = centerPosition;
 	WorldObject::initPedestal();
 	inventoryVisibility = false;
-	randomSizeIncrease = Vector2i (0, 0);
+	randomSizeIncrease = Vector2i(0, 0);
 }
 
 void WorldObject::setTextureSize(Vector2f textureSize)

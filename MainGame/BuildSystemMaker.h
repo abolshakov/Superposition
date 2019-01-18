@@ -29,7 +29,7 @@ public:
 	datatype blankref;
 	std::reference_wrapper<datatype> currentInventory = blankref;
 
-	void Init(std::unordered_map<int, cell> itemsSpriteList);
+	void Init(const std::unordered_map<int, cell>& itemsSpriteList);
 	void draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f cameraPosition, std::vector<WorldObject*> visibleItems, bool showPositioning = true);
 	void onMouseDownInteract(Vector2f focusedObjectPosition, float scaleFactor);
 	void buildHeldItem(Vector2f focusedObjectPosition, float scaleFactor);
@@ -49,7 +49,7 @@ public:
 	void setHeldItem(std::pair<int, int>& heldItem) { this->heldItem = &heldItem; }
 private:	
 	std::unordered_map<int, cell> craftIngredientsSpriteList;
-	std::pair<int, int> *heldItem;
+	std::pair<int, int> *heldItem = nullptr;
 	Vector2f currentSpritePos, currentSpriteOffset, currentSpriteSize, currentSpriteScale;
 	Vector2f spriteBuildPos = Vector2f (-1, -1);
 	int buildType = 1;

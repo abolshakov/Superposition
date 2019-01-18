@@ -48,7 +48,7 @@ void Creature::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 		int randomOffsetY = rand() % (fear / morality) - (fear / morality) / 2;
 
 		movePosition = Vector2f(position.x - (target.getPosition().x - position.x + randomOffsetX), position.y - (target.getPosition().y - position.y + randomOffsetY));
-		setMoveOffset();
+		setMoveOffset(elapsedTime);
 	}
 	else
 	{

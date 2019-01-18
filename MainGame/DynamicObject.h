@@ -52,7 +52,7 @@ public:
 	void increaseTimeForNewRoute(float value) { timeForNewRoute += value; }
 	void changeMovePositionToRoute(Vector2f newPosition) { movePosition = newPosition; }
 	void takeDamage(float damage);			
-	void setMoveOffset();
+	void setMoveOffset(float elapsedTime);
 	void resetTimeForNewRoute() { timeForNewRoute = 0; }
 	virtual void handleInput();
 	virtual void behaviorWithDynamic(DynamicObject& target, float elapsedTime) = 0;

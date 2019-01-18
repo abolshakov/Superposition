@@ -123,5 +123,22 @@ Side Helper::getSide(Vector2f position, Vector2f anotherPosition)
 	return answer;
 }
 
+RectangleShape Helper::makeLine(Vector2f point1, Vector2f point2)
+{
+	if (point1.y >= point2.y)
+		std::swap(point1, point2);
 
+	point1.y -= 4;
+
+	RectangleShape result;
+	result.setPosition(point1);
+	result.setSize(Vector2f(sqrt(pow(point1.x - point2.x, 2) + pow(point1.y - point2.y, 2)), 8));
+
+	if (point1.x >= point2.x)
+		result.rotate(acos(abs(point1.y - point2.y) / sqrt(pow(point1.x - point2.x, 2) + pow(point1.y - point2.y, 2))) / pi * 180 + 90);
+	else
+		result.rotate(acos(abs(point1.x - point2.x) / sqrt(pow(point1.x - point2.x, 2) + pow(point1.y - point2.y, 2))) / pi * 180);
+	result.setFillColor(Color::Black);
+	return result;
+}
 

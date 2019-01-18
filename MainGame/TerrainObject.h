@@ -19,10 +19,11 @@ public:
 	Vector2f getDot2() const { return dot2; }
 	Vector2f getCurrentDot() { return currentDot; }
 	int getEllipseSize() const { return ellipseSize; }
-	std::vector<std::pair<std::pair<float, Vector2f>, std::pair<Vector2f, Vector2f>>> internalEllipses;
-	bool isIntersected(Vector2f curPosition, float radius, Vector2f newPosition) const;
+	bool isIntersected(Vector2f curPosition, float radius, Vector2f newPosition); //const;
 	std::vector<int> getMultiellipseIntersect(Vector2f position) const;
-	Vector2f newSlippingPositionForDotsAdjusted(Vector2f position, float radius, float speed, float elapsedTime);
+	Vector2f newSlippingPositionForDotsAdjusted(Vector2f position, Vector2f motionVector, float speed, float elapsedTime);
+
+	std::vector<std::pair<std::pair<float, Vector2f>, std::pair<Vector2f, Vector2f>>> internalEllipses;
 };
 
 #endif

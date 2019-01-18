@@ -150,6 +150,8 @@
     <ClCompile Include="Hare.cpp" />
     <ClCompile Include="HareTrap.cpp" />
     <ClCompile Include="Helper.cpp" />
+    <ClCompile Include="HeroBook.cpp" />
+    <ClCompile Include="HeroBookPage.cpp" />
     <ClCompile Include="HomeCosiness.cpp" />
     <ClCompile Include="InventoryMaker.cpp" />
     <ClCompile Include="main.cpp" />
@@ -165,6 +167,7 @@
     <ClCompile Include="Stump.cpp" />
     <ClCompile Include="TerrainObject.cpp" />
     <ClCompile Include="Creature.cpp" />
+    <ClCompile Include="TextWriter.cpp" />
     <ClCompile Include="Wolf.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="WorldObject.cpp" />
@@ -189,6 +192,8 @@
     <ClInclude Include="Hare.h" />
     <ClInclude Include="HareTrap.h" />
     <ClInclude Include="Helper.h" />
+    <ClInclude Include="HeroBook.h" />
+    <ClInclude Include="HeroBookPage.h" />
     <ClInclude Include="HomeCosiness.h" />
     <ClInclude Include="InventoryMaker.h" />
     <ClInclude Include="MenuMaker.h" />
@@ -204,6 +209,7 @@
     <ClInclude Include="Stump.h" />
     <ClInclude Include="TerrainObject.h" />
     <ClInclude Include="Creature.h" />
+    <ClInclude Include="TextWriter.h" />
     <ClInclude Include="Wolf.h" />
     <ClInclude Include="World.h" />
     <ClInclude Include="WorldObject.h" />

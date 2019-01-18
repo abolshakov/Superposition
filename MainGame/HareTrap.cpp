@@ -8,7 +8,7 @@ HareTrap::HareTrap(std::string objectName, Vector2f centerPosition, int typeOfOb
 	radius = 100;
 	isBackground = true;
 	toSaveName = "hareTrap";
-	zCoords = 100;
+	zCoord = 100;
 	setType(typeOfObject);
 }
 

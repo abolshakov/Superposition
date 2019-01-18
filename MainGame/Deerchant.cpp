@@ -8,7 +8,7 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 {
 	currentSprite = 1;
 	timeForNewSprite = 0;
-	speed = 0.001f;
+	speed = 0.0005f;
 	animationSpeed = 0.0010f;
 	animationLength = 8;
 	radius = 50;
@@ -31,7 +31,7 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	inventory[0] = std::make_pair(1, 1);
 	inventory[1] = std::make_pair(2, 2);
 	inventory[2] = std::make_pair(1, 1);
-	inventory[3] = std::make_pair(4, 1);
+	inventory[3] = std::make_pair(10, 1);
 }
 
 Deerchant::~Deerchant()
@@ -130,7 +130,7 @@ void Deerchant::handleInput()
 									{
 										if (selectedTarget)
 										{
-											setMoveOffset();
+											setMoveOffset(0);
 											currentAction = move;
 										}
 									}

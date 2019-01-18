@@ -17,9 +17,10 @@ void MenuMaker::initButtons()
 	std::string buttonImagePath;
 	Vector2f buttonPosition, buttonScale; // in percents
 	int tag;
+	bool isSelectable;
 
 	std::ifstream fin(buttonsInfoFileDirectory);
-	while (fin >> buttonImagePath >> buttonPosition.x >> buttonPosition.y >> buttonScale.y >> tag)
+	while (fin >> buttonImagePath >> buttonPosition.x >> buttonPosition.y >> buttonScale.y >> isSelectable >> tag)
 	{
 		Texture buttonTexture;
 		buttonTexture.loadFromFile(buttonImagePath);
@@ -29,7 +30,7 @@ void MenuMaker::initButtons()
 		buttonScale.y = buttonScale.y * screenSize.y / 100;
 		buttonScale.x = buttonScale.y * (buttonTexture.getSize().x / buttonTexture.getSize().y);
 		
-		buttonList[ButtonTag(tag)].initialize(buttonTexture, buttonPosition, buttonScale, ButtonTag(tag));
+		buttonList[ButtonTag(tag)].initialize(buttonTexture, buttonPosition, buttonScale, isSelectable, ButtonTag(tag));
 	}
 
 	fin.close();

@@ -10,7 +10,7 @@ BuildSystemMaker::~BuildSystemMaker()
 
 }
 
-void BuildSystemMaker::Init(std::unordered_map<int, cell> itemsSpriteList)
+void BuildSystemMaker::Init(const std::unordered_map<int, cell>& itemsSpriteList)
 {
 	this->craftIngredientsSpriteList = itemsSpriteList;
 	inicializeObjectsInfo();
@@ -29,13 +29,13 @@ void BuildSystemMaker::initializeButtons()
 	//initialize buildStart button
 	buildStartButtonTexture.loadFromFile("Game/buildSystem/buildStart.png");
 	buildStartButton.setTexture(buildStartButtonTexture);
-	buildStartButton.setPosition(float(buildStartButton.getTextureRect().width / 8), float(10));
+	buildStartButton.setPosition(buildStartButton.getTextureRect().width / float(8), float(10));
 	buildStartButton.setScale(screenSize.y / 15 / buildStartButtonTexture.getSize().x, screenSize.y / 15 / buildStartButtonTexture.getSize().y);
 
 	//initialize buildStop button
 	buildStopButtonTexture.loadFromFile("Game/buildSystem/buildStop.png");
 	buildStopButton.setTexture(buildStopButtonTexture);
-	buildStopButton.setPosition(float(buildStopButton.getTextureRect().width / 8), float(10));
+	buildStopButton.setPosition(buildStopButton.getTextureRect().width / float(8), float(10));
 	buildStopButton.setScale(buildStartButton.getScale());
 
 	//initialize icons of built objects 

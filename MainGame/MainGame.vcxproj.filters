@@ -87,6 +87,15 @@
       <Filter>Terrain</Filter>
     </ClCompile>
     <ClCompile Include="EmptyObject.cpp" />
+    <ClCompile Include="HeroBook.cpp">
+      <Filter>HeroBook</Filter>
+    </ClCompile>
+    <ClCompile Include="HeroBookPage.cpp">
+      <Filter>HeroBook</Filter>
+    </ClCompile>
+    <ClCompile Include="TextWriter.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoardSprite.h" />
@@ -176,6 +185,15 @@
       <Filter>Terrain</Filter>
     </ClInclude>
     <ClInclude Include="EmptyObject.h" />
+    <ClInclude Include="HeroBook.h">
+      <Filter>HeroBook</Filter>
+    </ClInclude>
+    <ClInclude Include="HeroBookPage.h">
+      <Filter>HeroBook</Filter>
+    </ClInclude>
+    <ClInclude Include="TextWriter.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Terrain">
@@ -189,6 +207,9 @@
     </Filter>
     <Filter Include="UISystems">
       <UniqueIdentifier>{c6d0f57c-5b1e-44be-9b32-415010cac4ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HeroBook">
+      <UniqueIdentifier>{d8cc7afb-4b70-412c-9813-73ad35d11e13}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

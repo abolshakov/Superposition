@@ -50,10 +50,18 @@ void DynamicObject::setSide(Vector2i otherObjectPosition, float elapsedTime)
 	side = answer;
 }
 
-void DynamicObject::setMoveOffset()
+void DynamicObject::setMoveOffset(float elapsedTime)
 {
 	if (movePosition == Vector2f(-1, -1))
 	{
+		if (direction != STAND)
+		{
+			auto angle = this->getDirection() * pi / 180;
+
+			moveOffset.x = float(this->speed * cos(angle));
+			moveOffset.y = float(this->speed * -sin(angle));
+			return;
+		}
 		moveOffset = Vector2f(-1, -1);
 		return;
 	}
@@ -213,7 +221,7 @@ Vector2f DynamicObject::EllipceSlip(DynamicObject *dynamic, Vector2f newPos, Vec
 
 Vector2f DynamicObject::doMove(long long elapsedTime)
 {
-	setMoveOffset();
+	setMoveOffset(elapsedTime);
 
 	if (this->direction == STAND)
 		return Vector2f(this->position);
@@ -228,11 +236,6 @@ Vector2f DynamicObject::doMove(long long elapsedTime)
 
 		return Vector2f(position);
 	}
-
-	auto angle = this->getDirection() * pi / 180;
-
-	position.x = float(position.x + this->speed * cos(angle) * elapsedTime);
-	position.y = float(position.y - this->speed * sin(angle) * elapsedTime);
 
 	return Vector2f(position);
 }
@@ -281,7 +284,7 @@ Vector2f DynamicObject::doSlip(Vector2f newPosition, std::vector<StaticObject*> 
 				Vector2f motionAfterSlipping;
 
 				if (staticItem->isDotsAdjusted)
-					motionAfterSlipping = terrain->newSlippingPositionForDotsAdjusted(this->getPosition(), this->getRadius(), this->getSpeed(), elapsedTime);
+					motionAfterSlipping = terrain->newSlippingPositionForDotsAdjusted(this->getPosition(), moveOffset, this->getSpeed(), elapsedTime);
 				else
 					motionAfterSlipping = this->EllipceSlip(this, newPosition, this->movePosition, terrain->getFocus1(), terrain->getFocus2(), terrain->getEllipseSize(), height, elapsedTime);
 

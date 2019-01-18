@@ -149,9 +149,16 @@ void GridList<T>::fillLocalMatrix(Vector2f targetPos, int upperLeftX, int upperL
 					else
 						if (object->isDotsAdjusted)
 						{
-							if (Helper::getDist(microblockPos, object->getDot1()) + Helper::getDist(microblockPos, object->getDot2()) > object->getRadius() * 4)
+							if (!((microblockPos.x >= object->getDot1().x - microsize.x / 2 && microblockPos.x <= object->getDot2().x + microsize.x / 2) &&
+								(microblockPos.y >= object->getDot1().y - microsize.y / 2 && microblockPos.y <= object->getDot2().y + microsize.y / 2)))
 								continue;
-							if (i >= 0 && j >= 0 && i < microblockMatrix.size() && j < microblockMatrix[0].size())
+
+							float t1 = Helper::triangleArea(object->getDot1().x, object->getDot1().y, microblockPos.x - microsize.x / 2, microblockPos.y - microsize.y / 2, object->getDot2().x, object->getDot2().y),
+								t2 = Helper::triangleArea(object->getDot1().x, object->getDot1().y, microblockPos.x + microsize.x / 2, microblockPos.y + microsize.y / 2, object->getDot2().x, object->getDot2().y),
+								t3 = Helper::triangleArea(object->getDot1().x, object->getDot1().y, microblockPos.x + microsize.x / 2, microblockPos.y - microsize.y / 2, object->getDot2().x, object->getDot2().y),
+								t4 = Helper::triangleArea(object->getDot1().x, object->getDot1().y, microblockPos.x - microsize.x / 2, microblockPos.y + microsize.y / 2, object->getDot2().x, object->getDot2().y);
+
+							if (!(Helper::checkSigns(t1, t2) || Helper::checkSigns(t3, t4)))
 								microblockMatrix[i][j] = 0;
 						}
 						else
@@ -193,9 +200,33 @@ void GridList<T>::makeRoute(Vector2f startPos, Vector2f finishPos, int upperLeft
 		}
 	}
 
+	if (microblockMatrix[curMicroblockX][curMicroblockY] == 0)
+	{
+		float minD = 10e6;
+		int curI = curMicroblockX, curJ = curMicroblockY;
+		for (int i = -1; i <= 1; i++)
+			for (int j = -1; j <= 1; j++)
+			{
+				if (abs(i) == abs(j))
+					continue;
+				if (microblockMatrix[curMicroblockX + i][curMicroblockY + j] == 1)
+				{
+					Vector2f microblockPos = Vector2f(microsize.x * i + microsize.x / 2, microsize.y * j + microsize.y / 2);
+					float d = sqrt(pow(startPos.x - microblockPos.x, 2) + pow(startPos.y - microblockPos.y, 2));
+					if (d < minD)
+					{
+						minD = d;
+						curI = i;
+						curJ = j;
+					}
+				}
+			}
+		curMicroblockX += curI;
+		curMicroblockY += curJ;
+	}
+
 	distances[curMicroblockX][curMicroblockY] = 0;
 	bfs(startXInd + xMicroblocksCount, startYInd + yMicroblocksCount, curMicroblockX, curMicroblockY, lastMicroblockX, lastMicroblockY);
-	//dfs(curMicroblockX, curMicroblockY, startXInd + xMicroblocksCount, startYInd + yMicroblocksCount, curMicroblockX, curMicroblockY, lastMicroblockX, lastMicroblockY);
 }
 
 template <class T>
@@ -275,6 +306,9 @@ void GridList<T>::bfs(int iBorder, int jBorder, int startX, int startY, int fini
 			if (isBreak)
 				break;
 		}
+
+		if (path[0] == std::make_pair(startX, startY))
+			path.erase(path.begin() + 0);
 
 		routes[finishX][finishY] = path;
 	}

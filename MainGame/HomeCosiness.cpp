@@ -8,7 +8,7 @@ HomeCosiness::HomeCosiness(std::string objectName, Vector2f centerPosition, int 
 	radius = 100;
 	isBackground = true;
 	toSaveName = "homeCosiness";
-	zCoords = 100;
+	zCoord = 100;
 	setType(typeOfObject);
 }
 

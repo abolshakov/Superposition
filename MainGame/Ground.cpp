@@ -3,7 +3,7 @@
 
 Ground::Ground(std::string objectName, Vector2f centerPosition, int typeOfObject) : StaticObject(objectName, centerPosition)
 {
-	varietyOfTypes = 3;
+	varietyOfTypes = 4;
 	this->typeOfObject = typeOfObject;
 	isBackground = true;
 	toSaveName = "ground";
@@ -18,7 +18,7 @@ void Ground::setType(int typeOfObject)
 
 	this->typeOfObject = typeOfObject;
 	this->conditionalSizeUnits = Vector2i (1000, 1000);
-	this->zCoords = typeOfObject * 10 + 5;
+	this->zCoord = typeOfObject * 10 + 5;
 }
 
 Vector2i Ground::calculateTextureOffset()
