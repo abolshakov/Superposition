@@ -17,13 +17,13 @@ void Stump::setType(int typeOfObject)
 {
 	this->typeOfObject = typeOfObject;
 	if (typeOfObject == 1)
-		conditionalSizeUnits = Vector2i (300, 240);
+		conditionalSizeUnits = Vector2i (424, 304);
 	if (typeOfObject == 2)
-		conditionalSizeUnits = Vector2i (200, 150);
+		conditionalSizeUnits = Vector2i (308, 196);
 	if (typeOfObject == 3)
-		conditionalSizeUnits = Vector2i (180, 150);
+		conditionalSizeUnits = Vector2i (212, 172);
 	if (typeOfObject == 4)
-		conditionalSizeUnits = Vector2i (220, 140);
+		conditionalSizeUnits = Vector2i (660, 312);
 }
 
 Vector2i Stump::calculateTextureOffset()
@@ -47,8 +47,8 @@ void Stump::initPedestal()
 {
 	if (typeOfObject == 1)
 	{
-		focus1 = Vector2f (position.x - textureBox.width / 2, position.y + textureBox.height / 8);
-		focus2 = Vector2f (position.x + textureBox.width / 3, position.y - textureBox.height / 5);
+		focus1 = Vector2f (position.x - textureBox.width / 2, position.y);
+		focus2 = Vector2f (position.x + textureBox.width / 3, position.y);
 		ellipseSize = float((focus2.x - focus1.x) * 1.2);
 	}
 	else
@@ -72,8 +72,6 @@ void Stump::initPedestal()
 					focus2 = Vector2f (position.x + textureBox.width / 4, position.y);
 					ellipseSize = float((focus2.x - focus1.x) * 1.6);
 				}
-
-	//textureBoxOffset = Vector2f ((focus1.x + focus2.x) / 2 - textureBox.left, focus1.y - textureBox.top);
 }
 
 Vector2f Stump::getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition)
@@ -86,25 +84,31 @@ int Stump::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Stump::getSpriteName(long long elapsedTime)
+void Stump::prepareSpriteNames(long long elapsedTime)
 {
-	std::string spriteName;
+	additionalSprites.clear();
+	spriteChainElement stumpBody;
+	stumpBody.size = Vector2f(conditionalSizeUnits);
+	stumpBody.offset = Vector2f(textureBoxOffset);
 
 	switch (state)
 	{
-	case common:
-	{
-		return "Game/worldSprites/terrainObjects/stump/stump" + std::to_string(typeOfObject) + ".png";
-		break;
+		case common:
+		{
+			animationLength = 1;
+			stumpBody.path = "Game/worldSprites/terrainObjects/stump/stump" + std::to_string(typeOfObject) + ".png";
+			break;
+		}
+		case absorbed:
+		{
+			animationLength = 15;
+			stumpBody.path = "Game/worldSprites/terrainObjects/stump/stump" + std::to_string(typeOfObject) + ".png";
+			transparensy = 100 - currentSprite * 100 / animationLength;
+			break;
+		}
 	}
-	case absorbed:
-	{
-		animationLength = 15;
-		spriteName = "Game/worldSprites/terrainObjects/stump/stump" + std::to_string(typeOfObject) + ".png";
-		transparensy = 100 - currentSprite * 100 / animationLength;
-		break;
-	}
-	}
+
+	additionalSprites.push_back(stumpBody);
 
 	timeForNewSprite += elapsedTime;
 
@@ -122,6 +126,4 @@ std::string Stump::getSpriteName(long long elapsedTime)
 			currentSprite = 1;
 		}
 	}
-
-	return spriteName;
 }

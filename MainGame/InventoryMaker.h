@@ -7,12 +7,14 @@
 #include<fstream>
 #include "Helper.h"
 #include "WorldObject.h"
+#include "HeroBag.h"
 
 using namespace sf;
 
 struct cell {
 	Sprite sprite;
 	Texture texture;
+	Vector2f offset;
 };
 
 class InventoryMaker
@@ -24,41 +26,41 @@ public:
 	void drawHeroInventory(float elapsedTime, RenderWindow& window);
 	void drawInventory(Vector2f position, float elapsedTime, RenderWindow& window);
 	void resetAnimationValues();
-	std::unordered_map<int, cell> getSpriteList() { return cellsSpriteList; }
-	int getSelectedCellNumber();
-	int getHeroInventorySelectedCellNumber();
-	int getVisibleItemsNumber() { return visibleItemsNumber; }
 	void onMouseDownInteract();
-	void putItemToBound();
-	void inventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory);
+	void inventoryBounding(std::vector<std::reference_wrapper<HeroBag>> bags);
 	void temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory);
-	bool wasDrawing = false;
+	void interact(float elapsedTime);
 	bool getUsedMouse() { return usedMouse; }
-	std::pair<int, int> *getHeldItem() { return &heldItem; }
-	int heroInventoryRawCellsNumber = 0;
-	std::vector<std::reference_wrapper<std::pair <int, int>>> getBoundInv() { return currentInventory; }
-	std::vector<int> getItemsMaxCount() { return itemsMaxCount; }
+	bagCell &getHeldItem() { return heldItem; }
+	std::unordered_map<int, cell> getSpriteList() { return cellsSpriteList; }
+
+	bool wasDrawing = false;
+	std::string debugInfo = "";
+
+	Sprite *selectedCellBackground;
 private:
-	void initSpriteList();
-	int visibleItemsNumber = 0;
+	//hero bags
+	std::vector<std::reference_wrapper<HeroBag>> boundBags;
+	//another inventories 
+	int animationCounter = 1, currentInventorySize;
+	float timeForAnimationEffect = 50000, timeAfterAnimationEffect;
+	std::vector<std::reference_wrapper<std::pair <int, int>>> currentInventory;
+	//held item
+	bagCell heldItem;
+	float heldItemSpeed = 0;
+	//drawing
 	std::string spritesFileDirectory = "Game/inventorySprites/inventorySprites.txt";
 	std::unordered_map<int, cell> cellsSpriteList;
-	Vector2f cellSize;
-	float timeForAnimationEffect = 50000, timeAfterAnimationEffect;
-	int animationCounter = 1, currentInventorySize;
-	std::vector<std::reference_wrapper<std::pair <int, int>>> currentInventory;
-	std::vector<std::reference_wrapper<std::pair <int, int>>> boundInventory;
-	//std::vector<std::pair <int, int>>& currentInventory = std::vector<std::pair <int, int>>();
-	Vector2f currentPosition, currentHeroInventoryPosition;
+	void initSpriteList();
+	void drawNumberOfItems(Sprite sprite, int itemsCount, RenderWindow &window);
 	Font font;
-	Text numberOfObjects;
+	Text numberOfItems;
+
 	std::vector<int> itemsMaxCount;
-	int currentCell = -1 , currentHeroInventoryCell = -1;
-	Sprite heroInventoryBackgroundSprite;
-	Texture heroInventoryBackgroundTexture;
-	Vector2f heroInventoryZoneSize, heroInventoryCellSize;
-	std::pair<int, int> heldItem = {-1, -1};
 	bool usedMouse = false;
+	float itemCommonRadius = 0;
+
+	//std::vector<std::pair<Vector2f, std::string>> temporaryPositions;
 };
 
 #endif

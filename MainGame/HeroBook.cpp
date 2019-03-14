@@ -19,24 +19,34 @@ void HeroBook::initButtons()
 {
 	Vector2f screenSize = Helper::GetScreenSize();
 
-	std::string buttonImagePath;
+	std::string buttonImagePathDefault, buttonImagePathPressed, buttonImagePathSelected;
 	Vector2f buttonPosition, buttonSize; // in percents
 	int tag;
 	bool isSelectable;
 
 	std::ifstream fin(buttonsInfoFileDirectory);
-	while (fin >> buttonImagePath >> buttonPosition.x >> buttonPosition.y >> buttonSize.y >> isSelectable >> tag)
+
+
+	while (fin >> isSelectable)
 	{
-		Texture buttonTexture;
-		buttonTexture.loadFromFile(buttonImagePath);
+		if (isSelectable)
+			fin >> buttonImagePathDefault >> buttonImagePathPressed >> buttonImagePathSelected;
+		else
+			fin >> buttonImagePathDefault;
+
+		fin >> buttonPosition.x >> buttonPosition.y >> buttonSize.y >> tag;
+
+		Texture buttonTextureDefault, buttonTexturePressed, buttonTextureSelected;
+		buttonTextureDefault.loadFromFile(buttonImagePathDefault);
+		buttonTexturePressed.loadFromFile(buttonImagePathPressed);
+		buttonTextureSelected.loadFromFile(buttonImagePathSelected);
 
 		buttonPosition.x = buttonPosition.x * screenSize.x / 100;
 		buttonPosition.y = buttonPosition.y * screenSize.y / 100;
 		buttonSize.y = buttonSize.y * screenSize.y / 100;
-		buttonSize.x = buttonTexture.getSize().x * buttonSize.y / buttonTexture.getSize().y;
-		//buttonSize = Vector2f(buttonTexture.getSize());
+		buttonSize.x = buttonTextureDefault.getSize().x * buttonSize.y / buttonTextureDefault.getSize().y;
 
-		buttonList[ButtonTag(tag)].initialize(buttonTexture, buttonPosition, buttonSize, isSelectable, ButtonTag(tag));
+		buttonList[ButtonTag(tag)].initialize(buttonTextureDefault, buttonTexturePressed, buttonTextureSelected, buttonPosition, buttonSize, isSelectable, ButtonTag(tag));
 	}
 
 	fin.close();
@@ -49,11 +59,17 @@ void HeroBook::initButtons()
 	}
 	somePage.buttonListBounding(buttons);
 	//----------------------------
+
+	//positioning interface elements
+	buttonList.at(bookButtonTag).setPosition(Vector2f(Helper::GetScreenSize().x * 2 / 5 - buttonList.at(bookButtonTag).getGlobalBounds().width, Helper::GetScreenSize().y * 14 / 15 - buttonList.at(bookButtonTag).getGlobalBounds().height));
+	buttonList.at(bookStandTag).setPosition(Vector2f(Helper::GetScreenSize().x * 2 / 5 - buttonList.at(bookStandTag).getGlobalBounds().width, Helper::GetScreenSize().y * 14 / 15 - buttonList.at(bookButtonTag).getGlobalBounds().height));
+	buttonList.at(bookGlowTag).setPosition(Vector2f(Helper::GetScreenSize().x * 2 / 5 - buttonList.at(bookStandTag).getGlobalBounds().width, Helper::GetScreenSize().y * 14 / 15 - buttonList.at(bookButtonTag).getGlobalBounds().height));
+	//------------------------------
 }
 
 void HeroBook::initContent()
 {
-	allContentChains.resize(100, std::vector<std::vector<contentBlock>>(100));
+	allContentChains.resize(1000, std::vector<std::vector<contentBlock>>(1000));
 	int pageNumber, blocksCount;
 
 	std::ifstream fin(contentInfoFileDirectory);
@@ -93,36 +109,38 @@ void HeroBook::setPage(int page)
 	somePage.setPage(page);
 }
 
-void HeroBook::draw(RenderWindow* window, float elapsedTime)
+void HeroBook::drawHpLine(RenderWindow* window, float hpRatio)
 {
-	if (!boundedWorld->getHeroBookVisability())
+	buttonList.at(hpFrameTag).setPosition(getHpLinePosition());
+	buttonList.at(hpLineTag).setSize(Vector2f(hpRatio * buttonList.at(hpFrameTag).getGlobalBounds().width, buttonList.at(hpFrameTag).getGlobalBounds().height));
+	buttonList.at(hpLineTag).setPosition(getHpLinePosition());
+
+	buttonList.at(hpFrameTag).draw(*window);
+	buttonList.at(hpLineTag).draw(*window);
+}
+
+void HeroBook::draw(RenderWindow* window, float hpRatio, float elapsedTime)
+{
+	drawHpLine(window, hpRatio);
+	buttonList.at(bookStandTag).draw(*window);
+	buttonList.at(bookButtonTag).draw(*window);
+	buttonList.at(bookGlowTag).draw(*window);
+
+	if (!visibility)
 		return;
 
 	FloatRect pageGlobalBounds;
 
-	if (currentPage == 0)
-	{
-		buttonList.at(bookCover).draw(*window);
-		pageGlobalBounds = buttonList.at(bookCover).getGlobalBounds();
-	}
-	else
+	if (currentPage != 0)
 	{
 		buttonList.at(pageBackground).draw(*window);
+		if (currentPage >= 901 && currentPage <= 905)
+			buttonList.at(bookmarksList).draw(*window);
+		else
+			buttonList.at(pagePattern).draw(*window);
+
 		pageGlobalBounds = buttonList.at(pageBackground).getGlobalBounds();
 	}
-
-	//draw arrows, bookmarks, etc...
-	if (currentPage < 100)
-		buttonList.at(nextPage).draw(*window);
-	if (currentPage > 0)
-		buttonList.at(previousPage).draw(*window);
-
-	buttonList.at(bookmarkMobs).draw(*window);
-	buttonList.at(bookmarkItems).draw(*window);
-	buttonList.at(bookmarkHerbs).draw(*window);
-	buttonList.at(bookmarkWreathes).draw(*window);
-	buttonList.at(bookmarkNightmare).draw(*window);
-	//------------------------------
 
 	auto pageContent = somePage.getPreparedContent(currentPage);
 
@@ -139,22 +157,53 @@ void HeroBook::draw(RenderWindow* window, float elapsedTime)
 
 	textWriter.drawTextBox(pageContent.blockDescription, BebasFont, 40, pageGlobalBounds.left + pageGlobalBounds.width / 2, pageGlobalBounds.top, pageGlobalBounds.width / 2, pageGlobalBounds.height, window);
 	//-----------------
+
+	//draw arrows, bookmarks, cover, etc...
+	buttonList.at(bookmarkMobs).draw(*window);
+	buttonList.at(bookmarkItems).draw(*window);
+	buttonList.at(bookmarkHerbs).draw(*window);
+	buttonList.at(bookmarkWreathes).draw(*window);
+	buttonList.at(bookmarkNightmare).draw(*window);
+
+	if (currentPage == 0)
+	{
+		buttonList.at(bookCover).draw(*window);
+		pageGlobalBounds = buttonList.at(bookCover).getGlobalBounds();
+	}
+
+	if (currentPage >= 999)
+		buttonList.at(nextPage).isActive = false;
+	else
+	{
+		buttonList.at(previousPage).isActive = true;
+		buttonList.at(nextPage).draw(*window);
+	}
+	if (currentPage <= 0)
+		buttonList.at(previousPage).isActive = false;
+	else
+	{
+		buttonList.at(previousPage).isActive = true;
+		buttonList.at(previousPage).draw(*window);
+	}
+	//------------------------------
 }
 
 void HeroBook::onMouseDown()
 {
+	if (buttonList.at(bookButtonTag).isSelected(Vector2f(Mouse::getPosition())))
+		changeVisibility();
 	if (buttonList.at(nextPage).isSelected(Vector2f(Mouse::getPosition())))
 		setPage(currentPage + 1);
 	if (buttonList.at(previousPage).isSelected(Vector2f(Mouse::getPosition())) && currentPage > 0)
 		setPage(currentPage - 1);
 	if (buttonList.at(bookmarkMobs).isSelected(Vector2f(Mouse::getPosition())))
-		setPage(1);
+		setPage(901);
 	if (buttonList.at(bookmarkItems).isSelected(Vector2f(Mouse::getPosition())))
-		setPage(2);
+		setPage(902);
 	if (buttonList.at(bookmarkHerbs).isSelected(Vector2f(Mouse::getPosition())))
-		setPage(3);
+		setPage(903);
 	if (buttonList.at(bookmarkWreathes).isSelected(Vector2f(Mouse::getPosition())))
-		setPage(4);
+		setPage(904);
 	if (buttonList.at(bookmarkNightmare).isSelected(Vector2f(Mouse::getPosition())))
-		setPage(10);
+		setPage(905);
 }

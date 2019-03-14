@@ -24,10 +24,10 @@ protected:
 public:	
 	BuildSystemMaker();
 	~BuildSystemMaker();
-	void inventoryBounding(std::vector<std::pair <int, int>>& inventory);
+	void inventoryBounding(std::vector<std::reference_wrapper<HeroBag>> bags);
 	typedef std::vector<std::pair <int, int>> datatype;
 	datatype blankref;
-	std::reference_wrapper<datatype> currentInventory = blankref;
+	std::vector<std::reference_wrapper<HeroBag>> boundBags;
 
 	void Init(const std::unordered_map<int, cell>& itemsSpriteList);
 	void draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f cameraPosition, std::vector<WorldObject*> visibleItems, bool showPositioning = true);
@@ -39,14 +39,14 @@ public:
 	void setCurrentObject(int n) { currentObject = n; }
 	void wasPlaced();
 	int getBuiltObjectType();
-	Vector2f buildingPosition;
+	Vector2f buildingPosition = {-1, -1};
 	bool canAfford();
 	bool succesInit = false;
 	bool getIsBuilding() { return isBuilding; }
 	bool getUsedMouse() { return usedMouse; }
 	bool canBePlaced = false;
 	int selectedObject = -1;
-	void setHeldItem(std::pair<int, int>& heldItem) { this->heldItem = &heldItem; }
+	void setHeldItem(std::pair<int, int>& heldItem) { if (nullptr != &heldItem) this->heldItem = &heldItem; }
 private:	
 	std::unordered_map<int, cell> craftIngredientsSpriteList;
 	std::pair<int, int> *heldItem = nullptr;

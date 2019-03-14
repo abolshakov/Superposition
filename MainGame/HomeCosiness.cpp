@@ -45,7 +45,7 @@ int HomeCosiness::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string HomeCosiness::getSpriteName(long long elapsedTime)
+void HomeCosiness::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/homeCosiness/homeCosiness" + std::to_string(typeOfObject) + ".png";
+	//return "Game/worldSprites/terrainObjects/homeCosiness/homeCosiness" + std::to_string(typeOfObject) + ".png";
 }

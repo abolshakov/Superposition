@@ -16,7 +16,16 @@ void Grass::setType(int typeOfObject)
 		return;
 
 	this->typeOfObject = typeOfObject;
-	this->conditionalSizeUnits = Vector2i (150, 150);
+	if (typeOfObject == 1)
+		conditionalSizeUnits = Vector2i(252, 208);
+	if (typeOfObject == 2)
+		conditionalSizeUnits = Vector2i(192, 140);
+	if (typeOfObject == 3)
+		conditionalSizeUnits = Vector2i(240, 192);
+	if (typeOfObject == 4)
+		conditionalSizeUnits = Vector2i(244, 196);
+	if (typeOfObject == 5)
+		conditionalSizeUnits = Vector2i(148, 156);
 }
 
 Vector2i Grass::calculateTextureOffset()
@@ -40,7 +49,12 @@ int Grass::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Grass::getSpriteName(long long elapsedTime)
+void Grass::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/grass/grass" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement grassBody;
+	grassBody.path = "Game/worldSprites/terrainObjects/grass/grass" + std::to_string(typeOfObject) + ".png";
+	grassBody.size = Vector2f(conditionalSizeUnits);
+	grassBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(grassBody);
 }

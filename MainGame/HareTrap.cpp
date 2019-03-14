@@ -45,7 +45,7 @@ int HareTrap::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string HareTrap::getSpriteName(long long elapsedTime)
+void HareTrap::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/hareTrap/hareTrap" + std::to_string(typeOfObject) + ".png";
+	//return "Game/worldSprites/terrainObjects/hareTrap/hareTrap" + std::to_string(typeOfObject) + ".png";
 }

@@ -47,8 +47,13 @@ int BonefireOfInsight::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string BonefireOfInsight::getSpriteName(long long elapsedTime)
+void BonefireOfInsight::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/bonefireOfInsight/bonefireOfInsight" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement bonfireBody;
+	bonfireBody.path = "Game/worldSprites/terrainObjects/bonefireOfInsight/bonefireOfInsight" + std::to_string(typeOfObject) + ".png";
+	bonfireBody.size = Vector2f(conditionalSizeUnits);
+	bonfireBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(bonfireBody);
 	//light->_emissionSprite.setPosition(Vector2f (Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2));
 }

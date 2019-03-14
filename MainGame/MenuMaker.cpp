@@ -12,25 +12,36 @@ MenuMaker::MenuMaker()
 
 void MenuMaker::initButtons()
 {
-	screenSize = Helper::GetScreenSize();
+	Vector2f screenSize = Helper::GetScreenSize();
 
-	std::string buttonImagePath;
-	Vector2f buttonPosition, buttonScale; // in percents
+	std::string buttonImagePathDefault, buttonImagePathPressed, buttonImagePathSelected;
+	Vector2f buttonPosition, buttonSize; // in percents
 	int tag;
 	bool isSelectable;
 
 	std::ifstream fin(buttonsInfoFileDirectory);
-	while (fin >> buttonImagePath >> buttonPosition.x >> buttonPosition.y >> buttonScale.y >> isSelectable >> tag)
+
+
+	while (fin >> isSelectable)
 	{
-		Texture buttonTexture;
-		buttonTexture.loadFromFile(buttonImagePath);
+		if (isSelectable)
+			fin >> buttonImagePathDefault >> buttonImagePathPressed >> buttonImagePathSelected;
+		else
+			fin >> buttonImagePathDefault;
+
+		fin >> buttonPosition.x >> buttonPosition.y >> buttonSize.y >> tag;
+
+		Texture buttonTextureDefault, buttonTexturePressed, buttonTextureSelected;
+		buttonTextureDefault.loadFromFile(buttonImagePathDefault);
+		buttonTexturePressed.loadFromFile(buttonImagePathPressed);
+		buttonTextureSelected.loadFromFile(buttonImagePathSelected);
 
 		buttonPosition.x = buttonPosition.x * screenSize.x / 100;
 		buttonPosition.y = buttonPosition.y * screenSize.y / 100;
-		buttonScale.y = buttonScale.y * screenSize.y / 100;
-		buttonScale.x = buttonScale.y * (buttonTexture.getSize().x / buttonTexture.getSize().y);
-		
-		buttonList[ButtonTag(tag)].initialize(buttonTexture, buttonPosition, buttonScale, isSelectable, ButtonTag(tag));
+		buttonSize.y = buttonSize.y * screenSize.y / 100;
+		buttonSize.x = buttonTextureDefault.getSize().x * buttonSize.y / buttonTextureDefault.getSize().y;
+
+		buttonList[ButtonTag(tag)].initialize(buttonTextureDefault, buttonTexturePressed, buttonTextureSelected, buttonPosition, buttonSize, isSelectable, ButtonTag(tag));
 	}
 
 	fin.close();
@@ -59,9 +70,6 @@ void MenuMaker::onKeyDown(Event event, World &world)
 
 void MenuMaker::interact(World &world, RenderWindow &window)
 {
-	if (menuState == closed)
-		return;
-
 	wasActive = false;
 
 	Vector2f mousePos = (Vector2f )Mouse::getPosition();
@@ -122,27 +130,41 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 
 		return;
 	}
+
+	/*if (menuState == closed)
+	{
+		if (buttonList.at(openMenu).isSelected(mousePos))
+		{
+			menuState = gameMenu;
+			wasActive = true;
+			return;
+		}
+	}*/
 }
 
 void MenuMaker::drawButtons(RenderWindow &window)
 {
 	if (menuState == mainMenu)
 	{
-		buttonList[newRunTag].draw(window);
-		buttonList[continueTag].draw(window);
-		buttonList[settingsTag].draw(window);
-		buttonList[exitTag].draw(window);
-
+		buttonList.at(newRunTag).draw(window);
+		buttonList.at(continueTag).draw(window);
+		buttonList.at(settingsTag).draw(window);
+		buttonList.at(exitTag).draw(window);
 		return;
 	}
 
 	if (menuState == gameMenu)
 	{
-		buttonList[newRunTag].draw(window);
-		buttonList[continueTag].draw(window);
-		buttonList[settingsTag].draw(window);
-		buttonList[menuTag].draw(window);
+		buttonList.at(newRunTag).draw(window);
+		buttonList.at(continueTag).draw(window);
+		buttonList.at(settingsTag).draw(window);
+		buttonList.at(menuTag).draw(window);
+		return;
+	}
 
+	if (menuState == closed)
+	{
+		//buttonList.at(openMenu).draw(window);
 		return;
 	}
 }

@@ -25,6 +25,18 @@ int Helper::getFps()
 	return 0;
 }
 
+std::pair<float, float> Helper::solveSqr(float a, float b, float c)
+{
+	float discr = b * b - 4 * a*c;
+	float firstRoot = (-b + sqrt(discr)) / (2 * a);
+	float secondRoot = (-b - sqrt(discr)) / (2 * a);
+
+	if (discr < 0)
+		return std::make_pair(-0.1111122f, -0.1111122f);
+	return std::make_pair(firstRoot, secondRoot);
+}
+
+
 void Helper::drawText(std::string text, int size, int Posx, int Posy, RenderWindow *window)
 {
 	Font font;

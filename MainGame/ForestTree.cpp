@@ -17,29 +17,29 @@ void ForestTree::setType(int typeOfObject)
 {
 	this->typeOfObject = typeOfObject;
 	if (typeOfObject == 1)
-		conditionalSizeUnits = Vector2i (500, 800);
+		conditionalSizeUnits = Vector2i (481, 738);
 	if (typeOfObject == 2)
-		conditionalSizeUnits = Vector2i (500, 800);
+		conditionalSizeUnits = Vector2i (578, 763);
 	if (typeOfObject == 3)
-		conditionalSizeUnits = Vector2i (500, 800);
+		conditionalSizeUnits = Vector2i (606, 926);
 	if (typeOfObject == 4)
-		conditionalSizeUnits = Vector2i (400, 800);
+		conditionalSizeUnits = Vector2i (581, 927);
 	if (typeOfObject == 5)
-		conditionalSizeUnits = Vector2i (300, 800);
+		conditionalSizeUnits = Vector2i (344, 904);
 	if (typeOfObject == 6)
-		conditionalSizeUnits = Vector2i (500, 800);
+		conditionalSizeUnits = Vector2i (379, 745);
 	if (typeOfObject == 7)
-		conditionalSizeUnits = Vector2i (350, 800);
+		conditionalSizeUnits = Vector2i (418, 1102);
 	if (typeOfObject == 8)
-		conditionalSizeUnits = Vector2i (400, 800);
+		conditionalSizeUnits = Vector2i (415, 1005);
 	if (typeOfObject == 9)
-		conditionalSizeUnits = Vector2i (350, 800);
+		conditionalSizeUnits = Vector2i (328, 851);
 	if (typeOfObject == 10)
-		conditionalSizeUnits = Vector2i(560, 800);
+		conditionalSizeUnits = Vector2i(693, 1004);
 	if (typeOfObject == 11)
-		conditionalSizeUnits = Vector2i(540, 800);
+		conditionalSizeUnits = Vector2i(673, 1032);
 	if (typeOfObject == 12)
-		conditionalSizeUnits = Vector2i(800, 800);
+		conditionalSizeUnits = Vector2i(1054, 961);
 }
 
 Vector2i ForestTree::calculateTextureOffset()
@@ -177,25 +177,31 @@ int ForestTree::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string ForestTree::getSpriteName(long long elapsedTime)
+void ForestTree::prepareSpriteNames(long long elapsedTime)
 {
-	std::string spriteName;
+    additionalSprites.clear();
+    spriteChainElement treeBody;
+	treeBody.size = Vector2f(conditionalSizeUnits);
+	treeBody.offset = Vector2f(textureBoxOffset);
 
 	switch (state)
 	{
 		case common:
 		{
-			return "Game/worldSprites/terrainObjects/forestTree/forestTree" + std::to_string(typeOfObject) + ".png";
-			break;
+            animationLength = 1;
+            treeBody.path = "Game/worldSprites/terrainObjects/forestTree/forestTree" + std::to_string(typeOfObject) + ".png";
+            break;
 		}
 		case absorbed:
 		{
 			animationLength = 15;
-			spriteName = "Game/worldSprites/terrainObjects/forestTree/forestTree" + std::to_string(typeOfObject) + ".png";
+			treeBody.path = "Game/worldSprites/terrainObjects/forestTree/forestTree" + std::to_string(typeOfObject) + ".png";
 			transparensy = 100 - currentSprite * 100 / animationLength;
 			break;
 		}
 	}
+
+    additionalSprites.push_back(treeBody);
 
 	timeForNewSprite += elapsedTime;
 
@@ -213,6 +219,4 @@ std::string ForestTree::getSpriteName(long long elapsedTime)
 			currentSprite = 1;
 		}
 	}
-
-	return spriteName;
 }

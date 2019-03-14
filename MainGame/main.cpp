@@ -31,14 +31,13 @@ int main() {
 	int currentMouseButton = 0;
 
 	HeroBook mainBook;
-	mainBook.worldBinding(&world);
 
 	TextWriter textWriter;
 
 	while (mainWindow.isOpen())
 	{
 		Event event;
-		
+
 		while (mainWindow.pollEvent(event))
 		{					
 			if (Mouse::isButtonPressed(Mouse::Left))
@@ -89,16 +88,18 @@ int main() {
 		{		
 			mainWindow.clear(Color::White);
 			menuSystem.drawButtons(mainWindow);
-			mainWindow.display();			
+			mainWindow.display();
+
+			interactClock.restart();
+			drawClock.restart();
 			continue;
 		}	 	
-			
+
 		if (windowFocus && menuSystem.getState() != gameMenu)
 		{
 			interactTime = interactClock.getElapsedTime().asMicroseconds();
-
 			interactClock.restart();
-
+			
 			drawTime = drawClock.getElapsedTime().asMicroseconds();
 			drawClock.restart();
 
@@ -109,38 +110,38 @@ int main() {
 
 			world.draw(mainWindow, drawTime);
 			world.runBuildSystemDrawing(mainWindow, drawTime);
-			mainBook.draw(&mainWindow, drawTime);
+			mainBook.draw(&mainWindow, world.focusedObject->getHealthPoint() / world.focusedObject->getMaxHealthPointValue(), drawTime);
 			world.runInventorySystemDrawing(mainWindow, drawTime);
 		}	
 		else
 		{
 			world.draw(mainWindow, 0);
-			menuSystem.drawButtons(mainWindow);
+
 			interactClock.restart();
 			drawClock.restart();
 		}
 
+		menuSystem.drawButtons(mainWindow);
+
 		auto hero = dynamic_cast<DynamicObject*>(world.focusedObject);
 
-		if (hero->getHealthPoint() <= 0)
+		//textWriter.drawString(std::to_string(menuSystem.getState()), NormalFont, 30, 200, 200, &mainWindow);
+
+		/*if (hero->getHealthPoint() <= 0)
 		{
 			menuSystem.setState(mainMenu);
-		}
+		}*/
 
-		RectangleShape healthRect(Vector2f(int(hero->getHealthPoint() / hero->getMaxHealthPointValue() * screenSize.x / 4), screenSize.y * 1 / 20));
-		healthRect.setPosition(Vector2f(screenSize.x / 2 - screenSize.x / 8, screenSize.y * 9 / 10));
-		healthRect.setFillColor(Color(184, 37, 37));
-		mainWindow.draw(healthRect);
-
-		Sprite testS;
+		/*Sprite testS;
 		Texture testT;
 		for (int i = 0; i < 100; i++)
 		{
 			testT.loadFromFile("Game/heroBook/Sprites/nightmareBlock.png");
 			testS.setTexture(testT);
 			mainWindow.draw(testS);
-		}
+		}*/
 
+		Helper::drawText(std::to_string(world.focusedObject->getCurrentAction()), 30, 200, 200, &mainWindow);
 
 		mainWindow.display();
 	}

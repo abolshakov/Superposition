@@ -25,8 +25,6 @@
 
 using namespace sf;
 
-enum StaticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13, brazier = 14, yarrow = 15, hareTrap = 16, rock = 17, fence = 18, stump = 19 };
-enum DynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3, hare = 4 };
 enum Biomes {highGrass = 1, mud = 2, grassWithFlowers = 3 };
 
 typedef void(*LPSEARCHFUNC)(LPCTSTR lpszFileName, std::unordered_map<std::string, BoardSprite> &spriteMap);
@@ -58,7 +56,7 @@ private:
 	std::shared_ptr<ltbl::LightPointEmission> brightner;
 
 	//hero
-	const std::string heroTextureName = "Game/worldSprites/hero/stand/down/1.png";
+	const std::string heroTextureName = "Game/worldSprites/hero/move/body/down/1.png";
 	bool isHeroBookVisible = false;
 
 	//world base
@@ -158,6 +156,7 @@ public:
 	//events
 	void onMouseDownInteract(int currentMouseButton);
 	bool getHeroBookVisability() { return isHeroBookVisible; }
+	void changeBookVisability() { isHeroBookVisible = !isHeroBookVisible; }
 
 	Vector2i currentTransparentPos = Vector2i(0, 0);
 };

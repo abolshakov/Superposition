@@ -3,6 +3,7 @@
 #define DEERCHANT_H
 
 #include "DynamicObject.h"
+#include "HeroBag.h"
 #include "World.h"
 
 using namespace sf;
@@ -12,7 +13,6 @@ class Deerchant : public DynamicObject
 private:
 	void setHitDirection();
 	float energy, maxEnergyValue, energyForSpecial;	
-	
 public:	
 	Deerchant(std::string objectName, Vector2f centerPosition);
 	~Deerchant();
@@ -28,7 +28,7 @@ public:
 	//draw
 	std::string nameOfFile;
 	Vector2i calculateTextureOffset() override;
-	std::string getSpriteName(long long elapsedTime) override;
+	void prepareSpriteNames(long long elapsedTime) override;
 	//control
 	void handleInput() override;		
 	void behaviorWithDynamic(DynamicObject& target, float elapsedTime) override;
@@ -36,8 +36,15 @@ public:
 	void behavior(float elapsedTime) override;
 	void onMouseDownBehavior(WorldObject *object, Vector2f mouseWorldPos, bool isBuilding = false);
 	void setTarget(DynamicObject& object) override;
+	void endingPreviousAction();
+	void stopping(bool doStand = false, bool forgetSelectedTarget = false);
+	//jerk
+	void jerk(float power, float deceleration, Vector2f destinationPoint = Vector2f(-1, -1)) override;
+	void jerkInteract(float elapsedTime);
+
 	Vector2f getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition) override;
 	int getBuildType(Vector2f ounPos, Vector2f otherPos) override;
+	std::vector<HeroBag> bags;
 };
 
 #endif

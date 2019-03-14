@@ -55,7 +55,12 @@ int Spawn::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Spawn::getSpriteName(long long elapsedTime)
+void Spawn::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/spawn/spawn" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement spawnBody;
+	spawnBody.path = "Game/worldSprites/terrainObjects/brazier/brazier" + std::to_string(typeOfObject) + ".png";
+	spawnBody.size = Vector2f(conditionalSizeUnits);
+	spawnBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(spawnBody);
 }

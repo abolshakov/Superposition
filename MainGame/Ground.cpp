@@ -36,7 +36,12 @@ int Ground::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Ground::getSpriteName(long long elapsedTime)
+void Ground::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/ground/ground" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement groundBody;
+	groundBody.path = "Game/worldSprites/terrainObjects/ground/ground" + std::to_string(typeOfObject) + ".png";
+	groundBody.size = Vector2f(conditionalSizeUnits);
+	groundBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(groundBody);
 }

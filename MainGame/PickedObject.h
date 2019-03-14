@@ -3,6 +3,7 @@
 #define PICKEDOBJECT_H
 
 #include "TerrainObject.h"
+#include "HeroBag.h"
 
 class PickedObject : public TerrainObject
 {
@@ -12,7 +13,7 @@ protected:
 public:
 	PickedObject::PickedObject(std::string objectName, Vector2f centerPosition);
 	virtual ~PickedObject();
-	bool pickUp(std::vector<std::pair <int, int>>& inventory);
+	bool pickUp(std::vector<HeroBag> *bags);
 	int getId() { return id; }
 	int getCount() { return count; }
 };

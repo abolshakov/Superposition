@@ -12,6 +12,7 @@
 #include "MushroomsOnStone.h"
 #include "Chamomile.h"
 #include "Yarrow.h"
+#include "Mugwort.h"
 #include "Brazier.h"
 #include "HareTrap.h"
 #include "Fence.h"
@@ -21,6 +22,8 @@
 #include "Deerchant.h"
 #include "Wolf.h"
 #include "Hare.h"
+#include "Deer.h"
+#include "OwlBoss.h"
 
 using namespace sf;
 
@@ -28,7 +31,7 @@ World::World(int width, int height) : focusedObject(nullptr)
 {
 	timeAfterSave = 60000000;
 	timeForNewSave = 0;
-	blockSize = Vector2i (1000, 1000); //conditionalSizeUnits
+	blockSize = Vector2i(1000, 1000); //conditionalSizeUnits
 	microblockSize = Vector2i(100, 100);
 	initSpriteMap();
 	scaleFactor = getScaleFactor();
@@ -43,7 +46,7 @@ World::World(int width, int height) : focusedObject(nullptr)
 	for (int i = 0; i < 100; i++)
 		for (int j = 0; j < 100; j++)
 		{
-			biomeMatrix[i][j].biomeCell = highGrass;
+			biomeMatrix[i][j].biomeCell = mud;
 		}
 }
 
@@ -93,34 +96,34 @@ void World::initShaders()
 
 void World::setScaleFactor(int delta)
 {
-	if (delta == -1 && scaleFactor >= 0.75 * mainScale)
+	if (delta == -1 && scaleFactor >= 0.9 * mainScale)
 	{
 		scaleFactor -= 0.01;
 		scaleDecrease = -0.03;
 	}
 	else
-		if (delta == 1 && scaleFactor <= 1.5 * mainScale)
+		if (delta == 1 && scaleFactor <= 1.7 * mainScale)
 		{
 			scaleFactor += 0.01;
 			scaleDecrease = 0.03;
 		}
 
-	if (scaleDecrease < 0 && scaleFactor <= 0.75 * mainScale)
-		scaleFactor = 0.75 * mainScale;
-	if (scaleDecrease > 0 && scaleFactor >= 1.5 * mainScale)
-		scaleFactor = 1.5 * mainScale;
+	if (scaleDecrease < 0 && scaleFactor <= 0.9 * mainScale)
+		scaleFactor = 0.9 * mainScale;
+	if (scaleDecrease > 0 && scaleFactor >= 1.7 * mainScale)
+		scaleFactor = 1.7 * mainScale;
 }
 
 void World::scaleSmoothing()
 {
 	if (abs(scaleDecrease) >= 0.02 && timeForScaleDecrease >= 30000)
 	{
-		if (scaleFactor != 0.75 * mainScale && scaleFactor != 1.5 * mainScale)
+		if (scaleFactor != 0.9 * mainScale && scaleFactor != 1.7 * mainScale)
 			scaleFactor += scaleDecrease;
-		if (scaleDecrease < 0 && scaleFactor <= 0.75 * mainScale)
-			scaleFactor = 0.75 * mainScale;
-		if (scaleDecrease > 0 && scaleFactor >= 1.5 * mainScale)
-			scaleFactor = 1.5 * mainScale;
+		if (scaleDecrease < 0 && scaleFactor <= 0.9 * mainScale)
+			scaleFactor = 0.9 * mainScale;
+		if (scaleDecrease > 0 && scaleFactor >= 1.7 * mainScale)
+			scaleFactor = 1.7 * mainScale;
 
 		if (scaleDecrease < 0)
 		{
@@ -139,7 +142,7 @@ void World::scaleSmoothing()
 
 float World::getScaleFactor()
 {
-	auto heroHeight = Vector2f (spriteMap[heroTextureName].texture.getSize()).y;
+	auto heroHeight = Vector2f(spriteMap[heroTextureName].texture.getSize()).y;
 	auto screenHeight = Helper::GetScreenSize().y;
 	auto ratio = heroHeight / float(screenHeight);
 
@@ -253,7 +256,7 @@ void World::initLightSystem(RenderWindow &window)
 {
 	view = window.getDefaultView();
 
-	contextSettings.antialiasingLevel = 8;// Включить сглаживание.
+	contextSettings.antialiasingLevel = 8;// ¬ключить сглаживание.
 
 	penumbraTexture.loadFromFile("data/penumbraTexture.png");
 	penumbraTexture.setSmooth(true);
@@ -401,6 +404,12 @@ void World::initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosit
 		nameOfImage = "Game/worldSprites/terrainObjects/stump/stump";
 		break;
 	}
+	case 41:
+	{
+		item = new Mugwort("item", Vector2f(0, 0), -1);
+		nameOfImage = "Game/worldSprites/terrainObjects/mugwort/mugwort";
+		break;
+	}
 	default:
 	{
 		item = new Spawn("item", Vector2f(0, 0), -1);
@@ -416,8 +425,8 @@ void World::initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosit
 			return;
 		}
 
-	int currentType = itemType == -1 
-		? currentType = rand() % item->getVarietyOfTypes() + 1 
+	int currentType = itemType == -1
+		? currentType = rand() % item->getVarietyOfTypes() + 1
 		: currentType = itemType;
 
 	nameOfImage += std::to_string(currentType) + ".png";
@@ -432,12 +441,12 @@ void World::initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosit
 	item->setPosition(Vector2f(itemPosition));
 	item->setType(currentType);
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
-	auto textureSize = Vector2f (int(textureBounds.width), int(textureBounds.height));
+	auto textureSize = Vector2f(int(textureBounds.width), int(textureBounds.height));
 	item->setTextureSize(textureSize);
 
 	//for bias positioning
 	auto spriteLeft = float((item->getPosition().x - cameraPosition.x - item->getTextureOffset().x) * scaleFactor + Helper::GetScreenSize().x / 2);
-	auto spriteTop = float((item->getPosition().y - cameraPosition.y + (item->getTextureSize().y - item->getTextureOffset().y)) * scaleFactor + Helper::GetScreenSize().y / 2);	
+	auto spriteTop = float((item->getPosition().y - cameraPosition.y + (item->getConditionalSizeUnits().y - item->getTextureOffset().y)) * scaleFactor + Helper::GetScreenSize().y / 2);
 
 	staticGrid.addItem(item, name, int(itemPosition.x), int(itemPosition.y));
 }
@@ -449,38 +458,50 @@ void World::initializeDynamicItem(DynamicItemsIdList itemClass, Vector2f itemPos
 
 	switch (itemClass)
 	{
-		case 1:
-		{
-			item = new Deerchant("item", Vector2f(0, 0));
-			nameOfImage = "Game/worldSprites/hero/stand/down/1";
-			focusedObject = item;
-			cameraPosition = Vector2f(itemPosition);
-			break;
-		}
-		case 2:
-		{
-			item = new Monster("item", Vector2f(0, 0));
-			nameOfImage = "Game/worldSprites/hare/stand/down/1";
-			break;
-		}
-		case 3:
-		{
-			item = new Wolf("item", Vector2f(0, 0));
-			nameOfImage = "Game/worldSprites/wolf/stand/down/1";
-			break;
-		}
-		case 4:
-		{
-			item = new Hare("item", Vector2f(0, 0));
-			nameOfImage = "Game/worldSprites/hare/stand/down/1";
-			break;
-		}
-		default:
-		{
-			item = new Monster("item", Vector2f(0, 0));
-			nameOfImage = "Game/enemy/enemyF_0";
-			break;
-		}
+	case 1:
+	{
+		item = new Deerchant("item", Vector2f(0, 0));
+		nameOfImage = "Game/worldSprites/hero/stand/down/1";
+		focusedObject = item;
+		cameraPosition = Vector2f(itemPosition);
+		break;
+	}
+	case 2:
+	{
+		item = new Monster("item", Vector2f(0, 0));
+		nameOfImage = "Game/worldSprites/hare/stand/down/1";
+		break;
+	}
+	case 3:
+	{
+		item = new Wolf("item", Vector2f(0, 0));
+		nameOfImage = "Game/worldSprites/wolf/stand/down/1";
+		break;
+	}
+	case 4:
+	{
+		item = new Hare("item", Vector2f(0, 0));
+		nameOfImage = "Game/worldSprites/hare/stand/down/1";
+		break;
+	}
+    case 5:
+	{
+		item = new Deer("item", Vector2f(0, 0));
+		nameOfImage = "Game/worldSprites/deer/stand/down/1";
+		break;
+	}
+	case 20:
+	{
+		item = new OwlBoss("item", Vector2f(0, 0));
+		nameOfImage = "Game/worldSprites/owlBoss/stand/down/1";
+		break;
+	}
+	default:
+	{
+		item = new Monster("item", Vector2f(0, 0));
+		nameOfImage = "Game/enemy/enemyF_0";
+		break;
+	}
 	}
 
 	nameOfImage += ".png";
@@ -492,7 +513,7 @@ void World::initializeDynamicItem(DynamicItemsIdList itemClass, Vector2f itemPos
 	item->setName(name);
 	item->setPosition(Vector2f(itemPosition));
 	auto textureBounds = spriteMap[nameOfImage].sprite.getGlobalBounds();
-	auto textureSize = Vector2f (int(textureBounds.width), int(textureBounds.height));
+	auto textureSize = Vector2f(int(textureBounds.width), int(textureBounds.height));
 	item->setTextureSize(textureSize);
 
 	dynamicGrid.addItem(item, name, int(itemPosition.x), int(itemPosition.y));
@@ -504,23 +525,23 @@ void World::Load()
 	dynamicGrid = GridList<DynamicObject>(this->width, this->height, blockSize, microblockSize);
 
 	//
-	initializeStaticItem(tree, Vector2f (0, 0), 1, "_forestTree1", 1);
-	initializeStaticItem(spawn, Vector2f (0, 0), 1, "_spawn1", 1);
-	initializeStaticItem(grass, Vector2f (0, 0), 1, "_grass1", 1);
-	initializeStaticItem(ground, Vector2f (0, 0), 1, "_ground1", 1);
-	initializeStaticItem(groundConnection, Vector2f (0, 0), 1, "_groundConnection1", 1);
-	initializeStaticItem(bonefireOfInsight, Vector2f (0, 0), 1, "_bonefireOfInsight1", 1);
-	initializeStaticItem(homeCosiness, Vector2f (0, 0), 1, "_homeCosiness1", 1);
-	initializeStaticItem(mushroomStone, Vector2f (0, 0), 1, "_mushroomStone1", 1);
-	initializeStaticItem(mushroomsOnStone, Vector2f (0, 0), 1, "_mushroomsOnStone1", 1);
-	initializeStaticItem(chamomile, Vector2f (0, 0), 1, "_chamomile1", 1);
-	initializeStaticItem(chamomile, Vector2f (0, 0), 1, "_yarrow1", 1);
-	initializeStaticItem(brazier, Vector2f (0, 0), 1, "_brazier1", 1);
-	initializeStaticItem(hareTrap, Vector2f (0, 0), 1, "_hareTrap1", 1);
-	initializeStaticItem(fence, Vector2f (0, 0), 1, "_fence1", 1);
-	initializeStaticItem(fence, Vector2f (0, 0), 2, "_fence2", 1);
-	initializeStaticItem(fence, Vector2f (0, 0), 3, "_fence3", 1);
-	initializeStaticItem(fence, Vector2f (0, 0), 4, "_fence4", 1);
+	initializeStaticItem(tree, Vector2f(0, 0), 1, "_forestTree1", 1);
+	initializeStaticItem(spawn, Vector2f(0, 0), 1, "_spawn1", 1);
+	initializeStaticItem(grass, Vector2f(0, 0), 1, "_grass1", 1);
+	initializeStaticItem(ground, Vector2f(0, 0), 1, "_ground1", 1);
+	initializeStaticItem(groundConnection, Vector2f(0, 0), 1, "_groundConnection1", 1);
+	initializeStaticItem(bonefireOfInsight, Vector2f(0, 0), 1, "_bonefireOfInsight1", 1);
+	initializeStaticItem(homeCosiness, Vector2f(0, 0), 1, "_homeCosiness1", 1);
+	initializeStaticItem(mushroomStone, Vector2f(0, 0), 1, "_mushroomStone1", 1);
+	initializeStaticItem(mushroomsOnStone, Vector2f(0, 0), 1, "_mushroomsOnStone1", 1);
+	initializeStaticItem(chamomile, Vector2f(0, 0), 1, "_chamomile1", 1);
+	initializeStaticItem(chamomile, Vector2f(0, 0), 1, "_yarrow1", 1);
+	initializeStaticItem(brazier, Vector2f(0, 0), 1, "_brazier1", 1);
+	initializeStaticItem(hareTrap, Vector2f(0, 0), 1, "_hareTrap1", 1);
+	initializeStaticItem(fence, Vector2f(0, 0), 1, "_fence1", 1);
+	initializeStaticItem(fence, Vector2f(0, 0), 2, "_fence2", 1);
+	initializeStaticItem(fence, Vector2f(0, 0), 3, "_fence3", 1);
+	initializeStaticItem(fence, Vector2f(0, 0), 4, "_fence4", 1);
 	//
 
 	std::ifstream fin("save.txt");
@@ -531,50 +552,53 @@ void World::Load()
 	for (int i = 0; i < num; i++)
 	{
 		fin >> saveName >> posX >> posY;
-	
-		if (saveName == Monster("loadInit", Vector2f(0,0)).getToSaveName())
-			initializeDynamicItem(monster, Vector2f (posX, posY), "");
+
+		if (saveName == Monster("loadInit", Vector2f(0, 0)).getToSaveName())
+			initializeDynamicItem(monster, Vector2f(posX, posY), "");
 		else
 			if (saveName == Deerchant("loadInit", Vector2f(0, 0)).getToSaveName())
-				initializeDynamicItem(hero1, Vector2f (posX, posY), "");
+				initializeDynamicItem(hero1, Vector2f(posX, posY), "");
 			else
 				if (saveName == Wolf("loadInit", Vector2f(0, 0)).getToSaveName())
-					initializeDynamicItem(wolf, Vector2f (posX, posY), "");
+					initializeDynamicItem(wolf, Vector2f(posX, posY), "");
 	}
 
 	fin >> num;
 	for (int i = 0; i < num; i++)
 	{
 		fin >> saveName >> typeOfObject >> posX >> posY;
-	
-		if (saveName == GroundConnection("loadInit", Vector2f (0, 0), typeOfObject).getToSaveName())
-			initializeStaticItem(groundConnection, Vector2f (posX, posY), typeOfObject, "", 1);
+
+		if (saveName == GroundConnection("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
+			initializeStaticItem(groundConnection, Vector2f(posX, posY), typeOfObject, "", 1);
 		else
-			if (saveName == Ground("loadInit", Vector2f (0, 0), typeOfObject).getToSaveName())
-				initializeStaticItem(ground, Vector2f (posX, posY), typeOfObject, "", 1);
+			if (saveName == Ground("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
+				initializeStaticItem(ground, Vector2f(posX, posY), typeOfObject, "", 1);
 			else
-				if (saveName == ForestTree("loadInit", Vector2f (0, 0), typeOfObject).getToSaveName())
-					initializeStaticItem(tree, Vector2f (posX, posY), typeOfObject, "", 1);
+				if (saveName == ForestTree("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
+					initializeStaticItem(tree, Vector2f(posX, posY), typeOfObject, "", 1);
 				else
-					if (saveName == Grass("loadInit", Vector2f (0, 0), typeOfObject).getToSaveName())
-						initializeStaticItem(grass, Vector2f (posX, posY), typeOfObject, "", 1);
+					if (saveName == Grass("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
+						initializeStaticItem(grass, Vector2f(posX, posY), typeOfObject, "", 1);
 					else
-						if (saveName == BonefireOfInsight("loadInit", Vector2f (0, 0), typeOfObject).getToSaveName())
-							initializeStaticItem(bonefireOfInsight, Vector2f (posX, posY), typeOfObject, "", 1);
+						if (saveName == BonefireOfInsight("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
+							initializeStaticItem(bonefireOfInsight, Vector2f(posX, posY), typeOfObject, "", 1);
 						else
-							if (saveName == HomeCosiness("loadInit", Vector2f (0, 0), typeOfObject).getToSaveName())
-								initializeStaticItem(homeCosiness, Vector2f (posX, posY), typeOfObject, "", 1);
+							if (saveName == HomeCosiness("loadInit", Vector2f(0, 0), typeOfObject).getToSaveName())
+								initializeStaticItem(homeCosiness, Vector2f(posX, posY), typeOfObject, "", 1);
 	}
 
 	fin.close();
 
-	std::vector<std::reference_wrapper<std::pair<int, int>>> heroInventory;
-	for (int cnt = 0; cnt < focusedObject->inventory.size(); cnt++)
-	{
-		heroInventory.push_back(focusedObject->inventory[cnt]);
-	}
-	inventorySystem.inventoryBounding(heroInventory);
-	buildSystem.inventoryBounding(focusedObject->inventory);
+	//preparations for the inventory system 
+	std::vector<std::reference_wrapper<HeroBag>> heroBags;
+	auto hero = dynamic_cast<Deerchant*>(dynamicGrid.getItemByName(focusedObject->getName()));
+
+	for (int cnt = 0; cnt < hero->bags.size(); cnt++)
+		heroBags.push_back(hero->bags[cnt]);
+
+	inventorySystem.inventoryBounding(heroBags);
+	//------------------------------------
+	buildSystem.inventoryBounding(heroBags);
 	buildSystem.succesInit = true;
 	buildSystem.succesInit = true;
 
@@ -606,7 +630,7 @@ void World::generate(int objCount)
 {
 	staticGrid = GridList<StaticObject>(this->width, this->height, blockSize, microblockSize);
 	dynamicGrid = GridList<DynamicObject>(this->width, this->height, blockSize, microblockSize);
-	bossSpawnPosition = Vector2f (width / 2, height / 2);
+	bossSpawnPosition = Vector2f(width / 2, height / 2);
 	auto s = float(sqrt(objCount));
 
 	int blocksCount = ceil(width / blockSize.x) * ceil(height / blockSize.y);
@@ -617,43 +641,45 @@ void World::generate(int objCount)
 	}
 
 	//
-	initializeStaticItem(tree, Vector2f (0, 0), 1, "_forestTree1", 1);
-	initializeStaticItem(spawn, Vector2f (0, 0), 1, "_spawn1", 1);
-	initializeStaticItem(grass, Vector2f (0, 0), 1, "_grass1", 1);
-	initializeStaticItem(ground, Vector2f (0, 0), 1, "_ground1", 1);
-	initializeStaticItem(groundConnection, Vector2f (0, 0), 1, "_groundConnection1", 1);
-	initializeStaticItem(bonefireOfInsight, Vector2f (0, 0), 1, "_bonefireOfInsight1", 1);
-	initializeStaticItem(homeCosiness, Vector2f (0, 0), 1, "_homeCosiness1", 1);
-	initializeStaticItem(mushroomStone, Vector2f (0, 0), 1, "_mushroomStone1", 1);
-	initializeStaticItem(mushroomsOnStone, Vector2f (0, 0), 1, "_mushroomsOnStone1", 1);
-	initializeStaticItem(chamomile, Vector2f (0, 0), 1, "_chamomile1", 1);
-	initializeStaticItem(chamomile, Vector2f (0, 0), 1, "_yarrow1", 1);
-	initializeStaticItem(brazier, Vector2f (0, 0), 1, "_brazier1", 1);
-	initializeStaticItem(hareTrap, Vector2f (0, 0), 1, "_hareTrap1", 1);
-	initializeStaticItem(fence, Vector2f (0, 0), 1, "_fence1", 1);
-	initializeStaticItem(fence, Vector2f (0, 0), 2, "_fence2", 1);
-	initializeStaticItem(fence, Vector2f (0, 0), 3, "_fence3", 1);
-	initializeStaticItem(fence, Vector2f (0, 0), 4, "_fence4", 1);
+	initializeStaticItem(tree, Vector2f(0, 0), 1, "_forestTree1", 1);
+	initializeStaticItem(spawn, Vector2f(0, 0), 1, "_spawn1", 1);
+	initializeStaticItem(grass, Vector2f(0, 0), 1, "_grass1", 1);
+	initializeStaticItem(ground, Vector2f(0, 0), 1, "_ground1", 1);
+	initializeStaticItem(groundConnection, Vector2f(0, 0), 1, "_groundConnection1", 1);
+	initializeStaticItem(bonefireOfInsight, Vector2f(0, 0), 1, "_bonefireOfInsight1", 1);
+	initializeStaticItem(homeCosiness, Vector2f(0, 0), 1, "_homeCosiness1", 1);
+	initializeStaticItem(mushroomStone, Vector2f(0, 0), 1, "_mushroomStone1", 1);
+	initializeStaticItem(mushroomsOnStone, Vector2f(0, 0), 1, "_mushroomsOnStone1", 1);
+	initializeStaticItem(chamomile, Vector2f(0, 0), 1, "_chamomile1", 1);
+	initializeStaticItem(yarrow, Vector2f(0, 0), 1, "_yarrow1", 1);
+	initializeStaticItem(brazier, Vector2f(0, 0), 1, "_brazier1", 1);
+	initializeStaticItem(hareTrap, Vector2f(0, 0), 1, "_hareTrap1", 1);
+	initializeStaticItem(fence, Vector2f(0, 0), 1, "_fence1", 1);
+	initializeStaticItem(fence, Vector2f(0, 0), 2, "_fence2", 1);
+	initializeStaticItem(fence, Vector2f(0, 0), 3, "_fence3", 1);
+	initializeStaticItem(fence, Vector2f(0, 0), 4, "_fence4", 1);
 
-	initializeStaticItem(brazier, Vector2f(6200, 4600), 1, "testItem", 1);
-	//initializeDynamicItem(hare, Vector2f (5800, 5600), "testEnemy1");
-	/*initializeDynamicItem(monster, Vector2f(6000, 6100), "testEnemy3");
-	initializeDynamicItem(monster, Vector2f(5800, 5600), "testEnemy4");
+	initializeStaticItem(chamomile, Vector2f(15100, 15000), 1, "testItem", 1);
+	initializeDynamicItem(deer, Vector2f (15100, 15000), "testEnemy1");
+	//initializeDynamicItem(owlBoss, Vector2f(16000, 15000), "testBoss");
+	/*initializeDynamicItem(monster, Vector2f(5800, 5600), "testEnemy4");
 	initializeDynamicItem(monster, Vector2f(6000, 6100), "testEnemy5");*/
 	//initializeDynamicItem(hare, Vector2f (5400, 5500), "testEnemy2");
 	//initializeHero(Vector2f (3800, 4000));
-	initializeDynamicItem(hero1, Vector2f (5800, 4600), "hero1");	
+	initializeDynamicItem(hero1, Vector2f(15000, 15000), "hero1");
 
 	Save();
 
-	std::vector<std::reference_wrapper<std::pair<int, int>>> heroInventory;
+	//preparations for the inventory system 
+	std::vector<std::reference_wrapper<HeroBag>> heroBags;
+	auto hero = dynamic_cast<Deerchant*>(dynamicGrid.getItemByName(focusedObject->getName()));
 
-	for (int cnt = 0; cnt < focusedObject->inventory.size(); cnt++)
-	{		
-		heroInventory.push_back(focusedObject->inventory[cnt]);
-	}
-	inventorySystem.inventoryBounding(heroInventory);
-	buildSystem.inventoryBounding(focusedObject->inventory);
+	for (int cnt = 0; cnt < hero->bags.size(); cnt++)
+		heroBags.push_back(hero->bags[cnt]);
+
+	inventorySystem.inventoryBounding(heroBags);
+	//-------------------------------------
+	buildSystem.inventoryBounding(heroBags);
 	buildSystem.succesInit = true;
 
 	return;
@@ -664,42 +690,48 @@ void World::inBlockGenerate(int blockIndex)
 	if (!canBeRegenerated(blockIndex))
 		return;
 
-	const int blockType = rand() % 20;
+	const int blockType = rand() % 50;
 	int genFactor, genFactorRange;
 
 	switch (blockType)
 	{
-		case 1:
-		{
-			genFactor = 10;
-			genFactorRange = 20;
-			break;
-		}
-		case 2:
-		{
-			genFactor = 10;
-			genFactorRange = 20;
-			break;
-		}
-		default:
-		{
-			genFactor = 20;
-			genFactorRange = 10;
-			break;
-		}
+	case 1:
+	{
+		genFactor = 10;
+		genFactorRange = 20;
+		break;
+	}
+	case 2:
+	{
+		genFactor = 10;
+		genFactorRange = 20;
+		break;
+	}
+	case 3:
+	{
+		genFactor = 10;
+		genFactorRange = 20;
+		break;
+	}
+	default:
+	{
+		genFactor = 20;
+		genFactorRange = 10;
+		break;
+	}
 	}
 
 	staticGrid.clearCell(blockIndex);
 
-	IntRect blockTransform = IntRect(staticGrid.getPointByIndex(blockIndex).x, staticGrid.getPointByIndex(blockIndex).y, Vector2f (blockSize).x, Vector2f (blockSize).y);
-	
+	IntRect blockTransform = IntRect(staticGrid.getPointByIndex(blockIndex).x, staticGrid.getPointByIndex(blockIndex).y, Vector2f(blockSize).x, Vector2f(blockSize).y);
+
 	int groundIndX = staticGrid.getPointByIndex(blockIndex).x / blockSize.x;
 	int groundIndY = staticGrid.getPointByIndex(blockIndex).y / blockSize.y;
-	
+
 	int goundType = (biomeMatrix[groundIndX][groundIndY].biomeCell);
 	biomeMatrix[groundIndX][groundIndY].groundCell = new Ground("ground" + std::to_string(blockIndex), Vector2f(groundIndX * blockSize.x, groundIndY * blockSize.y), goundType);
 	auto textureBounds = spriteMap["Game/worldSprites/terrainObjects/ground/ground1.png"].sprite.getGlobalBounds();
-	auto textureSize = Vector2f (int(textureBounds.width), int(textureBounds.height));
+	auto textureSize = Vector2f(int(textureBounds.width), int(textureBounds.height));
 	biomeMatrix[groundIndX][groundIndY].groundCell->setTextureSize(textureSize);
 	staticGrid.addItem(biomeMatrix[groundIndX][groundIndY].groundCell, biomeMatrix[groundIndX][groundIndY].groundCell->getName(), biomeMatrix[groundIndX][groundIndY].groundCell->getPosition().x, biomeMatrix[groundIndX][groundIndY].groundCell->getPosition().y);
 
@@ -708,9 +740,9 @@ void World::inBlockGenerate(int blockIndex)
 	auto cellSize = biomeMatrix[groundIndX][groundIndY].groundCell->getConditionalSizeUnits();
 
 	initializeStaticItem(groundConnection, Vector2f(connectionPos), (currentType - 1) * 4 + 1, "", 1);
-	initializeStaticItem(groundConnection, Vector2f (connectionPos.x + cellSize.x - 1, connectionPos.y), (currentType - 1) * 4 + 2, "", 1);
+	initializeStaticItem(groundConnection, Vector2f(connectionPos.x + cellSize.x - 1, connectionPos.y), (currentType - 1) * 4 + 2, "", 1);
 	initializeStaticItem(groundConnection, Vector2f(connectionPos), (currentType - 1) * 4 + 3, "", 1);
-	initializeStaticItem(groundConnection, Vector2f (connectionPos.x, connectionPos.y + cellSize.y - 1), (currentType - 1) * 4 + 4, "", 1);
+	initializeStaticItem(groundConnection, Vector2f(connectionPos.x, connectionPos.y + cellSize.y - 1), (currentType - 1) * 4 + 4, "", 1);
 
 	//block filling
 
@@ -720,8 +752,8 @@ void World::inBlockGenerate(int blockIndex)
 	{
 		for (float j = blockTransform.top; j < blockTransform.top + blockTransform.height; j += 250)
 		{
-			Vector2f randomOffset = Vector2f (rand() % 200 - 100, rand() % 200 - 100);
-			auto position = Vector2f (i + randomOffset.x, j + randomOffset.y);
+			Vector2f randomOffset = Vector2f(rand() % 200 - 100, rand() % 200 - 100);
+			auto position = Vector2f(i + randomOffset.x, j + randomOffset.y);
 			if (position.x < 0)
 				position.x = 0;
 			if (position.y < 0)
@@ -734,34 +766,39 @@ void World::inBlockGenerate(int blockIndex)
 			{
 				switch (blockType)
 				{
-					case 1:
-					{
-						initializeStaticItem(yarrow, position, 1, "", 0);
-						break;
-					}
-					case 2:
-					{
-						initializeStaticItem(chamomile, position, 1, "", 0);
-						break;
-					}
-					default:
-					{
-						if (terrainVariety <= 10)
-							initializeStaticItem(tree, position, -1, "", 0);
+				case 1:
+				{
+					initializeStaticItem(yarrow, position, -1, "", 0);
+					break;
+				}
+				case 2:
+				{
+					initializeStaticItem(chamomile, position, -1, "", 0);
+					break;
+				}
+				case 3:
+				{
+					initializeStaticItem(mugwort, position, -1, "", 0);
+					break;
+				}
+				default:
+				{
+					if (terrainVariety <= 10)
+						initializeStaticItem(tree, position, -1, "", 0);
+					else
+						if (terrainVariety <= 13)
+							initializeStaticItem(rock, position, -1, "", 0);
 						else
-							if (terrainVariety <= 15)
-								initializeStaticItem(rock, position, -1, "", 0);
+							if (terrainVariety <= 23)
+								initializeStaticItem(grass, position, -1, "", 0);
 							else
 								if (terrainVariety <= 25)
-									initializeStaticItem(grass, position, -1, "", 0);
-								else
-									if (terrainVariety <= 28)
-										initializeStaticItem(stump, position, -1, "", 0);
-						break;
-					}
-				}						
+									initializeStaticItem(stump, position, -1, "", 0);
+					break;
+				}
+				}
 			}
-			
+
 		}
 	}
 }
@@ -784,9 +821,9 @@ void World::BiomesGenerate(int offset)
 	bottomRightCell.y = std::min(int(height), bottomRightCell.y);
 	//----------------------------
 
-	for (int i = upperLeftCell.x; i <= bottomRightCell.x; i+= roughBiomeSize.x)
+	for (int i = upperLeftCell.x; i <= bottomRightCell.x; i += roughBiomeSize.x)
 	{
-		for (int j = upperLeftCell.y; j <= bottomRightCell.y; j+= roughBiomeSize.y)
+		for (int j = upperLeftCell.y; j <= bottomRightCell.y; j += roughBiomeSize.y)
 		{
 			int currentBiome = rand() % 4 + 1;
 			for (int x = i; x <= i + roughBiomeSize.x + rand() % 2; x++)
@@ -858,7 +895,7 @@ void World::clearWorld()
 void World::setTransparent(std::vector<WorldObject*> visibleItems)
 {
 	mouseDisplayName = "";
-	Vector2f mousePos = Vector2f ((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + cameraPosition.x*scaleFactor) / scaleFactor,
+	Vector2f mousePos = Vector2f((Mouse::getPosition().x - Helper::GetScreenSize().x / 2 + cameraPosition.x*scaleFactor) / scaleFactor,
 		(Mouse::getPosition().y - Helper::GetScreenSize().y / 2 + cameraPosition.y*scaleFactor) / scaleFactor);
 
 	float minCapacity = 10e8f, minDistance = 10e8f;
@@ -866,21 +903,21 @@ void World::setTransparent(std::vector<WorldObject*> visibleItems)
 	for (auto visibleItem : visibleItems)
 	{
 		if (visibleItem->getName() == focusedObject->getName())
-			continue;		
+			continue;
 
 		visibleItem->isTransparent = false;
-		Vector2f itemPos = Vector2f (visibleItem->getPosition().x - visibleItem->getTextureOffset().x, visibleItem->getPosition().y - visibleItem->getTextureOffset().y);
+		Vector2f itemPos = Vector2f(visibleItem->getPosition().x - visibleItem->getTextureOffset().x, visibleItem->getPosition().y - visibleItem->getTextureOffset().y);
 
-		if (mousePos.x >= itemPos.x && mousePos.x <= itemPos.x + visibleItem->getTextureSize().x &&
-			mousePos.y >= itemPos.y && mousePos.y <= itemPos.y + visibleItem->getTextureSize().y)
+		if (mousePos.x >= itemPos.x && mousePos.x <= itemPos.x + visibleItem->getConditionalSizeUnits().x &&
+			mousePos.y >= itemPos.y && mousePos.y <= itemPos.y + visibleItem->getConditionalSizeUnits().y)
 		{
 			visibleItem->isSelected = true;
 		}
 		else
 			visibleItem->isSelected = false;
 
-		if (mousePos.x >= itemPos.x && mousePos.x <= itemPos.x + visibleItem->getTextureSize().x &&
-			mousePos.y >= itemPos.y && mousePos.y <= itemPos.y + visibleItem->getTextureSize().y)
+		if (mousePos.x >= itemPos.x && mousePos.x <= itemPos.x + visibleItem->getConditionalSizeUnits().x &&
+			mousePos.y >= itemPos.y && mousePos.y <= itemPos.y + visibleItem->getConditionalSizeUnits().y)
 		{
 			visibleItem->isVisibleName = true;
 			//float distanceToBounds = abs(mousePos.x - visibleItem->getPosition().x) + abs(mousePos.y - visibleItem->getPosition().y);
@@ -897,33 +934,33 @@ void World::setTransparent(std::vector<WorldObject*> visibleItems)
 
 				switch (visibleItem->tag)
 				{
-					case forestTreeTag:
-					{
-						mouseDisplayName = "Absorb";
-						break;
-					}
-					case chamomileTag:
-					{
-						mouseDisplayName = "Pick up";
-						break;
-					}
-					case yarrowTag:
-					{
-						mouseDisplayName = "Pick up";
-						break;
-					}
-					default:
-					{
-						mouseDisplayName = visibleItem->getToSaveName();
-						break;
-					}
+				case forestTreeTag:
+				{
+					mouseDisplayName = "Absorb";
+					break;
+				}
+				case chamomileTag:
+				{
+					mouseDisplayName = "Pick up";
+					break;
+				}
+				case yarrowTag:
+				{
+					mouseDisplayName = "Pick up";
+					break;
+				}
+				default:
+				{
+					mouseDisplayName = visibleItem->getToSaveName();
+					break;
+				}
 				}
 
 				selectedObject = visibleItem;
 			}
 		}
 
-		if (focusedObject->getPosition().x >= itemPos.x && focusedObject->getPosition().x <= itemPos.x + visibleItem->getTextureSize().x && focusedObject->getPosition().y >= itemPos.y && focusedObject->getPosition().y <= itemPos.y + visibleItem->getTextureOffset().y && visibleItem->isBackground == false)
+		if (focusedObject->getPosition().x >= itemPos.x && focusedObject->getPosition().x <= itemPos.x + visibleItem->getConditionalSizeUnits().x && focusedObject->getPosition().y >= itemPos.y && focusedObject->getPosition().y <= itemPos.y + visibleItem->getConditionalSizeUnits().y && visibleItem->isBackground == false)
 		{
 			visibleItem->isTransparent = true;
 			if (visibleItem->transparensy > 50)
@@ -972,36 +1009,36 @@ void World::onMouseDownInteract(int currentMouseButton)
 		(mousePos.y - Helper::GetScreenSize().y / 2 + cameraPosition.y*scaleFactor) / scaleFactor);
 
 	//if (!buildSystem.getIsBuilding())
-		inventorySystem.onMouseDownInteract();
+	inventorySystem.onMouseDownInteract();
 
 	if (buildSystem.succesInit && !inventorySystem.getUsedMouse()/* && inventorySystem.getHeldItem()->first == -1*/)
 		buildSystem.onMouseDownInteract(focusedObject->getPosition(), scaleFactor);
 
-	if (!inventorySystem.getUsedMouse())
-		buildSystem.buildHeldItem(focusedObject->getPosition(), scaleFactor);
+	//if (!inventorySystem.getUsedMouse())
+		//buildSystem.buildHeldItem(focusedObject->getPosition(), scaleFactor);
 
-	if (mouseDisplayName == ""  || buildSystem.getUsedMouse() || inventorySystem.getUsedMouse() || currentMouseButton == 1)
+	if (mouseDisplayName == "" || buildSystem.getUsedMouse() || inventorySystem.getUsedMouse() || currentMouseButton == 1)
 		selectedObject = nullptr;
 
 	if (currentMouseButton == 2)
 	{
 		auto hero = dynamic_cast<Deerchant*>(dynamicGrid.getItemByName(focusedObject->getName()));
 		hero->onMouseDownBehavior(selectedObject, mouseWorldPos, (buildSystem.buildingPosition != Vector2f(-1, -1)));
-	}	
+	}
 }
 
 void World::setItemFromBuildSystem()
 {
-	if (buildSystem.selectedObject != -1 && buildSystem.buildingPosition != Vector2f (-1, -1))
+	if (buildSystem.selectedObject != -1 && buildSystem.buildingPosition != Vector2f(-1, -1))
 	{
 		initializeStaticItem(StaticItemsIdList(buildSystem.getBuiltObjectType()), buildSystem.buildingPosition, buildSystem.getBuildType(), "", 1);
 
 		if (buildSystem.getIsBuilding())
 			buildSystem.wasPlaced();
 		else
-			inventorySystem.getHeldItem()->second--;
+			inventorySystem.getHeldItem().content.second--;
 
-		buildSystem.buildingPosition = Vector2f (-1, -1);
+		buildSystem.buildingPosition = Vector2f(-1, -1);
 	}
 }
 
@@ -1009,7 +1046,6 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 {
 	scaleSmoothing();
 	timeForScaleDecrease += scaleDecreaseClock.getElapsedTime().asMicroseconds();
-	scaleDecreaseClock.restart();
 
 	const auto extra = staticGrid.getBlockSize();
 	auto screenSize = window.getSize();
@@ -1022,6 +1058,8 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 
 	auto localStaticItems = staticGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y);
 	auto localDynamicItems = dynamicGrid.getItems(worldUpperLeft.x - extra.x, worldUpperLeft.y - extra.y, worldBottomRight.x + extra.x, worldBottomRight.y + extra.y);
+
+	scaleDecreaseClock.restart();
 
 	auto hero = dynamic_cast<Deerchant*>(dynamicGrid.getItemByName(focusedObject->getName()));
 
@@ -1046,23 +1084,27 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 		//--------
 
 		//making route to the desire position
-		if (dynamicItem->getDirection() != STAND)
+		if (dynamicItem->getMovePosition() != Vector2f(-1, -1) && dynamicItem->getRouteGenerationAbility() && dynamicItem->getCurrentAction() != jerking)
 		{
-			dynamicItem->resetTimeForNewRoute();
-			dynamicItem->currentBlock = staticGrid.getMicroblockByPoint(dynamicItem->getPosition().x, dynamicItem->getPosition().y);
-			staticGrid.fillLocalMatrix(dynamicItem->getMovePosition(), dynamicItem->getPosition().x - (int(screenSize.x / 2) + extra.x), dynamicItem->getPosition().y - (int(screenSize.y / 2) + extra.y), dynamicItem->getPosition().x + (int(screenSize.x / 2) + extra.x), dynamicItem->getPosition().y + (int(screenSize.y / 2) + extra.y));
-			staticGrid.makeRoute(dynamicItem->getPosition(), dynamicItem->getMovePosition(), dynamicItem->getPosition().x - (int(screenSize.x / 2) + extra.x), dynamicItem->getPosition().y - (int(screenSize.y / 2) + extra.y), dynamicItem->getPosition().x + (int(screenSize.x / 2) + extra.x), dynamicItem->getPosition().y + (int(screenSize.y / 2) + extra.y));
-			dynamicItem->route = staticGrid.routes[dynamicItem->getMovePosition().x / microblockSize.x][dynamicItem->getMovePosition().y / microblockSize.y];
+
+				dynamicItem->resetTimeAfterNewRoute();
+				dynamicItem->currentBlock = staticGrid.getMicroblockByPoint(dynamicItem->getPosition().x, dynamicItem->getPosition().y);
+				staticGrid.fillLocalMatrix(dynamicItem->getMovePosition(), dynamicItem->getPosition().x - (int(screenSize.x / 2) + extra.x), dynamicItem->getPosition().y - (int(screenSize.y / 2) + extra.y), dynamicItem->getPosition().x + (int(screenSize.x / 2) + extra.x), dynamicItem->getPosition().y + (int(screenSize.y / 2) + extra.y));
+				staticGrid.makeRoute(dynamicItem->getPosition(), dynamicItem->getMovePosition(), dynamicItem->getPosition().x - (int(screenSize.x / 2) + extra.x), dynamicItem->getPosition().y - (int(screenSize.y / 2) + extra.y), dynamicItem->getPosition().x + (int(screenSize.x / 2) + extra.x), dynamicItem->getPosition().y + (int(screenSize.y / 2) + extra.y));
+				dynamicItem->route = staticGrid.routes[dynamicItem->getMovePosition().x / microblockSize.x][dynamicItem->getMovePosition().y / microblockSize.y];
+
 
 			if (dynamicItem->route.size() >= 2)
 			{
 				std::pair<int, int> routeMicroblock = staticGrid.routes[dynamicItem->getMovePosition().x / microblockSize.x][dynamicItem->getMovePosition().y / microblockSize.y][0];
 				std::pair<int, int> curMicroblock = std::make_pair(dynamicItem->getPosition().x / microblockSize.x, dynamicItem->getPosition().y / microblockSize.y);
-				//dynamicItem->changeMovePositionToRoute(Vector2f(routeMicroblock.first * microblockSize.x + microblockSize.x / 2, routeMicroblock.second * microblockSize.y + microblockSize.y / 2));
 				dynamicItem->changeMovePositionToRoute(Vector2f(dynamicItem->getPosition().x + (routeMicroblock.first - curMicroblock.first) * microblockSize.x, dynamicItem->getPosition().y + (routeMicroblock.second - curMicroblock.second) * microblockSize.y));
+				dynamicItem->memorizedRoutePosition = dynamicItem->getMovePosition();
 			}
 		}
-	    //--------
+		//else
+			//dynamicItem->changeMovePositionToRoute(dynamicItem->memorizedRoutePosition);
+		//--------
 
 		auto intersects = false;
 		auto newPosition = dynamicItem->doMove(elapsedTime), savedNewPosition = newPosition;
@@ -1073,7 +1115,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 		newPosition = dynamicItem->doSlipOffDynamic(newPosition, localDynamicItems, height, elapsedTime);
 
 		if (!fixedClimbingBeyond(newPosition))
-			newPosition = dynamicItem->getPosition();		
+			newPosition = dynamicItem->getPosition();
 
 		dynamicItem->behavior(elapsedTime);
 
@@ -1081,7 +1123,7 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 		{
 			dynamicItem->setPosition(newPosition);
 			dynamicGrid.updateItemPosition(dynamicItem->getName(), newPosition.x, newPosition.y);
-		}		
+		}
 	}
 
 	//lightSystemInteract
@@ -1089,14 +1131,10 @@ void World::interact(RenderWindow& window, long long elapsedTime)
 
 	if (focusedObject->getCurrentAction() == builds)
 		setItemFromBuildSystem();	
-	buildSystem.setHeldItem(*inventorySystem.getHeldItem());
-	buildSystem.interact();	
+	//buildSystem.setHeldItem(inventorySystem.getHeldItem()->lootInfo);
+	buildSystem.interact();
+	inventorySystem.interact(elapsedTime);
 	//-------------------
-
-	if (inventorySystem.getHeldItem()->first == 10)
-		isHeroBookVisible = true;
-	else
-		isHeroBookVisible = false;
 
 	//deleting items
 	for (auto item : localStaticItems)
@@ -1128,11 +1166,11 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	const auto extra = staticGrid.getBlockSize();
 
 	auto screenSize = window.getSize();
-	auto screenCenter = Vector2f (screenSize.x / 2, screenSize.y / 2);
+	auto screenCenter = Vector2f(screenSize.x / 2, screenSize.y / 2);
 	cameraPosition.x += (focusedObject->getPosition().x - cameraPosition.x) * (focusedObject->getSpeed() * elapsedTime) / maxCameraDistance.x;
 	cameraPosition.y += (focusedObject->getPosition().y - cameraPosition.y) * (focusedObject->getSpeed() * elapsedTime) / maxCameraDistance.y;
-	worldUpperLeft = Vector2f (int(cameraPosition.x - (screenCenter.x + extra.x) / scaleFactor), int(cameraPosition.y - (screenCenter.y + extra.y) / scaleFactor));
-	worldBottomRight = Vector2f (int(cameraPosition.x + (screenCenter.x + extra.x) / scaleFactor), int(cameraPosition.y + (screenCenter.y + extra.y) / scaleFactor));
+	worldUpperLeft = Vector2f(int(cameraPosition.x - (screenCenter.x + extra.x) / scaleFactor), int(cameraPosition.y - (screenCenter.y + extra.y) / scaleFactor));
+	worldBottomRight = Vector2f(int(cameraPosition.x + (screenCenter.x + extra.x) / scaleFactor), int(cameraPosition.y + (screenCenter.y + extra.y) / scaleFactor));
 
 	if (worldUpperLeft.x < 0)
 		worldUpperLeft.x = 0;
@@ -1159,12 +1197,12 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 	sort(visibleBackground.begin(), visibleBackground.end(), cmpImgDraw);
 	drawVisibleItems(window, elapsedTime, visibleBackground);
 
-	renderLightSystem(view, window);	
-	
+	renderLightSystem(view, window);
+
 	auto visibleDynamicItems = std::vector<WorldObject*>(localDynamicItems.begin(), localDynamicItems.end());
 	visibleTerrain.insert(visibleTerrain.end(), visibleDynamicItems.begin(), visibleDynamicItems.end());
 
-	
+
 	sort(visibleTerrain.begin(), visibleTerrain.end(), cmpImgDraw);
 	setTransparent(visibleTerrain);
 	drawVisibleItems(window, elapsedTime, visibleTerrain);
@@ -1190,7 +1228,9 @@ void World::draw(RenderWindow& window, long long elapsedTime)
 		rec.setFillColor(sf::Color(0, 0, 0, 125));
 		window.draw(rec);
 	}
-	
+
+	//Helper::drawText(std::to_string(focusedObject->getCurrentAction()), 30, 1200, 600, &window);
+
 }
 
 void World::runBuildSystemDrawing(RenderWindow& window, float elapsedTime)
@@ -1218,45 +1258,39 @@ void World::runInventorySystemDrawing(RenderWindow& window, float elapsedTime)
 void World::drawVisibleItems(RenderWindow& window, long long elapsedTime, std::vector<WorldObject*> visibleItems)
 {
 	auto screenSize = window.getSize();
-	auto screenCenter = Vector2f (screenSize.x / 2, screenSize.y / 2);
+	auto screenCenter = Vector2f(screenSize.x / 2, screenSize.y / 2);
 
 	std::vector<std::reference_wrapper<std::pair<int, int>>> dropInventory;
 
 	for (auto worldItem : visibleItems)
 	{
-		auto worldItemPosition = worldItem->getPosition();
-		auto worldTextureOffset = worldItem->getTextureOffset();
-		worldTextureOffset = Vector2i (worldTextureOffset.x * worldItem->getConditionalSizeUnits().x / worldItem->getTextureSize().x, worldTextureOffset.y * worldItem->getConditionalSizeUnits().y / worldItem->getTextureSize().y);
-		auto worldTextureSize = worldItem->getTextureSize();
+		worldItem->prepareSpriteNames(elapsedTime);
 
-		auto spriteLeft = float((worldItemPosition.x - cameraPosition.x - worldTextureOffset.x) * scaleFactor + screenCenter.x);
-		auto spriteTop = float((worldItemPosition.y - cameraPosition.y + (worldItem->getConditionalSizeUnits().y - worldTextureOffset.y)) * scaleFactor + screenCenter.y);
-		//auto spriteRight = float(spriteLeft + worldTextureSize.x * scaleFactor);
-		//auto spriteBottom = float(spriteTop + worldTextureSize.y * scaleFactor);
+		for (auto spriteChainItem : worldItem->getAdditionalSprites())
+		{
+			auto sprite = (&spriteMap[spriteChainItem.path])->sprite;
+			auto worldItemPosition = worldItem->getPosition();
+			auto worldTextureOffset = worldItem->getTextureOffset();
+			worldTextureOffset = Vector2i(worldTextureOffset.x * worldItem->getConditionalSizeUnits().x / worldItem->getConditionalSizeUnits().x, worldTextureOffset.y * worldItem->getConditionalSizeUnits().y / worldItem->getConditionalSizeUnits().y);
 
-		auto sprite = (&spriteMap[worldItem->getSpriteName(elapsedTime)])->sprite;
+			auto spriteLeft = float((worldItemPosition.x - cameraPosition.x - worldTextureOffset.x) * scaleFactor + screenCenter.x);
+			auto spriteTop = float((worldItemPosition.y - cameraPosition.y + (worldItem->getConditionalSizeUnits().y - worldTextureOffset.y)) * scaleFactor + screenCenter.y);
 
-		sprite.setPosition(Vector2f(spriteLeft, spriteTop));
+			sprite.setPosition(Vector2f(spriteLeft, spriteTop));
+			sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
+			sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, 255 * worldItem->transparensy / float(100)));
+			sprite.setRotation(worldItem->getRotation());
 
-		sprite.setOrigin(sprite.getTextureRect().left, sprite.getTextureRect().top + sprite.getTextureRect().height);
+			if (!worldItem->isBackground)
+				sprite.setScale(worldItem->getConditionalSizeUnits().x / sprite.getGlobalBounds().width * scaleFactor, worldItem->getConditionalSizeUnits().y / sprite.getGlobalBounds().height * scaleFactor * pow(scaleFactor, double(1) / 6));
+			else
+				sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor);
 
-		if (!worldItem->isBackground)
-			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor * pow(scaleFactor, double(1) / 6));
-		else
-			sprite.setScale(worldItem->getScaleRatio().x*scaleFactor, worldItem->getScaleRatio().y*scaleFactor);
-
-		sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, 255 * worldItem->transparensy / float(100)));
-
-		sprite.setRotation(worldItem->getRotation());
-
-		if (focusedObject->getCurrentWorldName() == "spirit")
-			window.draw(sprite, &spiritWorldShader);
-		else
-			window.draw(sprite);
-
-		if (worldItem->getInventoryVisibility())		
-			for (int cnt = 0; cnt < worldItem->inventory.size(); cnt++)			
-				dropInventory.push_back(worldItem->inventory[cnt]);					
+			if (focusedObject->getCurrentWorldName() == "spirit")
+				window.draw(sprite, &spiritWorldShader);
+			else
+				window.draw(sprite);
+		}
 	}
 
 	if (dropInventory.size() > 0)

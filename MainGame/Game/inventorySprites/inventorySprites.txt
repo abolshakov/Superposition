@@ -1,6 +1,3 @@
-inventoryCell 0 100
-criticism 1 1
-myPeace 2 4
-chamomile 3 4
-yarrow 4 4
-heroBook 10 1
+bagCell 0.15 0.15 0 100
+chamomile 0.15 0.15 3 4
+yarrow 0.15 0.15 4 4

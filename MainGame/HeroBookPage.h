@@ -28,8 +28,12 @@ private:
 	std::vector<std::vector<std::vector<contentBlock>>> allContentChains;
 	std::unordered_map<ButtonTag, std::reference_wrapper<ButtonMaker>> buttonList;
 	void setBookmarkPosition();
+	void preparePageBase();
 
 	int currentPage = 2;
+	FloatRect pageGlobalBounds;
+	FloatRect blockGlobalBounds, arrowToPageGlobalBounds;
+	Vector2f leftPagePosition, rightPagePosition;
 public:
 	HeroBookPage();
 	~HeroBookPage();

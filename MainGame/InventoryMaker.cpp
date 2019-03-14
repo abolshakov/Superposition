@@ -4,7 +4,8 @@
 
 InventoryMaker::InventoryMaker()
 {
-
+	itemCommonRadius = Helper::GetScreenSize().y / 36;
+	heldItemSpeed = 0.00005f;
 }
 
 InventoryMaker::~InventoryMaker()
@@ -14,11 +15,15 @@ InventoryMaker::~InventoryMaker()
 
 void InventoryMaker::init()
 {
+	heldItem.content = { -1, 0 };
+
+	itemsMaxCount.resize(1000);
 	initSpriteList();
 	font.loadFromFile("fonts/Bebas.ttf");
-	numberOfObjects.setFont(font);
-	numberOfObjects.setCharacterSize(30);
-	numberOfObjects.setFillColor(Color(200, 200, 200, 255));
+	numberOfItems.setFont(font);
+	numberOfItems.setCharacterSize(30);
+	//numberOfItems.setFillColor(Color(200, 200, 200, 255));
+	numberOfItems.setFillColor(Color::White);
 }
 
 void InventoryMaker::initSpriteList()
@@ -26,109 +31,149 @@ void InventoryMaker::initSpriteList()
 	Vector2f screenSize = Helper::GetScreenSize();
 	std::string spriteName;
 	int id, maxCount;
+	Vector2f offset;
 	std::ifstream fin(spritesFileDirectory);
-	while (fin >> spriteName >> id >> maxCount)
+	while (fin >> spriteName >> offset.x >> offset.y >>  id >> maxCount)
 	{
 		cellsSpriteList.insert({ id, cell() });
 		auto itemSprite = &cellsSpriteList[id].sprite;
 		auto itemTexture = &cellsSpriteList[id].texture;
 		itemTexture->loadFromFile("Game/inventorySprites/" + spriteName + ".png");
 		itemSprite->setTexture(*itemTexture);
-		itemsMaxCount.push_back(maxCount);
+		offset.x *= itemCommonRadius * 2;
+		offset.y *= itemCommonRadius * 2;
+		cellsSpriteList[id].offset = offset;
+		itemsMaxCount[id] = maxCount;
 	}
 	fin.close();
 
-	cellSize = Vector2f (screenSize.x / 30, screenSize.x / 30);
-
-	heroInventoryBackgroundTexture.loadFromFile("Game/inventorySprites/box.png");
-	heroInventoryBackgroundSprite.setTexture(heroInventoryBackgroundTexture);
-	heroInventoryBackgroundSprite.setOrigin(0, heroInventoryBackgroundTexture.getSize().y);
-	heroInventoryBackgroundSprite.setPosition(Vector2f(Helper::GetScreenSize().x / 1.5, Helper::GetScreenSize().y));
-	heroInventoryBackgroundSprite.setScale((Helper::GetScreenSize().y / 1.75) / heroInventoryBackgroundTexture.getSize().x, (Helper::GetScreenSize().y / 6) / heroInventoryBackgroundTexture.getSize().y);
-	heroInventoryZoneSize = Vector2f(Helper::GetScreenSize().y / 1.75, Helper::GetScreenSize().y / 6);
+	selectedCellBackground = &cellsSpriteList.at(0).sprite;
+	selectedCellBackground->setScale(itemCommonRadius * 2.6 / cellsSpriteList.at(0).texture.getSize().x, itemCommonRadius * 2.6 / cellsSpriteList.at(0).texture.getSize().y);
+	selectedCellBackground->setColor(Color(selectedCellBackground->getColor().r, selectedCellBackground->getColor().g, selectedCellBackground->getColor().b, 125));
 }
 
-void InventoryMaker::inventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory)
+void InventoryMaker::inventoryBounding(std::vector<std::reference_wrapper<HeroBag>> bags)
 {
-	boundInventory = inventory;
-	heroInventoryCellSize = Vector2f (heroInventoryZoneSize.x / 8, heroInventoryZoneSize.x / 8);
+	boundBags = bags;
+}
+
+void InventoryMaker::interact(float elapsedTime)
+{
+	const Vector2f mousePos = Vector2f(Mouse::getPosition());
+
+	for (auto& bag : boundBags)
+	{
+		if (bag.get().currentState == bagClosed)
+		{
+			const Vector2f selectionZonePos = Vector2f(bag.get().getPosition().x + bag.get().selectionZoneClosedOffset.x,
+				bag.get().getPosition().y + bag.get().selectionZoneClosedOffset.y);
+			if (Helper::getDist(mousePos, selectionZonePos) <= bag.get().selectionZoneRadiusClosed)
+				bag.get().readyToChangeState = true;				
+			else
+				bag.get().readyToChangeState = false;
+		}
+		else
+		if (bag.get().currentState == bagOpen)
+		{
+			const Vector2f selectionZonePos = Vector2f(bag.get().getPosition().x + bag.get().selectionZoneOpenOffset.x,
+				bag.get().getPosition().y + bag.get().selectionZoneOpenOffset.y);
+			if (Helper::getDist(mousePos, selectionZonePos) <= bag.get().selectionZoneRadiusOpen)
+				bag.get().readyToChangeState = true;
+			else
+				bag.get().readyToChangeState = false;
+		}
+	}
+
+	if (heldItem.content.first != -1)
+	{
+		Vector2f shiftVector = Vector2f((Mouse::getPosition().x - heldItem.position.x)*heldItemSpeed*elapsedTime, (Mouse::getPosition().y - heldItem.position.y)*heldItemSpeed*elapsedTime);
+		heldItem.position.x += shiftVector.x; heldItem.position.y += shiftVector.y;
+	}
 }
 
 void InventoryMaker::onMouseDownInteract()
 {
-	if (currentHeroInventoryCell != -1)
+	const Vector2f mousePos = Vector2f(Mouse::getPosition());
+
+	//cell positioning
+	/*for (int i = 0; i < temporaryPositions.size(); i++)
 	{
-		if (heldItem == std::make_pair(-1, -1))
+		if (Helper::getDist(mousePos, temporaryPositions[i].first) <= itemCommonRadius)
 		{
-			if (boundInventory[currentHeroInventoryCell].get().first != 0)
+			temporaryPositions.erase(temporaryPositions.begin() + i);
+			return;
+		}
+	}
+	std::string str1 = std::to_string((Mouse::getPosition().x - boundBags[0].get().getPosition().x) / boundBags[0].get().getSizeOpen().x), 
+	str2 = std::to_string((Mouse::getPosition().y - boundBags[0].get().getPosition().y) / boundBags[0].get().getSizeOpen().y);
+	std::string toSave = str1.substr(0, 5) + " " + str2.substr(0, 5);
+
+	temporaryPositions.push_back({mousePos, toSave});*/
+	//-----------------
+
+	for (auto& bag : boundBags)
+	{
+		if (bag.get().currentState != bagOpen)
+		{
+			if (bag.get().currentState == bagClosed && bag.get().readyToChangeState)
 			{
-				heldItem = boundInventory[currentHeroInventoryCell].get();
-				boundInventory[currentHeroInventoryCell].get() = { 0, 0 };
+				bag.get().currentState = bagOpening;
+				break;
 			}
 		}
 		else
 		{
-			if (boundInventory[currentHeroInventoryCell].get().first == 0)
+			if (bag.get().currentState == bagOpen && bag.get().readyToChangeState)
 			{
-				boundInventory[currentHeroInventoryCell].get() = heldItem;
-				heldItem = std::make_pair(-1, -1);
+				bag.get().currentState = bagClosing;
+				break;
 			}
-			else
-				if (boundInventory[currentHeroInventoryCell].get().first == heldItem.first)
+		}
+
+		if (heldItem.content.first != -1)
+		{
+			int curIndex = bag.get().getSelectedCell(mousePos);
+			if (curIndex == -1)
+				continue;
+
+			auto& item = bag.get().cells[curIndex];
+			if (item.content.first == -1 || item.content.first == heldItem.content.first)
+			{
+				item.content.first = heldItem.content.first;
+				item.content.second += heldItem.content.second;
+				if (item.content.second > itemsMaxCount[item.content.first])
 				{
-					if (boundInventory[currentHeroInventoryCell].get().second + heldItem.second <= itemsMaxCount[heldItem.first])
-					{
-						boundInventory[currentHeroInventoryCell].get().second += heldItem.second;
-						heldItem = std::make_pair(-1, -1);
-					}
-					else
-					{
-						heldItem.second -= itemsMaxCount[heldItem.first] - boundInventory[currentHeroInventoryCell].get().second;
-						boundInventory[currentHeroInventoryCell].get().second = itemsMaxCount[heldItem.first];						
-					}
+					heldItem.content.second = item.content.second % itemsMaxCount[item.content.first];
+					item.content.second = itemsMaxCount[item.content.first];
 				}
 				else
-					if (boundInventory[currentHeroInventoryCell].get().first != heldItem.first)
-					{
-						swap(boundInventory[currentHeroInventoryCell].get(), heldItem);
-					}
+					heldItem.content = { -1, 0 };
+				break;
+			}
+			else
+			{
+				const std::pair<int, int> temp = heldItem.content;
+				heldItem.content = item.content;
+				item.content = temp;
+			}
+		}
+		else
+		{
+			int curIndex = bag.get().getSelectedCell(mousePos);
+			if (curIndex != -1)
+			{
+				heldItem.content = bag.get().cells[curIndex].content;
+				heldItem.position = bag.get().cells[curIndex].position;
+				bag.get().cells[curIndex].content = { -1, 0 };
+			}
 		}
 	}
-
-	if (currentCell != -1 && currentInventory.size() != 0)
-		putItemToBound();
 }
 
 void InventoryMaker::temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory)
 {
 	currentInventory = inventory;
 	currentInventorySize = inventory.size();
-}
-
-void InventoryMaker::putItemToBound()
-{
-	for (auto curInvItem = boundInventory.begin(); curInvItem != boundInventory.end(); ++curInvItem)
-	{
-		if (curInvItem->get().first == currentInventory[currentCell].get().first || curInvItem->get().first == 0)
-		{
-			if (curInvItem->get().second + currentInventory[currentCell].get().second <= itemsMaxCount[currentInventory[currentCell].get().first])
-			{
-				curInvItem->get().first = currentInventory[currentCell].get().first;
-				curInvItem->get().second += currentInventory[currentCell].get().second;
-				//currentInventory.erase(currentInventory.begin() + currentCell);
-				currentInventory[currentCell].get().first = 0;
-				currentInventory[currentCell].get().second = 0;
-				currentInventorySize--;
-				return;
-			}
-			else
-			{
-				curInvItem->get().first = currentInventory[currentCell].get().first;
-				currentInventory[currentCell].get().second -= itemsMaxCount[currentInventory[currentCell].get().first] - curInvItem->get().second;
-				curInvItem->get().second = itemsMaxCount[currentInventory[currentCell].get().first];
-			}
-		}
-	}
 }
 
 bool cmpInventorySort(std::pair<int, int> a, std::pair<int, int> b)
@@ -138,177 +183,95 @@ bool cmpInventorySort(std::pair<int, int> a, std::pair<int, int> b)
 	return a.first > b.first;
 }
 
-int InventoryMaker::getSelectedCellNumber()
+void InventoryMaker::drawNumberOfItems(Sprite sprite, int itemsCount, RenderWindow &window)
 {
-	Vector2f screenSize = Helper::GetScreenSize();
-	int answer = 0;
-	Vector2f mousePosition = Vector2f (Mouse::getPosition());
-	if (!Helper::isIntersects(mousePosition, IntRect(currentPosition.x, currentPosition.y, int(ceil(sqrt(currentInventorySize)))*cellSize.x, int(ceil(sqrt(currentInventorySize)))*cellSize.y)))
-		return -1;
-	Vector2f positionOffset = Vector2f (int(mousePosition.x - currentPosition.x), int(mousePosition.y - currentPosition.y));
-	answer += (int(positionOffset.y) / int(cellSize.y)) * int(ceil(sqrt(currentInventorySize)));
-	answer += (int(positionOffset.x) / int(cellSize.x));
-	if (answer >= visibleItemsNumber)
-		return -1;
-	else
-		return answer;
-}
-
-int InventoryMaker::getHeroInventorySelectedCellNumber()
-{
-	Vector2f screenSize = Helper::GetScreenSize();
-	int answer = 0;
-	Vector2f mousePosition = Vector2f (Mouse::getPosition());
-	if (!Helper::isIntersects(mousePosition, IntRect(currentHeroInventoryPosition.x, currentHeroInventoryPosition.y, 8 * heroInventoryCellSize.x, 2 * heroInventoryCellSize.y)))
-		return -1;
-	Vector2f positionOffset = Vector2f (int(mousePosition.x - currentHeroInventoryPosition.x), int(mousePosition.y - currentHeroInventoryPosition.y));
-	answer += (int(positionOffset.y) / int(heroInventoryCellSize.y)) * 8;
-	answer += (int(positionOffset.x) / int(heroInventoryCellSize.x));
-	if (answer >= boundInventory.size())
-		return -1;
-	else
-		return answer;
+	numberOfItems.setString(std::to_string(itemsCount));
+	numberOfItems.setOrigin(numberOfItems.getGlobalBounds().width, numberOfItems.getGlobalBounds().height);
+	numberOfItems.setPosition(sprite.getPosition().x + itemCommonRadius * 2, sprite.getPosition().y + itemCommonRadius * 2);
+	window.draw(numberOfItems);
 }
 
 void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 {
-	if (currentCell != -1 || currentHeroInventoryCell != -1)
-		usedMouse = true;
-	else
-		usedMouse = false;
-
-	if (heldItem.second <= 0)
-		heldItem = std::make_pair(-1, -1);
-
-	window.draw(heroInventoryBackgroundSprite);
-
-	currentHeroInventoryPosition = Vector2f (heroInventoryBackgroundSprite.getPosition().x, Helper::GetScreenSize().y - heroInventoryZoneSize.y);
-
-	currentHeroInventoryCell = getHeroInventorySelectedCellNumber();
-
-	Vector2f drawCellPosition = Vector2f (heroInventoryBackgroundSprite.getPosition().x, Helper::GetScreenSize().y - heroInventoryZoneSize.y);
-
-	int inRaw = 0;
-
-	for (int i = 0; i < boundInventory.size(); i++)
+	for (auto& bag : boundBags)
 	{
-		//get sprite from list
-		auto sprite = &cellsSpriteList[boundInventory[i].get().first].sprite;
-		sprite->setPosition(drawCellPosition.x, drawCellPosition.y);
-		sprite->setScale(heroInventoryCellSize.x / sprite->getTextureRect().width, heroInventoryCellSize.y / sprite->getTextureRect().height);
-
-		//new raw
-		if ((inRaw+1) * heroInventoryCellSize.x >= heroInventoryZoneSize.x)
-		{
-			if (inRaw > heroInventoryRawCellsNumber)
-				heroInventoryRawCellsNumber = inRaw;
-			inRaw = 0;
-			drawCellPosition.y += heroInventoryCellSize.y;
-			drawCellPosition.x = heroInventoryBackgroundSprite.getPosition().x;
-		}
-		else
-		{
-			inRaw++;
-			drawCellPosition.x += heroInventoryCellSize.x;
-		}
-		
-		//set transparent
-		if (i == currentHeroInventoryCell && boundInventory[i].get().first != 0)
-		{
-			Color spriteColor = sprite->getColor();
-			sprite->setColor(Color(spriteColor.r, spriteColor.g, spriteColor.b, 125));
-			window.draw(*sprite);
-			sprite->setColor(spriteColor);
-		}
-		else
-			window.draw(*sprite);
-		
-		if (boundInventory[i].get().first != 0 && boundInventory[i].get().second != 0)
-		{
-			numberOfObjects.setString(std::to_string(boundInventory[i].get().second));
-			numberOfObjects.setPosition(sprite->getPosition().x + heroInventoryCellSize.x - numberOfObjects.getGlobalBounds().width, sprite->getPosition().y + heroInventoryCellSize.y - numberOfObjects.getGlobalBounds().height);
-			window.draw(numberOfObjects);
-		}
+		bag.get().draw(&window, elapsedTime);
+		//bag.get().drawCircuit(&window);
 	}
 
-	if (heldItem != std::make_pair(-1, -1))
+	//drawing bags content
+	for (auto bag : boundBags)
 	{
-		auto sprite = &cellsSpriteList[heldItem.first].sprite;
-		sprite->setPosition(Vector2f(sf::Mouse::getPosition()));
-		sprite->setScale(heroInventoryCellSize.x / sprite->getTextureRect().width, heroInventoryCellSize.y / sprite->getTextureRect().height);
-		window.draw(*sprite);
+		if (bag.get().currentState != bagOpen)
+			continue;
+
+		for (int cnt = 0; cnt < bag.get().cells.size(); cnt++)
+		{
+			auto& item = bag.get().cells[cnt];
+
+			//drawing cell background
+			if (bag.get().getSelectedCell(Vector2f(Mouse::getPosition())) == cnt)
+			{
+				Vector2f backgroundOffset = cellsSpriteList.at(0).offset;
+				selectedCellBackground->setPosition(item.position.x - itemCommonRadius - backgroundOffset.x, item.position.y - itemCommonRadius - backgroundOffset.y);
+				window.draw(*selectedCellBackground);
+			}
+			//-----------------------
+
+			if (bag.get().cells[cnt].content.first == -1)
+				continue;
+
+			auto sprite = cellsSpriteList.at(item.content.first).sprite;
+			sprite.setScale(itemCommonRadius * 2.6 / sprite.getGlobalBounds().width, itemCommonRadius * 2.6 / sprite.getGlobalBounds().height);
+			Vector2f offset = cellsSpriteList.at(item.content.first).offset;
+			sprite.setPosition(Vector2f(item.position.x - itemCommonRadius - offset.x, item.position.y - itemCommonRadius - offset.y));
+			sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, 255));
+			window.draw(sprite);
+
+			drawNumberOfItems(sprite, item.content.second, window);
+		}
 	}
+	//--------------------
+
+	//drawing held item
+	if (heldItem.content.first != -1)
+	{
+		auto sprite = cellsSpriteList.at(heldItem.content.first).sprite;
+		sprite.setScale(itemCommonRadius * 2.6 / sprite.getGlobalBounds().width, itemCommonRadius * 2.6 / sprite.getGlobalBounds().height);
+		sprite.setPosition(Vector2f(heldItem.position.x - itemCommonRadius, heldItem.position.y - itemCommonRadius));
+		window.draw(sprite);
+		drawNumberOfItems(sprite, heldItem.content.second, window);
+	}
+	//-----------------
+
+	//cell positioning visualization
+	/*
+	for (auto pos : temporaryPositions)
+	{
+		for (int i = pos.first.x - itemCommonRadius; i <= pos.first.x + itemCommonRadius; i+= 10)
+			for (int j = pos.first.y - itemCommonRadius; j <= pos.first.y + itemCommonRadius; j += 10)
+			{
+				if (Helper::getDist(Vector2f(i, j), pos.first) <= itemCommonRadius)
+				{
+					RectangleShape rec;
+					rec.setPosition(i, j);
+					rec.setSize(Vector2f(5, 5));
+					rec.setFillColor(Color::Red);
+					window.draw(rec);
+					Helper::drawText(pos.second, 20, pos.first.x - itemCommonRadius, pos.first.y - itemCommonRadius / 2, &window);
+				}
+			}
+	}*/
+	//Helper::drawText(debugInfo, 30, 2000, 500, &window);
 }
 
 void InventoryMaker::drawInventory(Vector2f position, float elapsedTime, RenderWindow& window)
 {
-	Vector2f screenSize = Helper::GetScreenSize();
 
-	if (currentInventory.size() == 0)
-		return;
-
-	std::sort(currentInventory.begin(), currentInventory.end(), cmpInventorySort);
-	currentCell = getSelectedCellNumber();
-	currentPosition = position;
-
-	timeAfterAnimationEffect += elapsedTime;
-	
-	if (timeAfterAnimationEffect >= timeForAnimationEffect)
-	{
-		timeAfterAnimationEffect = 0;
-		if (animationCounter < currentInventory.size())
-			animationCounter++;
-		else
-			animationCounter = currentInventory.size();
-	}
-
-	//animationCounter = currentInventory.size();
-
-	visibleItemsNumber = 0;
-	Vector2f drawCellPosition = position;
-
-	for (int i = 0; i < animationCounter; i++)
-	{
-		//is empty
-		if (currentInventory[i].get().first == 0)
-		{
-			continue;
-		}
-
-		//get sprite from list
-		visibleItemsNumber++;
-		auto sprite = &cellsSpriteList[currentInventory[i].get().first].sprite;
-		sprite->setPosition(drawCellPosition.x, drawCellPosition.y);
-		sprite->setScale(cellSize.x / sprite->getTextureRect().width, cellSize.y / sprite->getTextureRect().height);
-
-		//new raw
-		if ((i + 1) % int(ceil(sqrt(currentInventory.size()))) == 0)
-		{
-			drawCellPosition.y += cellSize.y;
-			drawCellPosition.x = position.x;
-		}
-		else
-			drawCellPosition.x += cellSize.x;
-		//set transparent
-		if (i == currentCell)
-		{
-			Color spriteColor = sprite->getColor();
-			sprite->setColor(Color(spriteColor.r, spriteColor.g, spriteColor.b, 125));
-			window.draw(*sprite);
-			sprite->setColor(spriteColor);
-
-			numberOfObjects.setString(std::to_string(currentInventory[i].get().second));
-			numberOfObjects.setPosition(sprite->getPosition().x + cellSize.x - numberOfObjects.getGlobalBounds().width, sprite->getPosition().y + cellSize.y - numberOfObjects.getGlobalBounds().height);
-			window.draw(numberOfObjects);
-		}
-		else
-			window.draw(*sprite);
-	}
 }
 
 void InventoryMaker::resetAnimationValues()
 {
 	animationCounter = 0;
 	timeAfterAnimationEffect = 0;
-	currentCell = -1;
 }

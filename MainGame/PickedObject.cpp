@@ -7,38 +7,42 @@ PickedObject::PickedObject(std::string objectName, Vector2f centerPosition) : Te
 	
 }
 
-bool PickedObject::pickUp(std::vector<std::pair <int, int>>& inventory)
+bool PickedObject::pickUp(std::vector<HeroBag> *bags)
 {
-	for (auto curInvItem = inventory.begin(); curInvItem != inventory.end(); ++curInvItem)
+	while (true)
 	{
-		if (curInvItem->first == id || curInvItem->first == 0)
+		bagCell *maximumFilledCell = nullptr;
+
+		for (auto& bag : *bags)
 		{
-			if (curInvItem->second + count <= maxCount)
+			for (auto& cell : bag.cells)
 			{
-				curInvItem->first = id;
-				curInvItem->second += count;
-				//currentInventory.erase(currentInventory.begin() + currentCell);
+				if (maximumFilledCell == nullptr)
+				{
+					if (cell.content.first == -1 || cell.content.first == id && cell.content.second < maxCount)
+						maximumFilledCell = &cell;
+				}
+				else
+					if (cell.content.first == id && cell.content.second > maximumFilledCell->content.second && cell.content.second < maxCount)			
+						maximumFilledCell = &cell;					
+			}
+		}
+		if (maximumFilledCell != nullptr)
+		{
+			maximumFilledCell->content.first = id;
+			maximumFilledCell->content.second += count;
+			if (maximumFilledCell->content.second > maxCount)
+				count = maximumFilledCell->content.second % maxCount;
+			else
+			{
 				count = 0;
+				id = -1;
 				delatePromiseOn();
 				return true;
 			}
-			else
-			{
-				curInvItem->first = id;
-				count -= maxCount - curInvItem->second;
-				curInvItem->second = maxCount;
-			}
 		}
-	}
-
-	if (count <= 0)
-	{
-		delatePromiseOn();
-		return true;
-	}
-	else
-	{
-		return false;
+		else
+			return false;
 	}
 }
 

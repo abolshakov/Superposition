@@ -5,13 +5,14 @@ using namespace sf;
 Monster::Monster(std::string objectName, Vector2f centerPosition) : DynamicObject(objectName, centerPosition)
 {
 	conditionalSizeUnits = Vector2i (200, 250);
+	timeForNewRoute = 1000000;
 	currentSprite = 1;
 	timeForNewSprite = 0;
 	speed = 0.0004f;
 	animationSpeed = 0.0005f;
 	animationLength = 8;
 	radius = 100;
-	strength = 10;
+	strength = 100;
 	healthPoint = 10;
 	currentAction = relax;	
 	timeAfterHitself = 100000;
@@ -67,13 +68,12 @@ void Monster::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 	if (target.tag != mainHeroTag)
 		return;	
 
-	setSide(Vector2i(movePosition), elapsedTime);
+	setSide(movePosition, elapsedTime);
 
-	srand(time(0));
-	Vector2i curPos = Vector2i(this->getPosition());
-	Vector2i tarPos = Vector2i(target.getPosition());
+	Vector2f curPos = this->getPosition();
+	Vector2f tarPos = target.getPosition();
 
-	if (sqrt(pow(curPos.x - tarPos.x, 2) + pow(curPos.y - tarPos.y, 2)) <= (this->radius + target.getRadius()))
+	if (Helper::getDist(curPos, tarPos) <= (this->radius + target.getRadius()))
 	{
 		if (currentAction == move)
 		{
@@ -84,25 +84,20 @@ void Monster::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 		{
 			if (currentAction >= 0 && currentAction < 3 && currentSprite == strikingSprite && wasHit == false)
 			{
-				if ((target.getCurrentAction() != evasionDown && currentAction != upperHit) || (target.getCurrentAction() != evasionUp && currentAction != bottomHit))
-				{
-					target.takeDamage(10);
-					wasHit = true;
-				}
+				target.takeDamage(this->strength);
+				wasHit = true;
 			}
 		}
 		direction = STAND;
 		if (currentAction == combatState)
 		{
 			wasHit = false;
-			timeAfterHit += timer.getElapsedTime().asMilliseconds();
+			timeAfterHit += elapsedTime;
 			if (timeAfterHit >= timeForNewHit)
 			{
-				//currentAction = commonHit;
 				currentAction = bottomHit;
-				currentSprite = 0;
+				currentSprite = 1;
 				timeAfterHit = 0;
-				timer.restart();
 			}
 		}
 	}
@@ -111,7 +106,6 @@ void Monster::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 		if (currentAction != upperHit && currentAction != bottomHit && currentAction != directHit)
 		{
 			timeAfterHit = 0;
-			timer.restart();
 			currentAction = move;
 			movePosition = target.getPosition();
 			//setMoveOffset(target.getRadius());
@@ -129,9 +123,18 @@ int Monster::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Monster::getSpriteName(long long elapsedTime)
+void Monster::jerk(float power, float deceleration, Vector2f destinationPoint)
 {
-	std::string spriteName;
+	return;
+}
+
+void Monster::prepareSpriteNames(long long elapsedTime)
+{
+	spriteChainElement fullSprite;
+
+	fullSprite.offset = Vector2f(this->textureBoxOffset);
+	fullSprite.size = Vector2f(this->conditionalSizeUnits);
+	additionalSprites.clear();
 
 	switch (currentAction)
 	{
@@ -142,27 +145,27 @@ std::string Monster::getSpriteName(long long elapsedTime)
 		{
 		case up:
 		{
-			spriteName = "Game/worldSprites/hare/move/up/";
+			fullSprite.path = "Game/worldSprites/hare/hit/up/";
 			break;
 		}
 		case right:
 		{
-			spriteName = "Game/worldSprites/hare/move/right/";
+			fullSprite.path = "Game/worldSprites/hare/hit/right/";
 			break;
 		}
 		case down:
 		{
-			spriteName = "Game/worldSprites/hare/move/down/";
+			fullSprite.path = "Game/worldSprites/hare/hit/down/";
 			break;
 		}
 		case left:
 		{
-			spriteName = "Game/worldSprites/hare/move/left/";
+			fullSprite.path = "Game/worldSprites/hare/hit/left/";
 			break;
 		}
 		}
-		spriteName += std::to_string(currentSprite);
-		spriteName += ".png";
+		fullSprite.path += std::to_string(currentSprite);
+		fullSprite.path += ".png";
 		break;
 	}
 	case upperHit:
@@ -172,27 +175,27 @@ std::string Monster::getSpriteName(long long elapsedTime)
 		{
 		case up:
 		{
-			spriteName = "Game/worldSprites/hare/move/up/";
+			fullSprite.path = "Game/worldSprites/hare/hit/up/";
 			break;
 		}
 		case right:
 		{
-			spriteName = "Game/worldSprites/hare/move/right/";
+			fullSprite.path = "Game/worldSprites/hare/hit/right/";
 			break;
 		}
 		case down:
 		{
-			spriteName = "Game/worldSprites/hare/move/down/";
+			fullSprite.path = "Game/worldSprites/hare/hit/down/";
 			break;
 		}
 		case left:
 		{
-			spriteName = "Game/worldSprites/hare/move/left/";
+			fullSprite.path = "Game/worldSprites/hare/hit/left/";
 			break;
 		}
 		}
-		spriteName += std::to_string(currentSprite);
-		spriteName += ".png";
+		fullSprite.path += std::to_string(currentSprite);
+		fullSprite.path += ".png";
 		break;
 	}
 	case directHit:
@@ -202,27 +205,27 @@ std::string Monster::getSpriteName(long long elapsedTime)
 		{
 		case up:
 		{
-			spriteName = "Game/worldSprites/hare/move/up/";
+			fullSprite.path = "Game/worldSprites/hare/hit/up/";
 			break;
 		}
 		case right:
 		{
-			spriteName = "Game/worldSprites/hare/move/right/";
+			fullSprite.path = "Game/worldSprites/hare/hit/right/";
 			break;
 		}
 		case down:
 		{
-			spriteName = "Game/worldSprites/hare/move/down/";
+			fullSprite.path = "Game/worldSprites/hare/hit/down/";
 			break;
 		}
 		case left:
 		{
-			spriteName = "Game/worldSprites/hare/move/left/";
+			fullSprite.path = "Game/worldSprites/hare/hit/left/";
 			break;
 		}
 		}
-		spriteName += std::to_string(currentSprite);
-		spriteName += ".png";
+		fullSprite.path += std::to_string(currentSprite);
+		fullSprite.path += ".png";
 		break;
 	}
 	case combatState:
@@ -232,41 +235,41 @@ std::string Monster::getSpriteName(long long elapsedTime)
 		{
 		case up:
 		{
-			spriteName = "Game/worldSprites/hare/move/up/";
+			fullSprite.path = "Game/worldSprites/hare/move/up/";
 			break;
 		}
 		case right:
 		{
-			spriteName = "Game/worldSprites/hare/move/right/";
+			fullSprite.path = "Game/worldSprites/hare/move/right/";
 			break;
 		}
 		case down:
 		{
-			spriteName = "Game/worldSprites/hare/move/down/";
+			fullSprite.path = "Game/worldSprites/hare/move/down/";
 			break;
 		}
 		case left:
 		{
-			spriteName = "Game/worldSprites/hare/move/left/";
+			fullSprite.path = "Game/worldSprites/hare/move/left/";
 			break;
 		}
 		}
-		spriteName += std::to_string(currentSprite);
-		spriteName += ".png";
+		fullSprite.path += std::to_string(currentSprite);
+		fullSprite.path += ".png";
 		break;
 	}
 	case relax:
 	{
 		animationLength = 1;
-		spriteName = "Game/worldSprites/hare/stand/down/";
-		spriteName += std::to_string(currentSprite);
-		spriteName += ".png";
+		fullSprite.path = "Game/worldSprites/hare/stand/down/";
+		fullSprite.path += std::to_string(currentSprite);
+		fullSprite.path += ".png";
 		break;
 	}
 	case dead:
 	{
 		animationLength = 1;
-		spriteName = "Game/worldSprites/hare/stand/down/1.png";
+		fullSprite.path = "Game/worldSprites/hare/stand/down/1.png";
 		currentSprite = 0;
 	}
 	}
@@ -274,51 +277,53 @@ std::string Monster::getSpriteName(long long elapsedTime)
 	if (currentAction == move)
 	{
 		animationLength = 5;
-		switch (side)
+		switch (direction)
 		{
-		case left:
-			spriteName = "Game/worldSprites/hare/move/left/";
-			spriteName += std::to_string(currentSprite);
-			spriteName += ".png";
+		case LEFT:
+			fullSprite.path = "Game/worldSprites/hare/move/left/";
+			fullSprite.path += std::to_string(currentSprite);
+			fullSprite.path += ".png";
 			break;
-		case right:
-			spriteName = "Game/worldSprites/hare/move/right/";
-			spriteName += std::to_string(currentSprite);
-			spriteName += ".png";
+		case RIGHT:
+			fullSprite.path = "Game/worldSprites/hare/move/right/";
+			fullSprite.path += std::to_string(currentSprite);
+			fullSprite.path += ".png";
 			break;
-		case up:
-			spriteName = "Game/worldSprites/hare/move/up/";
-			spriteName += std::to_string(currentSprite);
-			spriteName += ".png";
+		case UP:
+			fullSprite.path = "Game/worldSprites/hare/move/up/";
+			fullSprite.path += std::to_string(currentSprite);
+			fullSprite.path += ".png";
 			break;
-		case down:
-			spriteName = "Game/worldSprites/hare/move/down/";
-			spriteName += std::to_string(currentSprite);
-			spriteName += ".png";
+		case DOWN:
+			fullSprite.path = "Game/worldSprites/hare/move/down/";
+			fullSprite.path += std::to_string(currentSprite);
+			fullSprite.path += ".png";
 			break;
-		/*case UPLEFT:
-			spriteName = "Game/worldSprites/hare/move/left/";
-			spriteName += std::to_string(currentSprite);
-			spriteName += ".png";
+		case UPLEFT:
+			fullSprite.path = "Game/worldSprites/hare/move/left/";
+			fullSprite.path += std::to_string(currentSprite);
+			fullSprite.path += ".png";
 			break;
 		case UPRIGHT:
-			spriteName = "Game/worldSprites/hare/move/right/";
-			spriteName += std::to_string(currentSprite);
-			spriteName += ".png";
+			fullSprite.path = "Game/worldSprites/hare/move/right/";
+			fullSprite.path += std::to_string(currentSprite);
+			fullSprite.path += ".png";
 			break;
 		case DOWNLEFT:
-			spriteName = "Game/worldSprites/hare/move/left/";
-			spriteName += std::to_string(currentSprite);
-			spriteName += ".png";
+			fullSprite.path = "Game/worldSprites/hare/move/left/";
+			fullSprite.path += std::to_string(currentSprite);
+			fullSprite.path += ".png";
 			break;
 		case DOWNRIGHT:
-			spriteName = "Game/worldSprites/hare/move/right/";
-			spriteName += std::to_string(currentSprite);
-			spriteName += ".png";
-			break;*/
+			fullSprite.path = "Game/worldSprites/hare/move/right/";
+			fullSprite.path += std::to_string(currentSprite);
+			fullSprite.path += ".png";
+			break;
 		default:;
 		}
 	}
+
+	additionalSprites.push_back(fullSprite);
 
 	timeForNewSprite += elapsedTime;
 
@@ -336,6 +341,4 @@ std::string Monster::getSpriteName(long long elapsedTime)
 			currentSprite = 1;
 		}
 	}
-
-	return spriteName;
 }

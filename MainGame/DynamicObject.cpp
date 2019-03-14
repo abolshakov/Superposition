@@ -17,13 +17,7 @@ void DynamicObject::handleInput()
 {
 }
 
-void DynamicObject::takeDamage(float damage)
-{
-	this->timeForNewHitself = 0;
-	this->healthPoint -= damage / this->armor;
-}
-
-void DynamicObject::setSide(Vector2i otherObjectPosition, float elapsedTime)
+void DynamicObject::setSide(Vector2f otherObjectPosition, float elapsedTime)
 {
 	if (timeAfterSideChange < timeForNewSide)
 	{
@@ -303,6 +297,9 @@ Vector2f DynamicObject::doSlip(Vector2f newPosition, std::vector<StaticObject*> 
 
 Vector2f DynamicObject::doSlipOffDynamic(Vector2f newPosition, std::vector<DynamicObject*> localDynamicItems, float height, float elapsedTime)
 {
+	if (!canCrashIntoDynamic)
+		return newPosition;
+
 	lastIntersected = "";
 
 	for (auto otherDynamicItem : localDynamicItems)
@@ -326,4 +323,21 @@ Vector2f DynamicObject::doSlipOffDynamic(Vector2f newPosition, std::vector<Dynam
 	}
 
 	return newPosition;
+}
+
+void DynamicObject::changeAction(Actions newAction, bool resetSpriteNumber, bool rememberLastAction)
+{
+	if (rememberLastAction)
+		lastAction = currentAction;
+
+	currentAction = newAction;
+
+	if (resetSpriteNumber)
+		currentSprite = 1;
+}
+
+void DynamicObject::takeDamage(float damage)
+{
+	this->timeForNewHitself = 0;
+	this->healthPoint -= damage / this->armor;
 }

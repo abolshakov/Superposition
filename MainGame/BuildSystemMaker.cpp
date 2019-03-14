@@ -52,9 +52,9 @@ void BuildSystemMaker::initializeButtons()
 		(float)builtObjects[0].iconTexture.getSize().y / recipeFrame.getTextureRect().height * 2);
 }
 
-void BuildSystemMaker::inventoryBounding(std::vector<std::pair <int, int>>& inventory)
+void BuildSystemMaker::inventoryBounding(std::vector<std::reference_wrapper<HeroBag>> bags)
 {
-	currentInventory = std::ref(inventory);
+	boundBags = std::ref(bags);
 }
 
 void BuildSystemMaker::inicializeObjectsInfo()
@@ -109,7 +109,9 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 		terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[selectedObject].type + std::to_string(terrainType)));
 		terrainPos = terrain->getBuildPosition(visibleItems, scaleFactor, cameraPosition);
 
-		auto sprite = (&spriteMap[terrain->getSpriteName(0)])->sprite;
+		//auto sprite = (&spriteMap[terrain->prepareSpriteNames(0)])->sprite;
+		terrain->prepareSpriteNames(0);
+		auto sprite = (&spriteMap[terrain->getAdditionalSprites()[0].path])->sprite;
 		sprite.setOrigin(float(sprite.getTextureRect().left), float(sprite.getTextureRect().top + sprite.getTextureRect().height));
 		sprite.setScale(terrain->getScaleRatio().x*scaleFactor, terrain->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
 
@@ -164,7 +166,7 @@ void BuildSystemMaker::drawRecipeFrame(RenderWindow &window)
 {
 	if (isRecipeFrame)
 	{
-		//window.draw(recipeFrame);
+		window.draw(recipeFrame);
 		for (int i = 0; i < builtObjects[currentObject].recipe.size(); i++)
 		{
 			Sprite *currentRecipeItem = &craftIngredientsSpriteList[builtObjects[currentObject].recipe[i].first].sprite;
@@ -175,10 +177,13 @@ void BuildSystemMaker::drawRecipeFrame(RenderWindow &window)
 			window.draw(*currentRecipeItem);
 
 			int boundInventoryObjectsCount = 0;
-			for (auto item = currentInventory.get().begin(); item != currentInventory.get().end(); ++item)
+			for (auto& bag : boundBags)
 			{
-				if (item->first == builtObjects[currentObject].recipe[i].first)
-					boundInventoryObjectsCount += item->second;
+				for (auto& item : bag.get().cells)
+				{
+					if (item.content.first == builtObjects[currentObject].recipe[i].first)
+						boundInventoryObjectsCount += item.content.second;
+				}
 			}
 
 			numberOfObjects.setString(std::to_string(boundInventoryObjectsCount) + '/' + std::to_string(builtObjects[currentObject].recipe[i].second));
@@ -218,6 +223,8 @@ void BuildSystemMaker::interact()
 	}
 	else
 	{
+		if (heldItem == nullptr)
+			return;
 		if (heldItem->first == 4)
 		{
 			selectedObject = heldItem->first;
@@ -263,6 +270,8 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 		return;
 	}
 
+	//return;
+
 	if (isBuilding && selectedObject != -1 && currentObject == -1 && canBePlaced)
 	{
 		if (spriteBuildPos != Vector2f (-1, -1))
@@ -298,27 +307,31 @@ bool BuildSystemMaker::canAfford()
 	if (currentObject != -1)
 	{
 		std::vector<std::pair <int, int>> temporaryInventory = builtObjects[currentObject].recipe;
-		std::vector<std::pair <int, int>> curInventory = currentInventory.get();
 
 		for (auto curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
 		{
-			for (auto curInvItem = curInventory.begin(); curInvItem != curInventory.end(); ++curInvItem)
+			for (auto bag : boundBags)
 			{
-				if (curRecipeItem->first == curInvItem->first)
+				bool isBreak = false;
+				for (auto item : bag.get().cells)
 				{
-					if (curInvItem->second >= curRecipeItem->second)
+					if (curRecipeItem->first == item.content.first)
 					{
-						curRecipeItem->second = 0;
-						break;
+						if (item.content.second >= curRecipeItem->second)
+						{
+							curRecipeItem->second = 0;
+							isBreak = true;
+							break;
+						}
 					}
 					else
-						curRecipeItem->second -= curInvItem->second;
+						curRecipeItem->second -= item.content.second;
 				}
+				if (isBreak)
+					break;
 			}
-			if (curRecipeItem->second != 0)
-			{
+			if (curRecipeItem->second > 0)
 				return false;
-			}
 		}
 
 		return true;
@@ -332,22 +345,25 @@ void BuildSystemMaker::wasPlaced()
 
 	for (auto curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
 	{
-		for (auto curInvItem = currentInventory.get().begin(); curInvItem != currentInventory.get().end(); ++curInvItem)
+		for (auto& bag : boundBags)
 		{
-			if (curRecipeItem->first == curInvItem->first)
+			for (auto& item : bag.get().cells)
 			{
-				if (curInvItem->second >= curRecipeItem->second)
-				{					
-					curInvItem->second -= curRecipeItem->second;
-					if (curInvItem->second == 0)
-						curInvItem->first = 0;
-					curRecipeItem->second = 0;
-				}
-				else
+				if (curRecipeItem->first == item.content.first)
 				{
-					curRecipeItem->second -= curInvItem->second;
-					curInvItem->second = 0;
-					curInvItem->first = 0;
+					if (item.content.second >= curRecipeItem->second)
+					{
+						item.content.second -= curRecipeItem->second;
+						if (item.content.second == 0)
+							item.content.first = 0;
+						curRecipeItem->second = 0;
+					}
+					else
+					{
+						curRecipeItem->second -= item.content.second;
+						item.content.second = 0;
+						item.content.first = 0;
+					}
 				}
 			}
 		}

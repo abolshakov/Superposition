@@ -19,42 +19,56 @@ void HeroBookPage::setContentChain(std::vector<std::vector<std::vector<contentBl
 void HeroBookPage::setBookmarkPosition()
 {
 	FloatRect pageGlobalBounds, bookmarkGlobalBounds = buttonList.at(bookmarkMobs).get().getGlobalBounds();
+	if (currentPage == 0)
+		pageGlobalBounds = buttonList.at(bookCover).get().getGlobalBounds();
+	else
+		pageGlobalBounds = buttonList.at(pageBackground).get().getGlobalBounds();
+
+	float bookmarkApproximateX;
+	if (currentPage == 0)
+		bookmarkApproximateX = pageGlobalBounds.left + pageGlobalBounds.width * 8.9 / 10;
+	else
+		bookmarkApproximateX = pageGlobalBounds.left + pageGlobalBounds.width * 9.38 / 10;
+	buttonList.at(bookmarkMobs).get().setPosition(Vector2f(bookmarkApproximateX, pageGlobalBounds.top + pageGlobalBounds.height * 1.2 / 10));
+	buttonList.at(bookmarkItems).get().setPosition(Vector2f(bookmarkApproximateX, pageGlobalBounds.top + pageGlobalBounds.height * 2.2 / 10));
+	buttonList.at(bookmarkHerbs).get().setPosition(Vector2f(bookmarkApproximateX, pageGlobalBounds.top + pageGlobalBounds.height * 3.2 / 10));
+	buttonList.at(bookmarkWreathes).get().setPosition(Vector2f(bookmarkApproximateX, pageGlobalBounds.top + pageGlobalBounds.height * 4.2 / 10));
+	buttonList.at(bookmarkNightmare).get().setPosition(Vector2f(bookmarkApproximateX, pageGlobalBounds.top + pageGlobalBounds.height * 7.2 / 10));
+}
+
+void HeroBookPage::preparePageBase()
+{
+	buttonList.at(pageBackground).get().setPosition(Vector2f(buttonList.at(bookCover).get().getPosition().x - buttonList.at(bookCover).get().getGlobalBounds().width,
+		buttonList.at(bookCover).get().getPosition().y));
 
 	if (currentPage == 0)
 		pageGlobalBounds = buttonList.at(bookCover).get().getGlobalBounds();
 	else
 		pageGlobalBounds = buttonList.at(pageBackground).get().getGlobalBounds();
 
-	buttonList.at(bookmarkMobs).get().setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width - 10, pageGlobalBounds.top));
-	buttonList.at(bookmarkItems).get().setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width - 10, pageGlobalBounds.top + bookmarkGlobalBounds.height + 10));
-	buttonList.at(bookmarkHerbs).get().setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width - 10, pageGlobalBounds.top + (bookmarkGlobalBounds.height + 10) * 2));
-	buttonList.at(bookmarkWreathes).get().setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width - 10, pageGlobalBounds.top + (bookmarkGlobalBounds.height + 10) * 3));
-	buttonList.at(bookmarkNightmare).get().setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width - 10, pageGlobalBounds.top + pageGlobalBounds.height - (bookmarkGlobalBounds.height + 10)));
-}
+	buttonList.at(pagePattern).get().setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width * 1 / 13, pageGlobalBounds.top + pageGlobalBounds.height * 1 / 21));
+	buttonList.at(pagePattern).get().setSize(Vector2f(pageGlobalBounds.width * 4.23 / 5, pageGlobalBounds.height * 4.1 / 5));
+	buttonList.at(bookmarksList).get().setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width * 1 / 13, pageGlobalBounds.top + pageGlobalBounds.height * 1 / 21));
+	buttonList.at(bookmarksList).get().setSize(Vector2f(pageGlobalBounds.width * 4.23 / 5, pageGlobalBounds.height * 4.1 / 5));
 
+	blockGlobalBounds = buttonList.at(yarrowBlockTag).get().getGlobalBounds();
+	arrowToPageGlobalBounds = buttonList.at(nextPage).get().getGlobalBounds();
+	leftPagePosition = Vector2f(pageGlobalBounds.left, pageGlobalBounds.top);
+	rightPagePosition = Vector2f(pageGlobalBounds.left + pageGlobalBounds.width / 2, pageGlobalBounds.top);
+
+	FloatRect pagePatternGlobalBounds = buttonList.at(pagePattern).get().getGlobalBounds();
+
+	buttonList.at(nextPage).get().setPosition(Vector2f(pagePatternGlobalBounds.left + pagePatternGlobalBounds.width - arrowToPageGlobalBounds.width,
+		pagePatternGlobalBounds.top + pagePatternGlobalBounds.height - arrowToPageGlobalBounds.height));
+	buttonList.at(previousPage).get().setPosition(Vector2f(pagePatternGlobalBounds.left,
+		pagePatternGlobalBounds.top + pagePatternGlobalBounds.height - arrowToPageGlobalBounds.height));
+}
 
 pageContent HeroBookPage::getPreparedContent(int pageNumber)
 {
 	pageContent result;
 
-	buttonList.at(pageBackground).get().setPosition(Vector2f(buttonList.at(bookCover).get().getPosition().x - buttonList.at(bookCover).get().getGlobalBounds().width, buttonList.at(bookCover).get().getPosition().y));
-
-	FloatRect pageGlobalBounds;
-
-	if (currentPage == 0)
-		pageGlobalBounds = buttonList.at(bookCover).get().getGlobalBounds();
-	else
-		pageGlobalBounds = buttonList.at(pageBackground).get().getGlobalBounds();
-
-	FloatRect blockGlobalBounds = buttonList.at(yarrowBlockTag).get().getGlobalBounds(),
-		arrowToPageGlobalBounds = buttonList.at(nextPage).get().getGlobalBounds();
-	Vector2f leftPagePosition = Vector2f(pageGlobalBounds.left, pageGlobalBounds.top),
-		rightPagePosition = Vector2f(pageGlobalBounds.left + pageGlobalBounds.width / 2, pageGlobalBounds.top);
-
-	buttonList.at(nextPage).get().setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width - arrowToPageGlobalBounds.width,
-		pageGlobalBounds.top + pageGlobalBounds.height - arrowToPageGlobalBounds.height));
-	buttonList.at(previousPage).get().setPosition(Vector2f(pageGlobalBounds.left,
-		pageGlobalBounds.top + pageGlobalBounds.height - arrowToPageGlobalBounds.height));
+	preparePageBase();
 
 	if (!allContentChains[pageNumber].empty())
 	{

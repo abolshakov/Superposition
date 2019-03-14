@@ -11,9 +11,9 @@ EmptyObject::~EmptyObject()
 {
 }
 
-std::string EmptyObject::getSpriteName(long long elapsedTime)
+void EmptyObject::prepareSpriteNames(long long elapsedTime)
 {
-	return "";
+	return;
 }
 
 int EmptyObject::getSpriteNumber()

@@ -192,7 +192,12 @@ int Fence::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Fence::getSpriteName(long long elapsedTime)
+void Fence::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/fence/fence" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement fullSprite;
+	fullSprite.path = "Game/worldSprites/terrainObjects/fence/fence" + std::to_string(typeOfObject) + ".png";
+	fullSprite.size = Vector2f(conditionalSizeUnits);
+	fullSprite.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(fullSprite);
 }

@@ -2,7 +2,7 @@
 
 using namespace sf;
 
-Wolf::Wolf(std::string objectName, Vector2f centerPosition) : Creature(objectName, centerPosition)
+Wolf::Wolf(std::string objectName, Vector2f centerPosition) : NeutralMob(objectName, centerPosition)
 {
 	conditionalSizeUnits = Vector2i (250, 200);
 	currentSprite = 1;
@@ -66,9 +66,14 @@ int Wolf::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Wolf::getSpriteName(long long elapsedTime)
+void Wolf::jerk(float power, float deceleration, Vector2f destinationPoint)
 {
-	std::string spriteName;
+	return;
+}
+
+void Wolf::prepareSpriteNames(long long elapsedTime)
+{
+	/*std::string spriteName;
 
 	switch (currentAction)
 	{
@@ -273,6 +278,5 @@ std::string Wolf::getSpriteName(long long elapsedTime)
 			currentSprite = 1;
 		}
 	}
-
-	return spriteName;
+	*/
 }

@@ -67,9 +67,6 @@
     <ClCompile Include="Yarrow.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
-    <ClCompile Include="Creature.cpp">
-      <Filter>Creatures</Filter>
-    </ClCompile>
     <ClCompile Include="HareTrap.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
@@ -95,6 +92,20 @@
     </ClCompile>
     <ClCompile Include="TextWriter.cpp">
       <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="OwlBoss.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Mugwort.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="HeroBag.cpp" />
+    <ClCompile Include="NeutralMob.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Deer.cpp" />
+    <ClCompile Include="Noose.cpp">
+      <Filter>DynamicObjects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -165,9 +176,6 @@
     <ClInclude Include="Yarrow.h">
       <Filter>Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="Creature.h">
-      <Filter>Creatures</Filter>
-    </ClInclude>
     <ClInclude Include="HareTrap.h">
       <Filter>Terrain</Filter>
     </ClInclude>
@@ -194,6 +202,20 @@
     <ClInclude Include="TextWriter.h">
       <Filter>UISystems</Filter>
     </ClInclude>
+    <ClInclude Include="OwlBoss.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Mugwort.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="HeroBag.h" />
+    <ClInclude Include="NeutralMob.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Deer.h" />
+    <ClInclude Include="Noose.h">
+      <Filter>DynamicObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Terrain">
@@ -210,6 +232,9 @@
     </Filter>
     <Filter Include="HeroBook">
       <UniqueIdentifier>{d8cc7afb-4b70-412c-9813-73ad35d11e13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DynamicObjects">
+      <UniqueIdentifier>{32724799-c352-4ce0-b0d1-8aa537ceb40f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

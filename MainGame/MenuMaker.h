@@ -24,7 +24,6 @@ public:
 	void setState(MenuStates state) { menuState = state; }
 	void onKeyDown(Event event, World &world);
 	bool getActivity() { return wasActive; }
-	//void worldBounding(World &world);
 private:	
 	MenuStates menuState = mainMenu;
 	std::unordered_map<ButtonTag, ButtonMaker> buttonList;

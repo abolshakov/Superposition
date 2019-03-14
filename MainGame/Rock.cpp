@@ -17,17 +17,17 @@ void Rock::setType(int typeOfObject)
 {
 	this->typeOfObject = typeOfObject;
 	if (typeOfObject == 1)
-		conditionalSizeUnits = Vector2i (150, 100);
+		conditionalSizeUnits = Vector2i (272, 80);
 	if (typeOfObject == 2)
-		conditionalSizeUnits = Vector2i (300, 240);
+		conditionalSizeUnits = Vector2i (388, 228);
 	if (typeOfObject == 3)
-		conditionalSizeUnits = Vector2i (350, 280);
+		conditionalSizeUnits = Vector2i (568, 292);
 	if (typeOfObject == 4)
-		conditionalSizeUnits = Vector2i (150, 100);
+		conditionalSizeUnits = Vector2i (336, 240);
 	if (typeOfObject == 5)
-		conditionalSizeUnits = Vector2i (150, 100);
+		conditionalSizeUnits = Vector2i (280, 212);
 	if (typeOfObject == 6)
-		conditionalSizeUnits = Vector2i (150, 100);
+		conditionalSizeUnits = Vector2i (272, 196);
 
 	radius = std::max(conditionalSizeUnits.x, conditionalSizeUnits.y) / 2;
 }
@@ -109,25 +109,31 @@ int Rock::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Rock::getSpriteName(long long elapsedTime)
+void Rock::prepareSpriteNames(long long elapsedTime)
 {
-	std::string spriteName;
+	additionalSprites.clear();
+	spriteChainElement rockBody;
+	rockBody.size = Vector2f(conditionalSizeUnits);
+	rockBody.offset = Vector2f(textureBoxOffset);
 
 	switch (state)
 	{
-	case common:
-	{
-		return "Game/worldSprites/terrainObjects/rock/rock" + std::to_string(typeOfObject) + ".png";
-		break;
+		case common:
+		{
+			animationLength = 1;
+			rockBody.path = "Game/worldSprites/terrainObjects/rock/rock" + std::to_string(typeOfObject) + ".png";
+			break;
+		}
+		case absorbed:
+		{
+			animationLength = 15;
+			rockBody.path = "Game/worldSprites/terrainObjects/rock/rock" + std::to_string(typeOfObject) + ".png";
+			transparensy = 100 - currentSprite * 100 / animationLength;
+			break;
+		}
 	}
-	case absorbed:
-	{
-		animationLength = 15;
-		spriteName = "Game/worldSprites/terrainObjects/rock/rock" + std::to_string(typeOfObject) + ".png";
-		transparensy = 100 - currentSprite * 100 / animationLength;
-		break;
-	}
-	}
+
+	additionalSprites.push_back(rockBody);
 
 	timeForNewSprite += elapsedTime;
 
@@ -145,6 +151,4 @@ std::string Rock::getSpriteName(long long elapsedTime)
 			currentSprite = 1;
 		}
 	}
-
-	return spriteName;
 }

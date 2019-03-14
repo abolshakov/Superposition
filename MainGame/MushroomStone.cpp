@@ -43,9 +43,9 @@ int MushroomStone::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string MushroomStone::getSpriteName(long long elapsedTime)
+void MushroomStone::prepareSpriteNames(long long elapsedTime)
 {
-	timeForNewSprite += elapsedTime;
+	/*timeForNewSprite += elapsedTime;
 
 	if (timeForNewSprite >= 40 / animationSpeed)
 	{
@@ -56,5 +56,5 @@ std::string MushroomStone::getSpriteName(long long elapsedTime)
 			currentSprite = 1;
 		}
 	}
-	return "Game/worldSprites/terrainObjects/mushroomStone/t1_" + std::to_string(currentSprite) + ".png";
+	return "Game/worldSprites/terrainObjects/mushroomStone/t1_" + std::to_string(currentSprite) + ".png";*/
 }

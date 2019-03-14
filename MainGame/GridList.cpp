@@ -163,8 +163,7 @@ void GridList<T>::fillLocalMatrix(Vector2f targetPos, int upperLeftX, int upperL
 						}
 						else
 						{
-
-							if (Helper::getDist(microblockPos, object->getFocus1()) + Helper::getDist(microblockPos, object->getFocus2()) > object->getEllipseSize())
+							if (Helper::getDist(microblockPos, object->getFocus1()) + Helper::getDist(microblockPos, object->getFocus2()) - sqrt(pow(microsize.x, 2) + pow(microsize.y, 2)) > object->getEllipseSize())
 								continue;
 							if (i >= 0 && j >= 0 && i < microblockMatrix.size() && j < microblockMatrix[0].size())
 								microblockMatrix[i][j] = 0;

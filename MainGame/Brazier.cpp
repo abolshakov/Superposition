@@ -78,7 +78,12 @@ int Brazier::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Brazier::getSpriteName(long long elapsedTime)
+void Brazier::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/brazier/brazier" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement brazierBody;
+	brazierBody.path = "Game/worldSprites/terrainObjects/brazier/brazier" + std::to_string(typeOfObject) + ".png";
+	brazierBody.size = Vector2f(conditionalSizeUnits);
+	brazierBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(brazierBody);
 }

@@ -3,7 +3,7 @@
 
 Chamomile::Chamomile(std::string objectName, Vector2f centerPosition, int typeOfObject) : PickedObject(objectName, centerPosition)
 {
-	varietyOfTypes = 1;
+	varietyOfTypes = 5;
 	this->typeOfObject = typeOfObject;
 	toSaveName = "chamomile";
 	setType(typeOfObject);
@@ -20,7 +20,16 @@ void Chamomile::setType(int typeOfObject)
 		return;
 
 	this->typeOfObject = typeOfObject;
-	this->conditionalSizeUnits = Vector2i (200, 200);
+	if (typeOfObject == 1)
+		conditionalSizeUnits = Vector2i(297, 263);
+	if (typeOfObject == 2)
+		conditionalSizeUnits = Vector2i(279, 281);
+	if (typeOfObject == 3)
+		conditionalSizeUnits = Vector2i(313, 264);
+	if (typeOfObject == 4)
+		conditionalSizeUnits = Vector2i(223, 267);
+	if (typeOfObject == 5)
+		conditionalSizeUnits = Vector2i(203, 206);
 }
 
 Vector2i Chamomile::calculateTextureOffset()
@@ -50,7 +59,12 @@ int Chamomile::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string Chamomile::getSpriteName(long long elapsedTime)
+void Chamomile::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/chamomile/chamomile" + std::to_string(typeOfObject) + ".png";
+    additionalSprites.clear();
+	spriteChainElement chamomileBody;
+	chamomileBody.path = "Game/worldSprites/terrainObjects/chamomile/chamomile" + std::to_string(typeOfObject) + ".png";
+	chamomileBody.size = Vector2f(conditionalSizeUnits);
+	chamomileBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(chamomileBody);
 }

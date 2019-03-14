@@ -80,7 +80,12 @@ int GroundConnection::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-std::string GroundConnection::getSpriteName(long long elapsedTime)
+void GroundConnection::prepareSpriteNames(long long elapsedTime)
 {
-	return "Game/worldSprites/terrainObjects/ground/groundConnection" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement groundConnectionBody;
+	groundConnectionBody.path = "Game/worldSprites/terrainObjects/ground/groundConnection" + std::to_string(typeOfObject) + ".png";
+	groundConnectionBody.size = Vector2f(conditionalSizeUnits);
+	groundConnectionBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(groundConnectionBody);
 }
