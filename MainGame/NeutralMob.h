@@ -13,13 +13,15 @@ protected:
 	int sightRange;
 	int morality;
 	int fear;
+	float distanceToNearest = 10e6;
 private:
+	
 public:
 	NeutralMob(std::string objectName, Vector2f centerPosition);
 	~NeutralMob();
-	void behaviorWithDynamic(DynamicObject& target, float elapsedTime) override;
-	virtual void behaviorWithStatic(WorldObject& target, float elapsedTime) override = 0;
-	void behavior(float elapsedTime) override = 0;
+	void behaviorWithDynamic(DynamicObject* target, float elapsedTime) override;
+	void behaviorWithStatic(WorldObject* target, float elapsedTime) override;
+	void behavior(float elapsedTime) override;
 	void setTarget(DynamicObject& object) override;
 };
 

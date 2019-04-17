@@ -4,7 +4,7 @@ using namespace sf;
 
 NeutralMob::NeutralMob(std::string objectName, Vector2f centerPosition) : DynamicObject(objectName, centerPosition)
 {
-	currentSprite = 1;
+	currentSprite[0] = 1;
 	currentAction = relax;
 }
 
@@ -15,10 +15,26 @@ NeutralMob::~NeutralMob()
 
 void NeutralMob::setTarget(DynamicObject& object)
 {
-	return;
+	if (object.tag == nooseTag)
+		return;
+	if (Helper::getDist(position, object.getPosition()) < distanceToNearest)
+	{
+		boundTarget = &object;
+		distanceToNearest = Helper::getDist(position, object.getPosition());
+	}
 }
 
-void NeutralMob::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
+void NeutralMob::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
+{
+	
+}
+
+void NeutralMob::behaviorWithStatic(WorldObject* target, float elapsedTime)
+{
+
+}
+
+void NeutralMob::behavior(float elapsedTime)
 {
 	if (healthPoint <= 0)
 	{
@@ -27,22 +43,16 @@ void NeutralMob::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 		return;
 	}
 
-	setSide(movePosition, elapsedTime);
-
-	const Vector2f curPos = this->getPosition();
-	const Vector2f tarPos = target.getPosition();
-
-	const float distanceToTarget = Helper::getDist(curPos, tarPos);
+	setSide(movePosition, elapsedTime);	
+	//return;
+	if (boundTarget == nullptr)
+		return;
+	const float distanceToTarget = Helper::getDist(this->position, boundTarget->getPosition());
 
 	if (distanceToTarget <= sightRange)
 	{
 		changeAction(move, false, true);
-		
-		fear = target.getStrength() * target.getRadius();
-		const int randomOffsetX = rand() % (fear / morality) - (fear / morality) / 2;
-		const int randomOffsetY = rand() % (fear / morality) - (fear / morality) / 2;
-
-		movePosition = Vector2f(position.x - (target.getPosition().x - position.x + randomOffsetX), position.y - (target.getPosition().y - position.y + randomOffsetY));
+		movePosition = Vector2f(position.x - (boundTarget->getPosition().x - position.x), position.y - (boundTarget->getPosition().y - position.y));
 	}
 	else
 	{
@@ -55,17 +65,10 @@ void NeutralMob::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 				movePosition = { -1, -1 };
 			}
 			else
-				movePosition = Vector2f(position.x - (target.getPosition().x - position.x), position.y - (target.getPosition().y - position.y));
+				movePosition = Vector2f(position.x - (boundTarget->getPosition().x - position.x), position.y - (boundTarget->getPosition().y - position.y));
 		}
 	}
-}
 
-void NeutralMob::behaviorWithStatic(WorldObject& target, float elapsedTime)
-{
-
-}
-
-void NeutralMob::behavior(float elapsedTime)
-{
-
+	distanceToNearest = 10e6;
+	boundTarget = nullptr;
 }

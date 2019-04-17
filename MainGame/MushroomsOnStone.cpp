@@ -8,7 +8,6 @@ MushroomsOnStone::MushroomsOnStone(std::string objectName, Vector2f centerPositi
 	animationLength = 12;
 	this->typeOfObject = typeOfObject;
 	radius = 200;
-	randomSizeIncrease = Vector2i (50, 50);
 	toSaveName = "spawn";
 	setType(typeOfObject);
 }
@@ -16,7 +15,7 @@ MushroomsOnStone::MushroomsOnStone(std::string objectName, Vector2f centerPositi
 void MushroomsOnStone::setType(int typeOfObject)
 {
 	this->typeOfObject = typeOfObject;
-	this->conditionalSizeUnits = Vector2i (400 + rand() % randomSizeIncrease.x, 400 + rand() % randomSizeIncrease.x);
+	this->conditionalSizeUnits = Vector2i (400, 400);
 }
 
 Vector2i MushroomsOnStone::calculateTextureOffset()
@@ -51,10 +50,10 @@ void MushroomsOnStone::prepareSpriteNames(long long elapsedTime)
 	{
 		timeForNewSprite = 0;
 
-		if (++currentSprite > animationLength)
+		if (++currentSprite[0] > animationLength)
 		{
-			currentSprite = 1;
+			currentSprite[0] = 1;
 		}
 	}
-	return "Game/worldSprites/terrainObjects/mushroomsOnStone/t2_" + std::to_string(currentSprite) + ".png";*/
+	return "Game/worldSprites/terrainObjects/mushroomsOnStone/t2_" + std::to_string(currentSprite[0]) + ".png";*/
 }

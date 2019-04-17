@@ -6,8 +6,7 @@ WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 	name = objectName;
 	position = centerPosition;
 	WorldObject::initPedestal();
-	inventoryVisibility = false;
-	randomSizeIncrease = Vector2i(0, 0);
+	currentSprite.resize(1);
 }
 
 void WorldObject::setTextureSize(Vector2f textureSize)
@@ -39,8 +38,6 @@ void WorldObject::initPedestal()
 
 void WorldObject::setPosition(Vector2f newPosition)
 {
-	posOffset = Vector2f(position.x - previousPosition.x, position.y - previousPosition.y);
-	previousPosition = position;
 	position = Vector2f(newPosition);
 	textureBox.left = int(newPosition.x) - textureBoxOffset.x;
 	textureBox.top = int(newPosition.y) - textureBoxOffset.y;

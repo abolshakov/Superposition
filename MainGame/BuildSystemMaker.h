@@ -49,8 +49,7 @@ public:
 	void setHeldItem(std::pair<int, int>& heldItem) { if (nullptr != &heldItem) this->heldItem = &heldItem; }
 private:	
 	std::unordered_map<int, cell> craftIngredientsSpriteList;
-	std::pair<int, int> *heldItem = nullptr;
-	Vector2f currentSpritePos, currentSpriteOffset, currentSpriteSize, currentSpriteScale;
+	std::pair<int, int> *heldItem = nullptr;	
 	Vector2f spriteBuildPos = Vector2f (-1, -1);
 	int buildType = 1;
 	void initializeButtons();

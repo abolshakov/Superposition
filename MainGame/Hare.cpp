@@ -5,7 +5,7 @@ using namespace sf;
 Hare::Hare(const std::string objectName, Vector2f centerPosition) : NeutralMob(objectName, centerPosition)
 {
 	conditionalSizeUnits = Vector2i (180, 150);
-	currentSprite = 1;
+	currentSprite[0] = 1;
 	timeForNewSprite = 0;
 	speed = 0.0006f;
 	animationSpeed = 0.0005f;
@@ -41,7 +41,7 @@ void Hare::setTarget(DynamicObject& object)
 	return;
 }
 
-void Hare::behaviorWithStatic(WorldObject& target, float elapsedTime)
+void Hare::behaviorWithStatic(WorldObject* target, float elapsedTime)
 {
 
 }
@@ -95,14 +95,14 @@ void Hare::prepareSpriteNames(long long elapsedTime)
 					break;
 				default:;
 			}		
-			fullSprite.path += std::to_string(currentSprite) + ".png";
+			fullSprite.path += std::to_string(currentSprite[0]) + ".png";
 			break;
 		}
 		case dead:
 		{
 			animationLength = 1;
 			fullSprite.path = "Game/worldSprites/hare/stand/down/1.png";
-			currentSprite = 0;
+			currentSprite[0] = 1;
 		}
 	default:;
 	}
@@ -126,7 +126,7 @@ void Hare::prepareSpriteNames(long long elapsedTime)
 				break;
 			default:;		
 		}
-		fullSprite.path += std::to_string(currentSprite) + ".png";
+		fullSprite.path += std::to_string(currentSprite[0]) + ".png";
 	}
 
 	additionalSprites.push_back(fullSprite);
@@ -137,14 +137,14 @@ void Hare::prepareSpriteNames(long long elapsedTime)
 	{
 		timeForNewSprite = 0;
 
-		if (++currentSprite > animationLength)
+		if (++currentSprite[0] > animationLength)
 		{
 			if (currentAction >= static_cast<Actions>(0) && currentAction < static_cast<Actions>(3))
 			{
 				lastAction = currentAction;
 				currentAction = combatState;
 			}
-			currentSprite = 1;
+			currentSprite[0] = 1;
 		}
 	}
 }

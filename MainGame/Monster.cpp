@@ -6,7 +6,7 @@ Monster::Monster(std::string objectName, Vector2f centerPosition) : DynamicObjec
 {
 	conditionalSizeUnits = Vector2i (200, 250);
 	timeForNewRoute = 1000000;
-	currentSprite = 1;
+	currentSprite[0] = 1;
 	timeForNewSprite = 0;
 	speed = 0.0004f;
 	animationSpeed = 0.0005f;
@@ -18,12 +18,6 @@ Monster::Monster(std::string objectName, Vector2f centerPosition) : DynamicObjec
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
 	timeForNewHit = 1000000;
-	inventoryCapacity = 5;
-
-	inventory.push_back(std::make_pair(1, 2));
-	inventory.push_back(std::make_pair(1, 1));
-	inventory.push_back(std::make_pair(1, 2));
-	inventory.push_back(std::make_pair(2, 2));
 
 	toSaveName = "monster";
 }
@@ -33,7 +27,7 @@ Monster::~Monster()
 
 }
 
-void Monster::behaviorWithStatic(WorldObject& target, float elapsedTime)
+void Monster::behaviorWithStatic(WorldObject* target, float elapsedTime)
 {
 
 }
@@ -56,7 +50,7 @@ void Monster::setTarget(DynamicObject& object)
 		return; //targetPosition = object.getPosition();
 }
 
-void Monster::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
+void Monster::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 {
 	if (healthPoint <= 0)
 	{
@@ -65,15 +59,15 @@ void Monster::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 		return;
 	}
 
-	if (target.tag != mainHeroTag)
+	if (target->tag != mainHeroTag)
 		return;	
 
 	setSide(movePosition, elapsedTime);
 
 	Vector2f curPos = this->getPosition();
-	Vector2f tarPos = target.getPosition();
+	Vector2f tarPos = target->getPosition();
 
-	if (Helper::getDist(curPos, tarPos) <= (this->radius + target.getRadius()))
+	if (Helper::getDist(curPos, tarPos) <= (this->radius + target->getRadius()))
 	{
 		if (currentAction == move)
 		{
@@ -82,9 +76,9 @@ void Monster::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 		}
 		else
 		{
-			if (currentAction >= 0 && currentAction < 3 && currentSprite == strikingSprite && wasHit == false)
+			if (currentAction >= 0 && currentAction < 3 && currentSprite[0] == strikingSprite && wasHit == false)
 			{
-				target.takeDamage(this->strength);
+				target->takeDamage(this->strength);
 				wasHit = true;
 			}
 		}
@@ -95,20 +89,20 @@ void Monster::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
 			timeAfterHit += elapsedTime;
 			if (timeAfterHit >= timeForNewHit)
 			{
-				currentAction = bottomHit;
-				currentSprite = 1;
+				currentAction = directHit;
+				currentSprite[0] = 1;
 				timeAfterHit = 0;
 			}
 		}
 	}
 	else
 	{
-		if (currentAction != upperHit && currentAction != bottomHit && currentAction != directHit)
+		if (currentAction != directHit)
 		{
 			timeAfterHit = 0;
 			currentAction = move;
-			movePosition = target.getPosition();
-			//setMoveOffset(target.getRadius());
+			movePosition = target->getPosition();
+			//setMoveOffset(target->getRadius());
 		}
 	}
 }
@@ -138,66 +132,6 @@ void Monster::prepareSpriteNames(long long elapsedTime)
 
 	switch (currentAction)
 	{
-	case bottomHit:
-	{
-		animationLength = 5;
-		switch (side)
-		{
-		case up:
-		{
-			fullSprite.path = "Game/worldSprites/hare/hit/up/";
-			break;
-		}
-		case right:
-		{
-			fullSprite.path = "Game/worldSprites/hare/hit/right/";
-			break;
-		}
-		case down:
-		{
-			fullSprite.path = "Game/worldSprites/hare/hit/down/";
-			break;
-		}
-		case left:
-		{
-			fullSprite.path = "Game/worldSprites/hare/hit/left/";
-			break;
-		}
-		}
-		fullSprite.path += std::to_string(currentSprite);
-		fullSprite.path += ".png";
-		break;
-	}
-	case upperHit:
-	{
-		animationLength = 5;
-		switch (side)
-		{
-		case up:
-		{
-			fullSprite.path = "Game/worldSprites/hare/hit/up/";
-			break;
-		}
-		case right:
-		{
-			fullSprite.path = "Game/worldSprites/hare/hit/right/";
-			break;
-		}
-		case down:
-		{
-			fullSprite.path = "Game/worldSprites/hare/hit/down/";
-			break;
-		}
-		case left:
-		{
-			fullSprite.path = "Game/worldSprites/hare/hit/left/";
-			break;
-		}
-		}
-		fullSprite.path += std::to_string(currentSprite);
-		fullSprite.path += ".png";
-		break;
-	}
 	case directHit:
 	{
 		animationLength = 5;
@@ -205,26 +139,26 @@ void Monster::prepareSpriteNames(long long elapsedTime)
 		{
 		case up:
 		{
-			fullSprite.path = "Game/worldSprites/hare/hit/up/";
+			fullSprite.path = "Game/worldSprites/hare/move/up/";
 			break;
 		}
 		case right:
 		{
-			fullSprite.path = "Game/worldSprites/hare/hit/right/";
+			fullSprite.path = "Game/worldSprites/hare/move/right/";
 			break;
 		}
 		case down:
 		{
-			fullSprite.path = "Game/worldSprites/hare/hit/down/";
+			fullSprite.path = "Game/worldSprites/hare/move/down/";
 			break;
 		}
 		case left:
 		{
-			fullSprite.path = "Game/worldSprites/hare/hit/left/";
+			fullSprite.path = "Game/worldSprites/hare/move/left/";
 			break;
 		}
 		}
-		fullSprite.path += std::to_string(currentSprite);
+		fullSprite.path += std::to_string(currentSprite[0]);
 		fullSprite.path += ".png";
 		break;
 	}
@@ -254,7 +188,7 @@ void Monster::prepareSpriteNames(long long elapsedTime)
 			break;
 		}
 		}
-		fullSprite.path += std::to_string(currentSprite);
+		fullSprite.path += std::to_string(currentSprite[0]);
 		fullSprite.path += ".png";
 		break;
 	}
@@ -262,7 +196,7 @@ void Monster::prepareSpriteNames(long long elapsedTime)
 	{
 		animationLength = 1;
 		fullSprite.path = "Game/worldSprites/hare/stand/down/";
-		fullSprite.path += std::to_string(currentSprite);
+		fullSprite.path += std::to_string(currentSprite[0]);
 		fullSprite.path += ".png";
 		break;
 	}
@@ -270,56 +204,36 @@ void Monster::prepareSpriteNames(long long elapsedTime)
 	{
 		animationLength = 1;
 		fullSprite.path = "Game/worldSprites/hare/stand/down/1.png";
-		currentSprite = 0;
+		currentSprite[0] = 1;
 	}
 	}
 
 	if (currentAction == move)
 	{
 		animationLength = 5;
-		switch (direction)
+		switch (side)
 		{
-		case LEFT:
-			fullSprite.path = "Game/worldSprites/hare/move/left/";
-			fullSprite.path += std::to_string(currentSprite);
-			fullSprite.path += ".png";
-			break;
-		case RIGHT:
-			fullSprite.path = "Game/worldSprites/hare/move/right/";
-			fullSprite.path += std::to_string(currentSprite);
-			fullSprite.path += ".png";
-			break;
-		case UP:
-			fullSprite.path = "Game/worldSprites/hare/move/up/";
-			fullSprite.path += std::to_string(currentSprite);
-			fullSprite.path += ".png";
-			break;
-		case DOWN:
-			fullSprite.path = "Game/worldSprites/hare/move/down/";
-			fullSprite.path += std::to_string(currentSprite);
-			fullSprite.path += ".png";
-			break;
-		case UPLEFT:
-			fullSprite.path = "Game/worldSprites/hare/move/left/";
-			fullSprite.path += std::to_string(currentSprite);
-			fullSprite.path += ".png";
-			break;
-		case UPRIGHT:
-			fullSprite.path = "Game/worldSprites/hare/move/right/";
-			fullSprite.path += std::to_string(currentSprite);
-			fullSprite.path += ".png";
-			break;
-		case DOWNLEFT:
-			fullSprite.path = "Game/worldSprites/hare/move/left/";
-			fullSprite.path += std::to_string(currentSprite);
-			fullSprite.path += ".png";
-			break;
-		case DOWNRIGHT:
-			fullSprite.path = "Game/worldSprites/hare/move/right/";
-			fullSprite.path += std::to_string(currentSprite);
-			fullSprite.path += ".png";
-			break;
-		default:;
+			case left:
+				fullSprite.path = "Game/worldSprites/hare/move/left/";
+				fullSprite.path += std::to_string(currentSprite[0]);
+				fullSprite.path += ".png";
+				break;
+			case right:
+				fullSprite.path = "Game/worldSprites/hare/move/right/";
+				fullSprite.path += std::to_string(currentSprite[0]);
+				fullSprite.path += ".png";
+				break;
+			case up:
+				fullSprite.path = "Game/worldSprites/hare/move/up/";
+				fullSprite.path += std::to_string(currentSprite[0]);
+				fullSprite.path += ".png";
+				break;
+			case down:
+				fullSprite.path = "Game/worldSprites/hare/move/down/";
+				fullSprite.path += std::to_string(currentSprite[0]);
+				fullSprite.path += ".png";
+				break;
+			default:;	
 		}
 	}
 
@@ -331,14 +245,14 @@ void Monster::prepareSpriteNames(long long elapsedTime)
 	{
 		timeForNewSprite = 0;
 
-		if (++currentSprite > animationLength)
+		if (++currentSprite[0] > animationLength)
 		{
 			if (currentAction >= (Actions)(0) && currentAction < (Actions)3)
 			{
 				lastAction = currentAction;
 				currentAction = combatState;
 			}
-			currentSprite = 1;
+			currentSprite[0] = 1;
 		}
 	}
 }

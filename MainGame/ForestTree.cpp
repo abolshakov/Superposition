@@ -196,7 +196,7 @@ void ForestTree::prepareSpriteNames(long long elapsedTime)
 		{
 			animationLength = 15;
 			treeBody.path = "Game/worldSprites/terrainObjects/forestTree/forestTree" + std::to_string(typeOfObject) + ".png";
-			transparensy = 100 - currentSprite * 100 / animationLength;
+			transparency = 100 - currentSprite[0] * 100 / animationLength;
 			break;
 		}
 	}
@@ -209,14 +209,14 @@ void ForestTree::prepareSpriteNames(long long elapsedTime)
 	{
 		timeForNewSprite = 0;
 
-		if (++currentSprite > animationLength)
+		if (++currentSprite[0] > animationLength)
 		{
 			if (state == absorbed)
 			{
 				state = common;
 				delatePromiseOn();
 			}
-			currentSprite = 1;
+			currentSprite[0] = 1;
 		}
 	}
 }

@@ -5,7 +5,7 @@ using namespace sf;
 Wolf::Wolf(std::string objectName, Vector2f centerPosition) : NeutralMob(objectName, centerPosition)
 {
 	conditionalSizeUnits = Vector2i (250, 200);
-	currentSprite = 1;
+	currentSprite[0] = 1;
 	timeForNewSprite = 0;
 	speed = 0.0005f;
 	animationSpeed = 0.0006f;
@@ -20,12 +20,6 @@ Wolf::Wolf(std::string objectName, Vector2f centerPosition) : NeutralMob(objectN
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
 	timeForNewHit = 1000000;
-	inventoryCapacity = 5;
-
-	inventory.push_back(std::make_pair(1, 2));
-	inventory.push_back(std::make_pair(2, 1));
-	inventory.push_back(std::make_pair(1, 2));
-	inventory.push_back(std::make_pair(2, 2));
 
 	toSaveName = "wolf";
 }
@@ -39,7 +33,7 @@ void Wolf::setTarget(DynamicObject& object)
 	return;
 }
 
-void Wolf::behaviorWithStatic(WorldObject& target, float elapsedTime)
+void Wolf::behaviorWithStatic(WorldObject* target, float elapsedTime)
 {
 
 }
@@ -103,7 +97,7 @@ void Wolf::prepareSpriteNames(long long elapsedTime)
 				break;
 			}
 		}
-		spriteName += std::to_string(currentSprite);
+		spriteName += std::to_string(currentSprite[0]);
 		spriteName += ".png";
 		break;
 	}
@@ -133,7 +127,7 @@ void Wolf::prepareSpriteNames(long long elapsedTime)
 				break;
 			}
 		}
-		spriteName += std::to_string(currentSprite);
+		spriteName += std::to_string(currentSprite[0]);
 		spriteName += ".png";
 		break;
 	}
@@ -163,7 +157,7 @@ void Wolf::prepareSpriteNames(long long elapsedTime)
 				break;
 			}
 		}
-		spriteName += std::to_string(currentSprite);
+		spriteName += std::to_string(currentSprite[0]);
 		spriteName += ".png";
 		break;
 	}
@@ -193,7 +187,7 @@ void Wolf::prepareSpriteNames(long long elapsedTime)
 				break;
 			}
 		}
-		spriteName += std::to_string(currentSprite);
+		spriteName += std::to_string(currentSprite[0]);
 		spriteName += ".png";
 		break;
 	}
@@ -201,7 +195,7 @@ void Wolf::prepareSpriteNames(long long elapsedTime)
 	{
 		animationLength = 1;
 	    spriteName = "Game/worldSprites/wolf/stand/down/";				
-		spriteName += std::to_string(currentSprite);
+		spriteName += std::to_string(currentSprite[0]);
 		spriteName += ".png";
 		break;
 	}
@@ -209,7 +203,7 @@ void Wolf::prepareSpriteNames(long long elapsedTime)
 	{
 		animationLength = 1;
 		spriteName = "Game/worldSprites/wolf/stand/down/1.png";
-		currentSprite = 0;
+		currentSprite[0] = 1;
 	}
 	}
 
@@ -220,42 +214,42 @@ void Wolf::prepareSpriteNames(long long elapsedTime)
 		{
 		case LEFT:
 			spriteName = "Game/worldSprites/wolf/move/left/";
-			spriteName += std::to_string(currentSprite);
+			spriteName += std::to_string(currentSprite[0]);
 			spriteName += ".png";
 			break;
 		case RIGHT:
 			spriteName = "Game/worldSprites/wolf/move/right/";
-			spriteName += std::to_string(currentSprite);
+			spriteName += std::to_string(currentSprite[0]);
 			spriteName += ".png";
 			break;
 		case UP:
 			spriteName = "Game/worldSprites/wolf/move/up/";
-			spriteName += std::to_string(currentSprite);
+			spriteName += std::to_string(currentSprite[0]);
 			spriteName += ".png";
 			break;
 		case DOWN:
 			spriteName = "Game/worldSprites/wolf/move/down/";
-			spriteName += std::to_string(currentSprite);
+			spriteName += std::to_string(currentSprite[0]);
 			spriteName += ".png";
 			break;
 		case UPLEFT:
 			spriteName = "Game/worldSprites/wolf/move/left/";
-			spriteName += std::to_string(currentSprite);
+			spriteName += std::to_string(currentSprite[0]);
 			spriteName += ".png";
 			break;
 		case UPRIGHT:
 			spriteName = "Game/worldSprites/wolf/move/right/";
-			spriteName += std::to_string(currentSprite);
+			spriteName += std::to_string(currentSprite[0]);
 			spriteName += ".png";
 			break;
 		case DOWNLEFT:
 			spriteName = "Game/worldSprites/wolf/move/left/";
-			spriteName += std::to_string(currentSprite);
+			spriteName += std::to_string(currentSprite[0]);
 			spriteName += ".png";
 			break;
 		case DOWNRIGHT:
 			spriteName = "Game/worldSprites/wolf/move/right/";
-			spriteName += std::to_string(currentSprite);
+			spriteName += std::to_string(currentSprite[0]);
 			spriteName += ".png";
 			break;
 		default:;
@@ -268,14 +262,14 @@ void Wolf::prepareSpriteNames(long long elapsedTime)
 	{
 		timeForNewSprite = 0;
 
-		if (++currentSprite > animationLength)
+		if (++currentSprite[0] > animationLength)
 		{
 			if (currentAction >= (Actions)(0) && currentAction < (Actions)3)
 			{
 				lastAction = currentAction;
 				currentAction = combatState;
 			}
-			currentSprite = 1;
+			currentSprite[0] = 1;
 		}
 	}
 	*/

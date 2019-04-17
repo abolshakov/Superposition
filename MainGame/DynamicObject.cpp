@@ -5,7 +5,7 @@
 DynamicObject::DynamicObject(std::string objectName, Vector2f centerPosition) : WorldObject(objectName, centerPosition)
 {
 	speed = 0;
-	direction = STAND;	
+	direction = STAND;
 }
 
 DynamicObject::~DynamicObject()
@@ -19,14 +19,6 @@ void DynamicObject::handleInput()
 
 void DynamicObject::setSide(Vector2f otherObjectPosition, float elapsedTime)
 {
-	if (timeAfterSideChange < timeForNewSide)
-	{
-		timeAfterSideChange += elapsedTime;
-		return;
-	}
-	else
-		timeAfterSideChange = 0;
-
 	Side answer = down;
 
 	float alpha = atan((float(otherObjectPosition.y) - this->position.y) / (float(otherObjectPosition.x) - this->position.x)) * 180 / pi;
@@ -72,6 +64,7 @@ void DynamicObject::setMoveOffset(float elapsedTime)
 
 	Vector2f curPos = this->getPosition();
 	Vector2f tarPos = movePosition;
+
 	if (abs(curPos.x - tarPos.x) < (this->radius))
 	{
 		if (curPos.y < tarPos.y)
@@ -333,7 +326,8 @@ void DynamicObject::changeAction(Actions newAction, bool resetSpriteNumber, bool
 	currentAction = newAction;
 
 	if (resetSpriteNumber)
-		currentSprite = 1;
+		for (auto number : currentSprite)
+			number = 1;
 }
 
 void DynamicObject::takeDamage(float damage)
@@ -341,3 +335,44 @@ void DynamicObject::takeDamage(float damage)
 	this->timeForNewHitself = 0;
 	this->healthPoint -= damage / this->armor;
 }
+
+std::string DynamicObject::sideToString(Side side)
+{
+	switch (side)
+	{
+		case up:
+			return "up";
+		case right:
+			return "right";
+		case down:
+			return "down";
+		case  left:
+			return "left";
+	}
+	return "";
+}
+
+std::string DynamicObject::directionToString(Direction direction)
+{
+	switch (direction)
+	{
+	case UP:
+		return "up";
+	case RIGHT:
+		return "right";
+	case DOWN:
+		return "down";
+	case LEFT:
+		return "left";
+	case UPRIGHT:
+		return "right";
+	case UPLEFT:
+		return "left";
+	case DOWNRIGHT:
+		return "right";
+	case DOWNLEFT:
+		return "left";
+	}
+	return "";
+}
+

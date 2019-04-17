@@ -154,8 +154,7 @@ void HeroBag::draw(RenderWindow* window, float elapsedTime)
 			sprite->setPosition(position.x - textureClosedOffset.x, position.y - textureClosedOffset.y);
 
 			changeCellsPosition(Vector2f(toCenterVector.x * cutCoefficient, toCenterVector.y * cutCoefficient));
-			window->draw(*sprite);
-			Helper::drawText(std::to_string(position.x) + " " + std::to_string(position.y), 30, 800, 800, window);
+			window->draw(*sprite);			
 		}
 		return;
 	}
@@ -184,7 +183,6 @@ void HeroBag::draw(RenderWindow* window, float elapsedTime)
 
 			changeCellsPosition(Vector2f(fromCenterVector.x * cutCoefficient, fromCenterVector.y * cutCoefficient));
 			window->draw(*sprite);
-			Helper::drawText(std::to_string(position.x) + " " + std::to_string(position.y), 30, 800, 800, window);
 		}
 		return;
 	}

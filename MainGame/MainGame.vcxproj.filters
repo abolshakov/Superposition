@@ -99,13 +99,17 @@
     <ClCompile Include="Mugwort.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
-    <ClCompile Include="HeroBag.cpp" />
     <ClCompile Include="NeutralMob.cpp">
       <Filter>Creatures</Filter>
     </ClCompile>
-    <ClCompile Include="Deer.cpp" />
     <ClCompile Include="Noose.cpp">
       <Filter>DynamicObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Deer.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="HeroBag.cpp">
+      <Filter>UISystems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -208,13 +212,17 @@
     <ClInclude Include="Mugwort.h">
       <Filter>Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="HeroBag.h" />
     <ClInclude Include="NeutralMob.h">
       <Filter>Creatures</Filter>
     </ClInclude>
-    <ClInclude Include="Deer.h" />
     <ClInclude Include="Noose.h">
       <Filter>DynamicObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Deer.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="HeroBag.h">
+      <Filter>UISystems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -20,14 +20,15 @@ protected:
 	Vector2f focus1, focus2;
 	float healthPoint, armor = 1, strength = 0, maxHealthPointValue;	
 	float defaultSpeed, speed;
-	float timeAfterHitself = 0, timeForNewRoute = 100000, timeAfterNewRoute = 0, timeForNewSide = 100000, timeAfterSideChange = 0;
+	float timeAfterHitself = 0, timeForNewRoute = 100000, timeAfterNewRoute = 0;
 	void setSide(Vector2f otherObjectPosition, float elapsedTime);
 	Side side;	
-	Actions currentAction, lastAction;
+	Actions currentAction, lastAction = relax;
 	Direction direction;
 	Vector2f moveOffset = Vector2f (-1, -1);
-	WorldObject *selectedTarget = nullptr;
+	WorldObject *boundTarget = nullptr;
 	bool routeGenerationAbility = true;
+	DynamicItemsIdList id;
 
 	//jerk mechanics
 	float jerkPower, jerkDeceleration = 0, jerkDistance = 0;
@@ -37,7 +38,7 @@ protected:
 public:
 	DynamicObject(std::string objectName, Vector2f centerPosition);
 	virtual ~DynamicObject();
-	int getSpriteNumber() override { return currentSprite; }
+	int getSpriteNumber() override { return currentSprite[0]; }
 	int getEllipseSize() const { return ellipseSize; }
 	float getMaxHealthPointValue() { return maxHealthPointValue; }
 	float getHealthPoint() { return healthPoint; }	
@@ -54,8 +55,11 @@ public:
 	Actions getCurrentAction() { return currentAction; }
 	Direction getDirection() { return direction; }
 	Side getSide() { return side; }
-	WorldObject *getSelectedTarget() { return selectedTarget; }
-	
+	WorldObject *getSelectedTarget() { return boundTarget; }
+	DynamicItemsIdList getId() { return id; }
+	static std::string sideToString(Side side);
+	static std::string directionToString(Direction direction);
+
 	void setCurrentAction(Actions action) { this->currentAction = action; }
 	void setHealthPoint(float healthPoint) { this->healthPoint = healthPoint; }
 	float setTimeAfterHitself(float time) { timeAfterHitself = time; }
@@ -67,8 +71,8 @@ public:
 	void setMoveOffset(float elapsedTime);	
 	void changeAction(Actions newAction, bool resetSpriteNumber = false, bool rememberLastAction = false);
 	virtual void handleInput();
-	virtual void behaviorWithDynamic(DynamicObject& target, float elapsedTime) = 0;
-	virtual void behaviorWithStatic(WorldObject& target, float elapsedTime) = 0;
+	virtual void behaviorWithDynamic(DynamicObject* target, float elapsedTime) = 0;
+	virtual void behaviorWithStatic(WorldObject* target, float elapsedTime) = 0;
 	virtual void behavior(float elapsedTime) = 0;
 	virtual void setTarget(DynamicObject &object) = 0;
 	virtual void jerk(float power, float deceleration, Vector2f destinationPoint) = 0;
@@ -84,7 +88,7 @@ public:
 	std::string lastIntersected = "";
 	std::vector<std::pair<int, int>> route;
 
-	int debugInfo = 0;
+	std::string debugInfo;
 	Vector2f memorizedRoutePosition = { -1, -1 };
 };
 

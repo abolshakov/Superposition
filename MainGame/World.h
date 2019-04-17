@@ -103,7 +103,8 @@ private:
 	//grids
 	GridList<StaticObject> staticGrid;
 	GridList<DynamicObject> dynamicGrid;
-	std::vector<WorldObject*> visibleBackground, visibleTerrain;
+	std::vector<spriteChainElement> visibleBackground, visibleTerrain;
+    std::vector<WorldObject*> localTerrain;
 public:
 	World(int width, int height);
 	~World();
@@ -113,6 +114,7 @@ public:
 	void renderLightSystem(View view, RenderWindow &window);
 
 	//adding to the grid
+	void birthObjects();
 	void initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName, bool reliable);
 	void initializeDynamicItem(DynamicItemsIdList itemClass, Vector2f itemPosition, std::string itemName);
 
@@ -137,7 +139,7 @@ public:
 	void interact(RenderWindow& window, long long elapsedTime);
 	void draw(RenderWindow& window, long long elapsedTime);
 	void setItemFromBuildSystem();
-	void drawVisibleItems(RenderWindow& window, long long elapsedTime, std::vector<WorldObject*> visibleItems);
+	void drawVisibleItems(RenderWindow& window, long long elapsedTime, std::vector<spriteChainElement> sprites);
 	Vector2f worldUpperLeft, worldBottomRight;
 	void runBuildSystemDrawing(RenderWindow& window, float elapsedTime);
 	void runInventorySystemDrawing(RenderWindow& window, float elapsedTime);

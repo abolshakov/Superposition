@@ -111,7 +111,7 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 
 		//auto sprite = (&spriteMap[terrain->prepareSpriteNames(0)])->sprite;
 		terrain->prepareSpriteNames(0);
-		auto sprite = (&spriteMap[terrain->getAdditionalSprites()[0].path])->sprite;
+		auto sprite = (&spriteMap[(terrain->additionalSprites)[0].path])->sprite;
 		sprite.setOrigin(float(sprite.getTextureRect().left), float(sprite.getTextureRect().top + sprite.getTextureRect().height));
 		sprite.setScale(terrain->getScaleRatio().x*scaleFactor, terrain->getScaleRatio().y*scaleFactor*sqrt(sqrt(scaleFactor)));
 

@@ -23,7 +23,7 @@ void Ground::setType(int typeOfObject)
 
 Vector2i Ground::calculateTextureOffset()
 {
-	return Vector2i (0, 0);
+	return {0, 0};
 }
 
 Vector2f Ground::getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition)

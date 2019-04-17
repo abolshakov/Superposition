@@ -7,19 +7,19 @@ using namespace sf;
 
 Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicObject(objectName, centerPosition)
 {
-	currentSprite = 1;
+	currentSprite[0] = 1;
+	currentSprite.resize(2);
 	timeForNewSprite = 0;
 	defaultSpeed = 0.0007f;
 	speed = defaultSpeed;
 	animationSpeed = 0.0010f;
-	animationLength = 8;
+	animationLength = 8;	
 	radius = 50;
 	strength = 20;
 	maxHealthPointValue = 1000;
 	healthPoint = maxHealthPointValue;
 	energy = 50; maxEnergyValue = 100;
 	currentAction = relax;
-	currentWorld = "common";
 	toSaveName = "this1";
 	tag = mainHeroTag;
 	canCrashIntoDynamic = false;
@@ -54,7 +54,7 @@ Vector2i Deerchant::calculateTextureOffset()
 void Deerchant::handleInput()
 {
 	//high-priority actions
-	if (currentAction == absorbs || currentAction == grab || currentAction == builds || currentAction == jerking || currentAction == throwNoose)
+	if (currentAction == absorbs || currentAction == grab || currentAction == builds || currentAction == jerking)
 		return;
 
 	if (Keyboard::isKeyPressed(Keyboard::Space) && currentAction != jerking && direction != STAND)
@@ -66,73 +66,59 @@ void Deerchant::handleInput()
 
 	setHitDirection();
 	moveOffset = Vector2f(-1, -1);
-
+		
+	if (Keyboard::isKeyPressed(Keyboard::A))					
+		direction = LEFT;					
+	if (Keyboard::isKeyPressed(Keyboard::D))						
+		direction = RIGHT;						
+	if (Keyboard::isKeyPressed(Keyboard::W))							
+		direction = UP;							
+	if (Keyboard::isKeyPressed(Keyboard::S))								
+		direction = DOWN;
 	if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::W))
-	{
 		direction = UPLEFT;
-	}
-	else
-		if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::W))
+	if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::W))
+		direction = UPRIGHT;
+	if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::S))
+		direction = DOWNLEFT;
+	if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::S))
+		direction = DOWNRIGHT;
+
+	if (currentAction != throwNoose) //second priority actions, interact while moving
+	{
+		if (!(Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::S)))
 		{
-			direction = UPRIGHT;
-		}
-		else
-			if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::S))
+			bool isIntersect = false;
+			if (boundTarget)
+				isIntersect = (sqrt(pow(this->position.x - movePosition.x, 2) + pow(this->position.y - movePosition.y, 2)) <= (this->radius + boundTarget->getRadius()));
+			if (isIntersect || !boundTarget)
 			{
-				direction = DOWNLEFT;
+				direction = STAND;
+				if (currentAction == move)
+					currentAction = relax;
 			}
 			else
-				if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::S))
+			{
+				if (boundTarget)
 				{
-					direction = DOWNRIGHT;
+					setMoveOffset(0);
+					currentAction = move;
 				}
-				else
-					if (Keyboard::isKeyPressed(Keyboard::A))
-					{
-						direction = LEFT;
-					}
-					else
-						if (Keyboard::isKeyPressed(Keyboard::D))
-						{
-							direction = RIGHT;
-						}
-						else
-							if (Keyboard::isKeyPressed(Keyboard::W))
-							{
-								direction = UP;
-							}
-							else
-								if (Keyboard::isKeyPressed(Keyboard::S))
-								{
-									direction = DOWN;
-								}
-								else
-								{
-									bool isIntersect = false;
-									if (selectedTarget)
-										isIntersect = (sqrt(pow(this->position.x - movePosition.x, 2) + pow(this->position.y - movePosition.y, 2)) <= (this->radius + selectedTarget->getRadius()));
-									if (isIntersect || !selectedTarget)
-									{
-										direction = STAND;
-										if (currentAction == move)
-											currentAction = relax;
-									}
-									else
-									{
-										if (selectedTarget)
-										{
-											setMoveOffset(0);
-											currentAction = move;
-										}
-									}
-								}
+			}
+		}
+	}
+	else
+		return;
 
 	//define actions
 	if (Keyboard::isKeyPressed(Keyboard::E))
-		currentAction = openInventory;
+		changeAction(openInventory, true, false);
 
-    if (Keyboard::isKeyPressed(Keyboard::R))
-		currentAction = throwNoose;
+	if (Keyboard::isKeyPressed(Keyboard::R))
+	{
+		changeAction(throwNoose, true, false);
+		return;
+	}
 
 	if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::S) || Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::D))
 		currentAction = move;
@@ -141,7 +127,7 @@ void Deerchant::handleInput()
 		Keyboard::isKeyPressed(Keyboard::Z) || Keyboard::isKeyPressed(Keyboard::F) || Keyboard::isKeyPressed(Keyboard::E) || Keyboard::isKeyPressed(Keyboard::LControl) ||
 		Keyboard::isKeyPressed(Keyboard::Space) || Keyboard::isKeyPressed(Keyboard::R) || Mouse::isButtonPressed(Mouse::Left) || Mouse::isButtonPressed(Mouse::Right))
 	{
-		if (selectedTarget != nullptr)
+		if (boundTarget != nullptr)
 			stopping(true, true);
 	}
 	//--------------
@@ -151,7 +137,7 @@ void Deerchant::handleInput()
 	if (Keyboard::isKeyPressed(Keyboard::Z) && (currentAction == relax || currentAction == combatState))
 	{
 		currentAction = transitionToEnotherWorld;
-		currentSprite = 1;
+		currentSprite[0] = 1;
 	}
 	else
 		if (Mouse::isButtonPressed(Mouse::Left))
@@ -188,106 +174,97 @@ void Deerchant::setTarget(DynamicObject& object)
 	return;
 }
 
-void Deerchant::behaviorWithDynamic(DynamicObject& target, float elapsedTime)
-{
-	bool isIntersect = (sqrt(pow(this->position.x - target.getPosition().x, 2) + pow(this->position.y - target.getPosition().y, 2)) <= (this->radius + target.getRadius()) + 10);
+void Deerchant::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
+{	
+	bool isIntersect = (sqrt(pow(this->position.x - target->getPosition().x, 2) + pow(this->position.y - target->getPosition().y, 2)) <= (this->radius + target->getRadius()) + 10);
 
-	if (target.getCurrentAction() == dead)
+	if (isIntersect && target->isSelected/* gettargetSide(thisObject, target) == this->hitDirection*/)
 	{
-		if (isIntersect && this->lastAction == openInventory && target.inventory.size() != 0)
-			target.setInventoryVisibility(true);
-		if (this->direction != STAND)
-			target.setInventoryVisibility(false);
-		return;
-	}
-
-	if (isIntersect && target.isSelected/* gettargetSide(thisObject, target) == this->hitDirection*/)
-	{
-		if (target.timeForNewHitself >= target.getTimeAfterHitself())
+		if (target->timeForNewHitself >= target->getTimeAfterHitself())
 		{
 			if (this->currentAction == commonHit && this->getSpriteNumber() == 4)
 			{
 				this->addEnergy(5);
-				target.takeDamage(this->getStrength());
-				target.timeForNewHitself = 0;
+				target->takeDamage(this->getStrength());
+				target->timeForNewHitself = 0;
 			}
 		}
 
 	}
 
-	target.timeForNewHitself += elapsedTime;
+	target->timeForNewHitself += elapsedTime;
 }
 
-void Deerchant::behaviorWithStatic(WorldObject& target, float elapsedTime)
+void Deerchant::behaviorWithStatic(WorldObject* target, float elapsedTime)
 {
 
 }
 
 void Deerchant::behavior(float elapsedTime)
-{	
+{		
 	jerkInteract(elapsedTime);
 	endingPreviousAction();
 
-	if (!selectedTarget || selectedTarget->isProcessed)
+	if (!boundTarget || boundTarget->isProcessed)
 	{
 		movePosition = Vector2f(-1, -1);
 		return;
 	}
 
 	if (currentAction != jerking)
-		movePosition = selectedTarget->getPosition();
+		movePosition = boundTarget->getPosition();
 
-	bool isIntersect = (Helper::getDist(position, movePosition)) <= (this->radius + selectedTarget->getRadius());
+	bool isIntersect = (Helper::getDist(position, movePosition)) <= (this->radius + boundTarget->getRadius());
 
 	//touch selected object 
 	if (isIntersect)
 	{
-		selectedTarget->isProcessed = true;
-		switch (selectedTarget->tag)
+		boundTarget->isProcessed = true;
+		switch (boundTarget->tag)
 		{
 		case forestTreeTag:
 		{
-			if (selectedTarget->getState() == absorbed)
+			if (boundTarget->getState() == absorbed)
 				break;
 
 			currentAction = absorbs;
-			currentSprite = 1;
-			setSide(selectedTarget->getPosition(), elapsedTime);
-			selectedTarget->setState(absorbed);
-			selectedTarget->isProcessed = false;
+			currentSprite[0] = 1;
+			setSide(boundTarget->getPosition(), elapsedTime);
+			boundTarget->setState(absorbed);
+			boundTarget->isProcessed = false;
 			stopping(true, true);
 			break;
 		}
 		case chamomileTag:
 		{
 			currentAction = grab;
-			currentSprite = 1;
+			currentSprite[0] = 1;
 			stopping(true);
 			break;
 		}
 		case yarrowTag:
 		{
 			currentAction = grab;
-			currentSprite = 1;
+			currentSprite[0] = 1;
 			stopping(true);
 			break;
 		}
 		case buildedObjectTag:
 		{
 			currentAction = builds;
-			currentSprite = 1;
-			setSide(selectedTarget->getPosition(), elapsedTime);
-			selectedTarget->isProcessed = false;
+			currentSprite[0] = 1;
+			setSide(boundTarget->getPosition(), elapsedTime);
+			boundTarget->isProcessed = false;
 			stopping(true, true);
 			break;
 		}
 		default:
 		{
 			currentAction = relax;
-			if (selectedTarget)
+			if (boundTarget)
 			{
-				selectedTarget->isProcessed = false;
-				setSide(selectedTarget->getPosition(), elapsedTime);
+				boundTarget->isProcessed = false;
+				setSide(boundTarget->getPosition(), elapsedTime);
 				stopping(true, true);
 			}
 			break;
@@ -296,74 +273,68 @@ void Deerchant::behavior(float elapsedTime)
 	}
 	else
 	{
-		selectedTarget->isProcessed = false;
+		boundTarget->isProcessed = false;
 	}
-	//----------------------------
+	//----------------------------	
 }
 
 void Deerchant::onMouseDownBehavior(WorldObject *object, Vector2f mouseWorldPos, bool isBuilding)
 {
 	if (isBuilding)
 	{
-		if (selectedTarget != nullptr)
+		if (boundTarget != nullptr)
 		{
-			selectedTarget = nullptr;
-			selectedTarget->isProcessed = false;
+			boundTarget = nullptr;
+			boundTarget->isProcessed = false;
 		}
-		selectedTarget = new EmptyObject("buildItem", mouseWorldPos);
-		selectedTarget->tag = buildedObjectTag;
+		boundTarget = new EmptyObject("buildItem", mouseWorldPos);
+		boundTarget->tag = buildedObjectTag;
 		movePosition = mouseWorldPos;
 		return;
 	}
 
 	if (!object)
 		return;
-	if (selectedTarget != nullptr)
-		if (selectedTarget->isProcessed)
+	if (boundTarget != nullptr)
+		if (boundTarget->isProcessed)
 			return;
 
-	selectedTarget = object;
+	boundTarget = object;
 	movePosition = object->getPosition();
 }
 
 void Deerchant::endingPreviousAction()
 {
-	if (lastAction == transitionToEnotherWorld)
-	{
-		if (currentWorld == "common")
-			currentWorld = "spirit";
-		else
-			currentWorld = "common";
-		currentAction = relax;
-	}
 	if (lastAction == commonHit && !Mouse::isButtonPressed(Mouse::Left))
 		currentAction = relax;
 	if (lastAction == moveHit && !Mouse::isButtonPressed(Mouse::Left))
 		currentAction = relax;
 	if (lastAction == openInventory)
-		currentAction = relax;
-    if (lastAction == throwNoose)
-		currentAction = relax;
+		currentAction = relax;  
 	if (lastAction == absorbs)
 		currentAction = relax;
 	if (lastAction == builds)
 		currentAction = relax;
-    if (currentAction == throwNoose)
+    if (lastAction == throwNoose)
     {
-        DynamicObject* noose = nullptr; 
-        noose = new Noose("noose", position);
+		birthDynamicInfo nooseObject;
+		nooseObject.position = position;
+		nooseObject.id = noose;
+		birthDynamics.push(nooseObject);		
+		currentAction = relax;
     }
 	if (lastAction == grab)
 	{
-		if (selectedTarget)
+		if (boundTarget)
 		{
-			auto item = dynamic_cast<PickedObject*>(selectedTarget);
+			auto item = dynamic_cast<PickedObject*>(boundTarget);
 			if (item)
 				item->pickUp(&this->bags);
 			stopping(true, true);
 			currentAction = relax;
 		}
 	}
+	lastAction = relax;
 }
 
 void Deerchant::jerkInteract(float elapsedTime)
@@ -392,10 +363,10 @@ void Deerchant::stopping(bool doStand, bool forgetSelectedTarget)
 		this->direction = STAND;
 	}
 
-	if (forgetSelectedTarget && selectedTarget != nullptr)
+	if (forgetSelectedTarget && boundTarget != nullptr)
 	{
-		selectedTarget->isProcessed = false;
-		selectedTarget = nullptr;
+		boundTarget->isProcessed = false;
+		boundTarget = nullptr;
 	}
 }
 
@@ -418,7 +389,7 @@ void Deerchant::jerk(float power, float deceleration, Vector2f destinationPoint)
 	this->jerkTime = this->jerkDuration;
 	currentAction = jerking;
 	jerkDistance = 500;
-	currentSprite = 1;
+	currentSprite[0] = 1;
 
 	movePosition = Vector2f(position.x + cos(direction * pi / 180) * jerkDistance, position.y - sin(direction * pi / 180) * jerkDistance);
 }
@@ -429,10 +400,12 @@ void Deerchant::prepareSpriteNames(long long elapsedTime)
 
 	legsSprite.offset = Vector2f(this->textureBoxOffset);
 	legsSprite.size = Vector2f(this->conditionalSizeUnits);
+	legsSprite.animationLength = 8;
 	bodySprite.offset = Vector2f(this->textureBoxOffset);
 	bodySprite.size = Vector2f(this->conditionalSizeUnits);
 	fullSprite.offset = Vector2f(this->textureBoxOffset);
 	fullSprite.size = Vector2f(this->conditionalSizeUnits);
+	
 	additionalSprites.clear();
 
 	switch (currentAction)
@@ -440,144 +413,23 @@ void Deerchant::prepareSpriteNames(long long elapsedTime)
 	case commonHit:
 		animationLength = 8;
 		animationSpeed = 0.0005f;
-
-		switch (side)
-		{
-			case up:
-			{
-				bodySprite.path = "Game/worldSprites/hero/hit/body/upLeft/";
-				legsSprite.path = "Game/worldSprites/hero/hit/legs/up/";
-				break;
-			}
-			case right:
-			{
-				bodySprite.path = "Game/worldSprites/hero/hit/body/right/";
-				legsSprite.path = "Game/worldSprites/hero/hit/legs/right/";
-				break;
-			}
-			case down:
-			{
-				bodySprite.path = "Game/worldSprites/hero/hit/body/downLeft/";
-				legsSprite.path = "Game/worldSprites/hero/hit/legs/down/";
-				break;
-			}
-			case left:
-			{
-				bodySprite.path = "Game/worldSprites/hero/hit/body/left/";
-				legsSprite.path = "Game/worldSprites/hero/hit/legs/left/";
-				break;
-			}
-		}
+		bodySprite.path = "Game/worldSprites/hero/hit/body/" + DynamicObject::sideToString(side) + '/';
+		legsSprite.path = "Game/worldSprites/hero/hit/legs/" + DynamicObject::sideToString(side) + '/';		
 		break;
 	case absorbs:
 		animationLength = 19;
 		animationSpeed = 0.0010f;
-		switch (side)
-		{
-			case up:
-			{
-				bodySprite.path = "Game/worldSprites/hero/absorb/up/";
-				break;
-			}
-			case right:
-			{
-				bodySprite.path = "Game/worldSprites/hero/absorb/right/";
-				break;
-			}
-			case down:
-			{
-				bodySprite.path = "Game/worldSprites/hero/absorb/down/";
-				break;
-			}
-			case left:
-			{
-				bodySprite.path = "Game/worldSprites/hero/absorb/left/";
-				break;
-			}
-		}
+		bodySprite.path = "Game/worldSprites/hero/absorb/" + DynamicObject::sideToString(side) + '/';		
 		break;
 	case builds:
 		animationLength = 19;
 		animationSpeed = 0.0010f;
-		switch (side)
-		{
-			case up:
-			{
-				bodySprite.path = "Game/worldSprites/hero/absorb/up/";
-				break;
-			}
-			case right:
-			{
-				bodySprite.path = "Game/worldSprites/hero/absorb/right/";
-				break;
-			}
-			case down:
-			{
-				bodySprite.path = "Game/worldSprites/hero/absorb/down/";
-				break;
-			}
-			case left:
-			{
-				bodySprite.path = "Game/worldSprites/hero/absorb/left/";
-				break;
-			}
-		}
+		bodySprite.path = "Game/worldSprites/hero/absorb/" + DynamicObject::sideToString(side) + '/';
 		break;
 	case grab:
 		animationLength = 12;
 		animationSpeed = 0.0009f;
-
-		switch (side)
-		{
-			case up:
-			{
-				bodySprite.path = "Game/worldSprites/hero/grab/up/";
-				break;
-			}
-			case right:
-			{
-				bodySprite.path = "Game/worldSprites/hero/grab/right/";
-				break;
-			}
-			case down:
-			{
-				bodySprite.path = "Game/worldSprites/hero/grab/down/";
-				break;
-			}
-			case left:
-			{
-				bodySprite.path = "Game/worldSprites/hero/grab/left/";
-				break;
-			}
-		}
-		break;
-    case throwNoose:
-		animationLength = 12;
-		animationSpeed = 0.0009f;
-
-		switch (side)
-		{
-			case up:
-			{
-				bodySprite.path = "Game/worldSprites/hero/grab/up/";
-				break;
-			}
-			case right:
-			{
-				bodySprite.path = "Game/worldSprites/hero/grab/right/";
-				break;
-			}
-			case down:
-			{
-				bodySprite.path = "Game/worldSprites/hero/grab/down/";
-				break;
-			}
-			case left:
-			{
-				bodySprite.path = "Game/worldSprites/hero/grab/left/";
-				break;
-			}
-		}
+		bodySprite.path = "Game/worldSprites/hero/grab/" + DynamicObject::sideToString(side) + '/';
 		break;
 	case transitionToEnotherWorld:
 		animationLength = 18;
@@ -586,79 +438,7 @@ void Deerchant::prepareSpriteNames(long long elapsedTime)
 	case jerking:
 		animationLength = 8;
 		animationSpeed = (1 / (jerkDuration / animationLength)) * 40;
-
-		switch (direction)
-		{
-			case UP:
-			{
-				bodySprite.path = "Game/worldSprites/hero/roll/up/";
-				break;
-			}
-			case RIGHT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/roll/right/";
-				break;
-			}
-			case LEFT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/roll/left/";
-				break;
-			}
-			case DOWN:
-			{
-				bodySprite.path = "Game/worldSprites/hero/roll/down/";
-				break;
-			}
-			case UPLEFT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/roll/left/";
-				break;
-			}
-			case UPRIGHT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/roll/right/";
-				break;
-			}
-			case DOWNLEFT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/roll/left/";
-				break;
-			}
-			case DOWNRIGHT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/roll/right/";
-				break;
-			}
-			case STAND:
-			{
-				animationLength = 1;
-				currentSprite = 1;
-				animationSpeed = 0.0010f;
-				switch (side)
-				{
-					case up:
-					{
-						bodySprite.path = "Game/worldSprites/hero/stand/up/";
-						break;
-					}
-					case right:
-					{
-						bodySprite.path = "Game/worldSprites/hero/stand/right/";
-						break;
-					}
-					case down:
-					{
-						bodySprite.path = "Game/worldSprites/hero/stand/down/";
-						break;
-					}
-					case left:
-					{
-						bodySprite.path = "Game/worldSprites/hero/stand/left/";
-						break;
-					}
-				}
-			}
-		}
+		bodySprite.path = "Game/worldSprites/hero/roll/" + DynamicObject::directionToString(direction) + '/';		
 		break;
 	case openInventory:
 		animationLength = 12;
@@ -666,32 +446,9 @@ void Deerchant::prepareSpriteNames(long long elapsedTime)
 		break;
 	case relax:
 		animationLength = 1;
-		currentSprite = 1;
+		currentSprite[0] = 1;
 		animationSpeed = 0.0010f;
-
-		switch (side)
-		{
-			case up:
-			{
-				bodySprite.path = "Game/worldSprites/hero/stand/up/";
-				break;
-			}
-			case right:
-			{
-				bodySprite.path = "Game/worldSprites/hero/stand/right/";				
-				break;
-			}
-			case down:
-			{
-				bodySprite.path = "Game/worldSprites/hero/stand/down/";				
-				break;
-			}
-			case left:
-			{
-				bodySprite.path = "Game/worldSprites/hero/stand/left/";				
-				break;
-			}
-		}
+		bodySprite.path = "Game/worldSprites/hero/stand/" + DynamicObject::sideToString(side) + '/';
 		break;
 	}
 
@@ -699,139 +456,52 @@ void Deerchant::prepareSpriteNames(long long elapsedTime)
 	{
 		animationLength = 8;
 		animationSpeed = 0.0005f;
-
-		switch (direction)
-		{
-			case UP:
-			{
-				bodySprite.path = "Game/worldSprites/hero/move/body/up/";
-				legsSprite.path = "Game/worldSprites/hero/move/legs/up/";
-				break;
-			}
-			case RIGHT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/move/body/right/";
-				legsSprite.path = "Game/worldSprites/hero/move/legs/right/";
-				break;
-			}
-			case LEFT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/move/body/left/";
-				legsSprite.path = "Game/worldSprites/hero/move/legs/left/";
-				break;
-			}
-			case DOWN:
-			{
-				bodySprite.path = "Game/worldSprites/hero/move/body/down/";
-				legsSprite.path = "Game/worldSprites/hero/move/legs/down/";
-				break;
-			}
-			case UPLEFT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/move/body/left/";
-				legsSprite.path = "Game/worldSprites/hero/move/legs/left/";
-				break;
-			}
-			case UPRIGHT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/move/body/right/";
-				legsSprite.path = "Game/worldSprites/hero/move/legs/right/";
-				break;
-			}
-			case DOWNLEFT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/move/body/left/";
-				legsSprite.path = "Game/worldSprites/hero/move/legs/left/";
-				break;
-			}
-			case DOWNRIGHT:
-			{
-				bodySprite.path = "Game/worldSprites/hero/move/body/right/";
-				legsSprite.path = "Game/worldSprites/hero/move/legs/right/";
-				break;
-			}
-		}
-	};
+		bodySprite.path = "Game/worldSprites/hero/move/body/" + DynamicObject::directionToString(direction) + '/';
+		legsSprite.path = "Game/worldSprites/hero/move/legs/" + DynamicObject::directionToString(direction) + '/';
+	}
 
 	if (currentAction == moveHit)
 	{
 		animationLength = 8;
 		animationSpeed = 0.0005f;
-
-		switch (direction)
-		{
-			case UP:
-			{
-				legsSprite.path = "Game/worldSprites/hero/move/legs/up/";
-				break;
-			}
-			case RIGHT:
-			{
-				legsSprite.path = "Game/worldSprites/hero/move/legs/right/";
-				break;
-			}
-			case LEFT:
-			{
-				legsSprite.path = "Game/worldSprites/hero/move/legs/left/";
-				break;
-			}
-			case DOWN:
-			{
-				legsSprite.path = "Game/worldSprites/hero/move/legs/down/";
-				break;
-			}
-			case UPLEFT:
-			{
-				legsSprite.path = "Game/worldSprites/hero/move/legs/left/";
-				break;
-			}
-			case UPRIGHT:
-			{
-				legsSprite.path = "Game/worldSprites/hero/move/legs/right/";
-				break;
-			}
-			case DOWNLEFT:
-			{
-				legsSprite.path = "Game/worldSprites/hero/move/legs/left/";
-				break;
-			}
-			case DOWNRIGHT:
-			{
-				legsSprite.path = "Game/worldSprites/hero/move/legs/right/";
-				break;
-			}
-		}
-		switch (side)
-		{
-			case up:
-			{
-				bodySprite.path = "Game/worldSprites/hero/hit/body/upLeft/";
-				break;
-			}
-			case right:
-			{
-				bodySprite.path = "Game/worldSprites/hero/hit/body/right/";
-				break;
-			}
-			case down:
-			{
-				bodySprite.path = "Game/worldSprites/hero/hit/body/downLeft/";
-				break;
-			}
-			case left:
-			{
-				bodySprite.path = "Game/worldSprites/hero/hit/body/left/";
-				break;
-			}
-		}
+		legsSprite.path = "Game/worldSprites/hero/move/legs/" + DynamicObject::directionToString(direction) + '/';
+		bodySprite.path = "Game/worldSprites/hero/hit/body/" + DynamicObject::sideToString(side) + '/';
+		if (direction == UP && side == down || (direction == LEFT || direction == UPLEFT || direction == DOWNLEFT) && side == right ||
+			direction == DOWN && side == up || (direction == RIGHT || direction == UPRIGHT || direction == DOWNRIGHT) && side == left)
+			legsSprite.path = "Game/worldSprites/hero/move/legs/" + DynamicObject::sideToString(side) + "Inverse/";
+		if ((direction == LEFT || direction == UPLEFT ||direction == DOWNLEFT) && side == up)
+			bodySprite.path = "Game/worldSprites/hero/hit/body/upRight/";
+		if ((direction == LEFT || direction == UPLEFT || direction == DOWNLEFT) && side == down)
+			bodySprite.path = "Game/worldSprites/hero/hit/body/down/";
+		if ((direction == RIGHT || direction == UPRIGHT || direction == DOWNRIGHT) && side == up)
+			bodySprite.path = "Game/worldSprites/hero/hit/body/up/";
+		if ((direction == RIGHT || direction == UPRIGHT || direction == DOWNRIGHT) && side == down)
+			bodySprite.path = "Game/worldSprites/hero/hit/body/downRight/";
 	}
 
-	legsSprite.path += std::to_string(currentSprite) + ".png";
-	bodySprite.path += std::to_string(currentSprite) + ".png";
-	if (legsSprite.path != "")
+	if (currentAction == throwNoose)
+	{
+		animationLength = 12;
+		animationSpeed = 0.0005f;
+		legsSprite.path = "Game/worldSprites/hero/move/legs/" + DynamicObject::directionToString(direction) + '/';		
+		bodySprite.path = "Game/worldSprites/hero/throw/body/" + DynamicObject::sideToString(side) + '/';
+		if (direction == UP && side == down || (direction == LEFT || direction == UPLEFT || direction == DOWNLEFT) && side == right ||
+			direction == DOWN && side == up || (direction == RIGHT || direction == UPRIGHT || direction == DOWNRIGHT) && side == left)
+			legsSprite.path = "Game/worldSprites/hero/move/legs/" + DynamicObject::sideToString(side) + "Inverse/";
+		if (direction == STAND)
+			legsSprite.path = "Game/worldSprites/hero/throw/legs/" + DynamicObject::sideToString(side) + '/';
+	}
+
+	if (!legsSprite.path.empty())
+	{
+		legsSprite.path += std::to_string(currentSprite[1]) + ".png";
 		additionalSprites.push_back(legsSprite);
-	if (bodySprite.path != "")
+	}
+	if (!bodySprite.path.empty())
+	{
+		bodySprite.path += std::to_string(currentSprite[0]) + ".png";
 		additionalSprites.push_back(bodySprite);
+	}
 
 	timeForNewSprite += elapsedTime;
 
@@ -839,10 +509,12 @@ void Deerchant::prepareSpriteNames(long long elapsedTime)
 	{
 		timeForNewSprite = 0;
 
-		if (++currentSprite > animationLength)
+		if (++currentSprite[0] > animationLength)
 		{
 			lastAction = currentAction;
-			currentSprite = 1;
+			currentSprite[0] = 1;
 		}
+		if (++currentSprite[1] > legsSprite.animationLength)		
+			currentSprite[1] = 1;		
 	}
 }

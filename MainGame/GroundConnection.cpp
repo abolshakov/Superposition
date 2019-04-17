@@ -18,22 +18,22 @@ void GroundConnection::setType(int typeOfObject)
 	this->typeOfObject = typeOfObject;
 	if ((typeOfObject - 1) % 4 == 0)
 	{
-		this->conditionalSizeUnits = Vector2i (276, 1000);
+		this->conditionalSizeUnits = Vector2i (250, 1000);
 	}
 	else
 		if ((typeOfObject - 1) % 4 == 1)
 		{
-			this->conditionalSizeUnits = Vector2i (276, 1000);
+			this->conditionalSizeUnits = Vector2i (250, 1000);
 		}
 		else
 			if ((typeOfObject - 1) % 4 == 2)
 			{
-				this->conditionalSizeUnits = Vector2i (1000, 276);
+				this->conditionalSizeUnits = Vector2i (1000, 250);
 			}
 			else
 				if ((typeOfObject - 1) % 4 == 3)
 				{
-					this->conditionalSizeUnits = Vector2i (1000, 276);
+					this->conditionalSizeUnits = Vector2i (1000, 250);
 				}
 	
 	if (typeOfObject >= 1 && typeOfObject <= 4)
