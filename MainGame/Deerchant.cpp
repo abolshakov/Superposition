@@ -54,7 +54,7 @@ Vector2i Deerchant::calculateTextureOffset()
 void Deerchant::handleInput()
 {
 	//high-priority actions
-	if (currentAction == absorbs || currentAction == grab || currentAction == builds || currentAction == jerking)
+	if (currentAction == absorbs || currentAction == grab || currentAction == dropping || currentAction == builds || currentAction == jerking)
 		return;
 
 	if (Keyboard::isKeyPressed(Keyboard::Space) && currentAction != jerking && direction != STAND)
@@ -114,7 +114,7 @@ void Deerchant::handleInput()
 	if (Keyboard::isKeyPressed(Keyboard::E))
 		changeAction(openInventory, true, false);
 
-	if (Keyboard::isKeyPressed(Keyboard::R))
+	if (Mouse::isButtonPressed(Mouse::Left) && heldItem->content.first == lootItemsIdList::noose)
 	{
 		changeAction(throwNoose, true, false);
 		return;
@@ -125,7 +125,7 @@ void Deerchant::handleInput()
 
 	if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::S) ||
 		Keyboard::isKeyPressed(Keyboard::Z) || Keyboard::isKeyPressed(Keyboard::F) || Keyboard::isKeyPressed(Keyboard::E) || Keyboard::isKeyPressed(Keyboard::LControl) ||
-		Keyboard::isKeyPressed(Keyboard::Space) || Keyboard::isKeyPressed(Keyboard::R) || Mouse::isButtonPressed(Mouse::Left) || Mouse::isButtonPressed(Mouse::Right))
+		Keyboard::isKeyPressed(Keyboard::Space) || Mouse::isButtonPressed(Mouse::Left) || Mouse::isButtonPressed(Mouse::Right))
 	{
 		if (boundTarget != nullptr)
 			stopping(true, true);
@@ -226,7 +226,6 @@ void Deerchant::behavior(float elapsedTime)
 		{
 			if (boundTarget->getState() == absorbed)
 				break;
-
 			currentAction = absorbs;
 			currentSprite[0] = 1;
 			setSide(boundTarget->getPosition(), elapsedTime);
@@ -236,17 +235,22 @@ void Deerchant::behavior(float elapsedTime)
 			break;
 		}
 		case chamomileTag:
+		case yarrowTag:
+		case nooseTag:
+		case droppedLootTag:
 		{
 			currentAction = grab;
 			currentSprite[0] = 1;
 			stopping(true);
 			break;
 		}
-		case yarrowTag:
-		{
-			currentAction = grab;
+		case dropPointTag:
+		{		
+			currentAction = dropping;
 			currentSprite[0] = 1;
-			stopping(true);
+			setSide(boundTarget->getPosition(), elapsedTime);
+			boundTarget->isProcessed = false;
+			stopping(true, true);
 			break;
 		}
 		case buildedObjectTag:
@@ -284,8 +288,8 @@ void Deerchant::onMouseDownBehavior(WorldObject *object, Vector2f mouseWorldPos,
 	{
 		if (boundTarget != nullptr)
 		{
-			boundTarget = nullptr;
 			boundTarget->isProcessed = false;
+			boundTarget = nullptr;			
 		}
 		boundTarget = new EmptyObject("buildItem", mouseWorldPos);
 		boundTarget->tag = buildedObjectTag;
@@ -294,10 +298,36 @@ void Deerchant::onMouseDownBehavior(WorldObject *object, Vector2f mouseWorldPos,
 	}
 
 	if (!object)
-		return;
-	if (boundTarget != nullptr)
-		if (boundTarget->isProcessed)
+	{
+		if (heldItem->content.first != lootItemsIdList::bagCell)
+		{
+			if (boundTarget != nullptr)
+			{
+				boundTarget->isProcessed = false;
+				boundTarget = nullptr;				
+			}
+			boundTarget = new EmptyObject("droppedItem", mouseWorldPos);
+			boundTarget->tag = dropPointTag;
+			movePosition = mouseWorldPos;
 			return;
+		}
+
+		for (auto bag : bags)
+		{
+			if (bag.currentState == ejected)
+			{
+				if (boundTarget != nullptr)
+				{
+					boundTarget->isProcessed = false;
+					boundTarget = nullptr;
+				}
+				boundTarget = new EmptyObject("droppedItem", mouseWorldPos);
+				boundTarget->tag = dropPointTag;
+				movePosition = mouseWorldPos;
+			}
+		}
+		return;
+	}	
 
 	boundTarget = object;
 	movePosition = object->getPosition();
@@ -315,21 +345,48 @@ void Deerchant::endingPreviousAction()
 		currentAction = relax;
 	if (lastAction == builds)
 		currentAction = relax;
+	if (lastAction == dropping)
+	{
+		stopping(true, true);
+		currentAction = relax;
+		if (heldItem->content.first != lootItemsIdList::bagCell)
+		{
+			birthStaticInfo dropObject;
+			dropObject.position = position;
+			dropObject.id = droppedLoot;
+			dropObject.typeOfObject = int(heldItem->content.first);
+			dropObject.count = heldItem->content.second;
+			birthStatics.push(dropObject);
+		}
+		heldItem->content = std::make_pair(lootItemsIdList::bagCell, 0);
+	}
     if (lastAction == throwNoose)
     {
-		birthDynamicInfo nooseObject;
-		nooseObject.position = position;
-		nooseObject.id = noose;
-		birthDynamics.push(nooseObject);		
+		if (HeroBag::canAfford({ std::make_pair(lootItemsIdList::noose, 1) }, &bags), heldItem)
+		{
+			HeroBag::takeItems({ std::make_pair(lootItemsIdList::noose, 1) }, &bags, heldItem);
+			birthDynamicInfo nooseObject;
+			nooseObject.position = position;
+			nooseObject.id = noose;
+			birthDynamics.push(nooseObject);
+		}
 		currentAction = relax;
     }
 	if (lastAction == grab)
 	{
 		if (boundTarget)
 		{
-			auto item = dynamic_cast<PickedObject*>(boundTarget);
-			if (item)
-				item->pickUp(&this->bags);
+			auto pickedItem = dynamic_cast<PickedObject*>(boundTarget);
+			if (pickedItem)
+				pickedItem->pickUp(&this->bags);
+			
+			auto nooseItem = dynamic_cast<Noose*>(boundTarget);
+			if (nooseItem)
+			{
+				if (HeroBag::putItemsIn({ std::make_pair(lootItemsIdList::noose, 1) }, &bags))
+					nooseItem->delatePromiseOn();
+			}
+
 			stopping(true, true);
 			currentAction = relax;
 		}
@@ -373,6 +430,14 @@ void Deerchant::stopping(bool doStand, bool forgetSelectedTarget)
 Vector2f Deerchant::getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition)
 {
 	return { -1, -1 };
+}
+
+Vector2f Deerchant::getBeltPosition()
+{
+	if (additionalSprites.size() >= 2) return
+		Vector2f((4 * additionalSprites[0].position.x + additionalSprites[1].position.x) / 5.0f + conditionalSizeUnits.x / 3.0f,
+		(4 * additionalSprites[0].position.y + additionalSprites[1].position.y) / 5.0f);
+	return additionalSprites[0].position;
 }
 
 int Deerchant::getBuildType(Vector2f ounPos, Vector2f otherPos)
@@ -429,6 +494,11 @@ void Deerchant::prepareSpriteNames(long long elapsedTime)
 	case grab:
 		animationLength = 12;
 		animationSpeed = 0.0009f;
+		bodySprite.path = "Game/worldSprites/hero/grab/" + DynamicObject::sideToString(side) + '/';
+		break;
+	case dropping:
+		animationLength = 6;
+		animationSpeed = 0.0006f;
 		bodySprite.path = "Game/worldSprites/hero/grab/" + DynamicObject::sideToString(side) + '/';
 		break;
 	case transitionToEnotherWorld:
@@ -500,6 +570,8 @@ void Deerchant::prepareSpriteNames(long long elapsedTime)
 	if (!bodySprite.path.empty())
 	{
 		bodySprite.path += std::to_string(currentSprite[0]) + ".png";
+		bodySprite.offset.y += conditionalSizeUnits.y / 10.0f;
+		bodySprite.position = Vector2f(position.x, position.y + conditionalSizeUnits.y / 10.0f);
 		additionalSprites.push_back(bodySprite);
 	}
 

@@ -1,3 +1,4 @@
-bagCell 0.15 0.15 0 100
+bagCell 0.15 0.15 -1 100
 chamomile 0.15 0.15 3 4
 yarrow 0.15 0.15 4 4
+noose 0.15 0.15 10 1

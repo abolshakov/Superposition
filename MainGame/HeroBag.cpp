@@ -6,13 +6,15 @@ HeroBag::HeroBag()
 	stateChangeTime = 100000;
 }
 
-
 HeroBag::~HeroBag()
 {
 }
 
+std::unordered_map<lootItemsIdList, int> HeroBag::itemsMaxCount = std::unordered_map<lootItemsIdList, int>();
+float HeroBag::itemCommonRadius = Helper::GetScreenSize().y / 36;
+
 void HeroBag::initialize(std::string textureClosedBagPath, std::string textureClosedBagSelectedPath, std::string textureOpenBagPath, std::string textureOpenBagSelectedPath, Vector2f position, Vector2f sizeClosed, Vector2f sizeOpen, bool isSelectable)
-{
+{	
 	this->textureClosedBag.loadFromFile(textureClosedBagPath);
 	this->textureClosedBagSelected.loadFromFile(textureClosedBagSelectedPath);
 	this->textureOpenBag.loadFromFile(textureOpenBagPath);
@@ -47,16 +49,16 @@ void HeroBag::initialize(std::string textureClosedBagPath, std::string textureCl
 	this->selectionZoneClosedOffset = Vector2f(0, 0);
 	this->selectionZoneOpenOffset = Vector2f(0, -textureOpenOffset.y + sizeOpen.y * 0.2f);
 
-	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * -0.1f, position.y + sizeOpen.y * -0.15f), std::make_pair(3, 2), itemCommonRadius));
-	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.135f, position.y + sizeOpen.y * -0.15f), std::make_pair(3, 3), itemCommonRadius));
-	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * -0.2f, position.y + sizeOpen.y * 0.014f), std::make_pair(-1, 0), itemCommonRadius));
-	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.018f, position.y + sizeOpen.y * 0.0f), std::make_pair(-1, 0), itemCommonRadius));
-	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.241f, position.y + sizeOpen.y * 0.004f), std::make_pair(-1, 0), itemCommonRadius));
-	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * -0.08f, position.y + sizeOpen.y * 0.150f), std::make_pair(-1, 0), itemCommonRadius));
-	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.131f, position.y + sizeOpen.y * 0.150f), std::make_pair(-1, 0), itemCommonRadius));
+	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * -0.1f, position.y + sizeOpen.y * -0.15f), std::make_pair(lootItemsIdList::chamomileFlower, 2), itemCommonRadius));
+	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.135f, position.y + sizeOpen.y * -0.15f), std::make_pair(lootItemsIdList::chamomileFlower, 3), itemCommonRadius));
+	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * -0.2f, position.y + sizeOpen.y * 0.014f), std::make_pair(lootItemsIdList::noose, 1), itemCommonRadius));
+	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.018f, position.y + sizeOpen.y * 0.0f), std::make_pair(lootItemsIdList::chamomileFlower, 1), itemCommonRadius));
+	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.241f, position.y + sizeOpen.y * 0.004f), std::make_pair(lootItemsIdList::chamomileFlower,1), itemCommonRadius));
+	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * -0.08f, position.y + sizeOpen.y * 0.150f), std::make_pair(lootItemsIdList::chamomileFlower, 1), itemCommonRadius));
+	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.131f, position.y + sizeOpen.y * 0.150f), std::make_pair(lootItemsIdList::bagCell, 1), itemCommonRadius));
 }
 
-bagCell HeroBag::createCell(Vector2f position, std::pair<int, int> content, float radius)
+bagCell HeroBag::createCell(Vector2f position, std::pair<lootItemsIdList, int> content, float radius)
 {
 	bagCell cell;
 	cell.position = position;
@@ -100,10 +102,124 @@ void HeroBag::changeCellsPosition(Vector2f shift)
 	}
 }
 
+bool HeroBag::canAfford(std::vector<std::pair<lootItemsIdList, int>> recipe, std::vector<HeroBag>* bags, bagCell* heldItem)
+{
+	for (auto item : recipe)
+	{
+		if (heldItem != nullptr)
+		{
+			if (item.first == heldItem->content.first)
+				item.second -= heldItem->content.second;
+		}
+		for (auto bag : *bags)
+		{
+			if (item.second <= 0)
+				break;
+			for (int cnt = 0; cnt < bag.cells.size(); cnt++)
+				if (item.first == bag.cells[cnt].content.first)
+					item.second -= bag.cells[cnt].content.second;
+		}
+		if (item.second > 0)
+			return false;
+	}
+	return true;
+}
+
+void HeroBag::takeItems(std::vector<std::pair<lootItemsIdList, int>> recipe, std::vector<HeroBag>* bags, bagCell* heldItem)
+{
+	for (auto item : recipe)
+	{
+		if (heldItem != nullptr)
+		{
+			if (item.second < heldItem->content.second)
+			{
+				heldItem->content.second -= item.second;
+				item.second = 0;
+				continue;
+			}
+			item.second -= heldItem->content.second;
+			heldItem->content.second = 0;
+			heldItem->content.first = lootItemsIdList::bagCell;
+		}
+		for (auto& bag : *bags)
+		{
+			bool isBreak = true;
+			for (int cnt = 0; cnt < bag.cells.size(); cnt++)
+				if (item.first == bag.cells[cnt].content.first)
+				{
+					if (item.second < bag.cells[cnt].content.second)
+					{
+						bag.cells[cnt].content.second -= item.second;
+						item.second = 0;
+						isBreak = true;
+					}
+					else
+					{
+						item.second -= bag.cells[cnt].content.second;
+						bag.cells[cnt].content.second = 0;
+						bag.cells[cnt].content.first = lootItemsIdList::bagCell;
+					}
+				}
+			if (isBreak)
+				break;
+		}
+	}
+}
+
+bool HeroBag::putItemsIn(std::vector<std::pair<lootItemsIdList, int>> loot, std::vector<HeroBag>* bags)
+{
+	bool result = true;
+	for (auto item : loot)
+	{		
+		for (auto& bag : *bags)
+		{			
+			bool isBreak = false;
+			for (int cnt = 0; cnt < bag.cells.size(); cnt++)
+				if (item.first == bag.cells[cnt].content.first || bag.cells[cnt].content.first == lootItemsIdList::bagCell)
+				{
+					if (item.second <= (HeroBag::itemsMaxCount[item.first] - bag.cells[cnt].content.second))
+					{
+						bag.cells[cnt].content.second += item.second;
+						bag.cells[cnt].content.first = item.first;
+						item = std::make_pair(lootItemsIdList::bagCell, 0);
+						isBreak = true;
+						break;
+					}
+					else
+					{
+						item.second -= (HeroBag::itemsMaxCount[item.first] - bag.cells[cnt].content.second);
+						bag.cells[cnt].content.second = HeroBag::itemsMaxCount[item.first];
+						bag.cells[cnt].content.first = item.first;
+					}
+				}
+			if (isBreak)
+				break;
+		}
+		if (item.second != 0)
+			result = false;
+	}
+	return result;
+}
+
 void HeroBag::draw(RenderWindow* window, float elapsedTime)
 {
 	Vector2f screenCenter = Vector2f(Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2);
 	Sprite *sprite = nullptr;
+	
+	if (currentState == bagClosed && (readyToChangeState || wasMoved))
+	{
+		if (Mouse::isButtonPressed(Mouse::Left))
+		{
+			Vector2f shiftVector = { 0, 0 };
+			if (lastMousePos != Vector2f(0, 0))
+				shiftVector = Vector2f(Mouse::getPosition().x - lastMousePos.x, Mouse::getPosition().y - lastMousePos.y);
+			position.x += shiftVector.x; position.y += shiftVector.y;
+			changeCellsPosition(shiftVector);
+			if (shiftVector != Vector2f(0, 0))
+				wasMoved = true;		
+		}
+	}
+	lastMousePos = Vector2f(Mouse::getPosition());
 
 	if (currentState == bagOpen)
 	{	

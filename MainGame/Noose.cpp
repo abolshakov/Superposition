@@ -1,5 +1,6 @@
 #include "Noose.h"
 #include "Deer.h"
+#include "Deerchant.h"
 
 using namespace sf;
 
@@ -13,9 +14,10 @@ Noose::Noose(const std::string objectName, Vector2f centerPosition, WorldObject*
 	speed = defaultSpeed;
 	animationSpeed = 5e-4;
 	animationLength = 8;
-	radius = 0;
+	radius = 50;
 	currentAction = move;
 	routeGenerationAbility = false;
+	canCrashIntoDynamic = false;
 	jerk(2, 1);
 	toSaveName = "noose";
 	tag = nooseTag;
@@ -28,9 +30,9 @@ Noose::~Noose()
 Vector2i Noose::calculateTextureOffset()
 {
 	textureBox.width = int(float(textureBox.width)*getScaleRatio().x);
-	textureBox.height = int(float(textureBox.height)*getScaleRatio().y);
-	ropeElongation = textureBox.width / 15;
-	return Vector2i(0, textureBox.height / 1.8);	
+	textureBox.height = int(float(textureBox.height)*getScaleRatio().y);	
+	ropeElongation = textureBox.width / 15.0f;
+	return Vector2i(0, int(textureBox.height / 1.8));
 }
 
 void Noose::setTarget(DynamicObject& object)
@@ -103,7 +105,7 @@ void Noose::endingPreviousAction()
 {
 	if (lastAction == jerking)
 	{
-		currentAction = dead;
+		currentAction = dead;		
 		stillLoop = additionalSprites[0];
 		stillRope = additionalSprites[1];
         //delatePromiseOn();
@@ -147,7 +149,7 @@ void Noose::prepareSpriteNames(long long elapsedTime)
 {
 	spriteChainElement ropeSprite, loopSprite;
 
-	ropeSprite.offset = Vector2f(0, 15);
+	ropeSprite.offset = Vector2f(0, 0);
 	ropeSprite.size = Vector2f(this->conditionalSizeUnits);
     loopSprite.offset = Vector2f(this->textureBoxOffset);
 	loopSprite.size = Vector2f(this->conditionalSizeUnits);
@@ -161,12 +163,11 @@ void Noose::prepareSpriteNames(long long elapsedTime)
 		{
 			animationLength = 13;
 			animationSpeed = 0.0005f;
-			ropeSprite.path = "Game/worldSprites/noose/rope/caught.png";
+			ropeSprite.path = "Game/worldSprites/noose/nooseRope/caught.png";
 			ropeSprite.size.y = 60;
 			if (owner->getPosition().x < position.x)
 				ropeSprite.size.y *= -1;
-			ropeSprite.offset = Vector2f(0, 0);
-            loopSprite.path = "Game/worldSprites/noose/rope/knot.png";
+            loopSprite.path = "Game/worldSprites/noose/nooseRope/knot.png";
 			loopSprite.size = Vector2f(40, 30);
 			loopSprite.offset = Vector2f(float(loopSprite.size.x)*getScaleRatio().x / 1.8, float(loopSprite.size.y)*getScaleRatio().y / 1.8);
 			break;
@@ -175,16 +176,17 @@ void Noose::prepareSpriteNames(long long elapsedTime)
 		{
 			animationLength = 13;
 			animationSpeed = 0.0005f;			
-			ropeSprite.path = "Game/worldSprites/noose/rope/thrown.png";
-			loopSprite.path = "Game/worldSprites/noose/loop/";			
-			loopSprite.path += std::to_string(currentSprite[0]) + ".png";
+			ropeSprite.path = "Game/worldSprites/noose/nooseRope/thrown.png";
+			loopSprite.path = "Game/worldSprites/noose/nooseLoop/" + std::to_string(currentSprite[0]) + ".png";
 			break;
 		}
 		case dead:
 		{
+			animationLength = 1;
+			animationSpeed = 0.0005f;
 			additionalSprites.push_back(stillRope);
 			additionalSprites.push_back(stillLoop);
-			break;
+			return;
 		}
 	default:;
 	}
@@ -193,30 +195,37 @@ void Noose::prepareSpriteNames(long long elapsedTime)
 	{
 		animationLength = 13;
 		animationSpeed = 0.0005f;
-		ropeSprite.path = "Game/worldSprites/noose/nooseRope.png";
-		loopSprite.path = "Game/worldSprites/noose/noose/loop/" + std::to_string(currentSprite[0]) + ".png";
+		ropeSprite.path = "Game/worldSprites/noose/nooseRope/thrown.png";
+		loopSprite.path = "Game/worldSprites/noose/nooseLoop/" + std::to_string(currentSprite[0]) + ".png";
 	}
 
 	if (owner != nullptr)
 	{
-		Vector2f ownerPos = Vector2f(owner->getPosition().x, owner->getPosition().y);
-		ropeSprite.size = Vector2f(sqrt(pow(owner->getPosition().x - position.x, 2) + pow(owner->getPosition().y - position.y, 2)) + ropeElongation, ropeSprite.size.y); // a little bit longer rope for sprite joining		
-		if (position.y <= owner->getPosition().y)
-			ropeSprite.rotation = acos((owner->getPosition().x - position.x) / sqrt(pow(owner->getPosition().x - position.x, 2) + pow(owner->getPosition().y - position.y, 2))) / pi * 180;
+		Vector2f ownerPos = Vector2f(owner->getPosition().x + owner->getConditionalSizeUnits().x / 10.0f, owner->getPosition().y - owner->getConditionalSizeUnits().y / 13.0f);
+		ropeSprite.size = Vector2f(Helper::getDist(ownerPos, position) + ropeElongation, ropeSprite.size.y); // a little bit longer rope for sprite joining		
+		if (position.y <= ownerPos.y)
+			ropeSprite.rotation = acos((ownerPos.x - position.x) / sqrt(pow(ownerPos.x - position.x, 2) + pow(ownerPos.y - position.y, 2))) / pi * 180;
 		else
-			ropeSprite.rotation = -acos((owner->getPosition().x - position.x) / sqrt(pow(owner->getPosition().x - position.x, 2) + pow(owner->getPosition().y - position.y, 2))) / pi * 180;
-	}
-
-	ropeSprite.offset.x += sin(ropeSprite.rotation / 180 * pi) * (ropeSprite.size.y - ropeSprite.offset.y);
-	ropeSprite.offset.y += (1 - cos(ropeSprite.rotation / 180 * pi)) * (ropeSprite.size.y - ropeSprite.offset.y);
+			ropeSprite.rotation = -acos((ownerPos.x - position.x) / sqrt(pow(ownerPos.x - position.x, 2) + pow(ownerPos.y - position.y, 2))) / pi * 180;
+	}		
 
 	if (currentAction != relax)
 	{
+		Vector2f ownerPos = Vector2f(owner->getPosition().x + owner->getConditionalSizeUnits().x / 10.0f, owner->getPosition().y - owner->getConditionalSizeUnits().y / 13.0f);
 		loopSprite.rotation = ropeSprite.rotation + 180;
-		loopSprite.offset.x += sin(loopSprite.rotation / 180 * pi) * (loopSprite.size.y - loopSprite.offset.y); // rotational position correction
-		loopSprite.offset.y += (1 - cos(loopSprite.rotation / 180 * pi)) * (loopSprite.size.y - loopSprite.offset.y);
-		ropeSprite.offset.x += (owner->getPosition().x - position.x) * ropeElongation / Helper::getDist(position, owner->getPosition()); // offset of the extended rope
-		ropeSprite.offset.y += (owner->getPosition().y - position.y) * ropeElongation / Helper::getDist(position, owner->getPosition());
+		loopSprite.offset.x -= sin(loopSprite.rotation / 180 * pi) * (textureBoxOffset.y); // rotational position correction
+		loopSprite.offset.y -= (1 - cos(loopSprite.rotation / 180 * pi)) * (textureBoxOffset.y);		
+	}
+
+	ropeSprite.offset.x += (owner->getPosition().x - position.x) * ropeElongation / Helper::getDist(position, owner->getPosition()); // offset of the extended rope
+	ropeSprite.offset.y += (owner->getPosition().y - position.y) * ropeElongation / Helper::getDist(position, owner->getPosition());
+
+	// change position to hero belt
+	auto dynOwner = dynamic_cast<Deerchant*>(owner);
+	if (dynOwner)
+	{
+		ropeSprite.position = dynOwner->getBeltPosition();
+		ropeSprite.offset = Vector2f(ropeSprite.offset.x + ropeSprite.position.x - position.x, ropeSprite.offset.y + ropeSprite.position.y - position.y);
 	}
 
 	additionalSprites.push_back(ropeSprite);

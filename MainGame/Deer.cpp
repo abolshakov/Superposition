@@ -8,8 +8,8 @@ Deer::Deer(const std::string objectName, Vector2f centerPosition) : NeutralMob(o
 	conditionalSizeUnits = Vector2i (360, 300);
 	currentSprite[0] = 1;
 	timeForNewSprite = 0;
-	speed = 7e-4;
-	//speed = 2e-4;
+	//speed = 7e-4;
+	speed = 2e-4;
 	animationSpeed = 5e-4;
 	animationLength = 8;
 	radius = 70;

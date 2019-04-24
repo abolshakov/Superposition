@@ -111,6 +111,7 @@
     <ClCompile Include="HeroBag.cpp">
       <Filter>UISystems</Filter>
     </ClCompile>
+    <ClCompile Include="DroppedLoot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoardSprite.h" />
@@ -224,6 +225,7 @@
     <ClInclude Include="HeroBag.h">
       <Filter>UISystems</Filter>
     </ClInclude>
+    <ClInclude Include="DroppedLoot.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Terrain">

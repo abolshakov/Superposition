@@ -141,7 +141,7 @@ int main() {
 			mainWindow.draw(testS);
 		}*/
 
-		//Helper::drawText(std::to_string(world.focusedObject->getDirection()), 30, 200, 200, &mainWindow);
+		//Helper::drawText(std::to_string(world.focusedObject->getSpriteNumber()), 30, 200, 200, &mainWindow);
 
 		mainWindow.display();
 	}

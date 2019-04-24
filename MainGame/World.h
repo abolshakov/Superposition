@@ -115,7 +115,7 @@ public:
 
 	//adding to the grid
 	void birthObjects();
-	void initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName, bool reliable);
+	void initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName, bool reliable, int count = 1);
 	void initializeDynamicItem(DynamicItemsIdList itemClass, Vector2f itemPosition, std::string itemName);
 
 	//getters

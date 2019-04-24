@@ -19,11 +19,11 @@ bool PickedObject::pickUp(std::vector<HeroBag> *bags)
 			{
 				if (maximumFilledCell == nullptr)
 				{
-					if (cell.content.first == -1 || cell.content.first == id && cell.content.second < maxCount)
+					if (cell.content.first == lootItemsIdList::bagCell || lootItemsIdList(cell.content.first) == id && cell.content.second < HeroBag::itemsMaxCount.at(cell.content.first))
 						maximumFilledCell = &cell;
 				}
 				else
-					if (cell.content.first == id && cell.content.second > maximumFilledCell->content.second && cell.content.second < maxCount)			
+					if (lootItemsIdList(cell.content.first) == id && cell.content.second > maximumFilledCell->content.second && cell.content.second < HeroBag::itemsMaxCount.at(cell.content.first))
 						maximumFilledCell = &cell;					
 			}
 		}
@@ -31,12 +31,15 @@ bool PickedObject::pickUp(std::vector<HeroBag> *bags)
 		{
 			maximumFilledCell->content.first = id;
 			maximumFilledCell->content.second += count;
-			if (maximumFilledCell->content.second > maxCount)
-				count = maximumFilledCell->content.second % maxCount;
+			if (maximumFilledCell->content.second > HeroBag::itemsMaxCount.at(lootItemsIdList(id)))
+			{
+				count = maximumFilledCell->content.second % HeroBag::itemsMaxCount.at(lootItemsIdList(id));
+				maximumFilledCell->content.second = HeroBag::itemsMaxCount.at(lootItemsIdList(id));
+			}
 			else
 			{
 				count = 0;
-				id = -1;
+				id = lootItemsIdList::bagCell;
 				delatePromiseOn();
 				return true;
 			}

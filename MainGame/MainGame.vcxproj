@@ -140,6 +140,7 @@
     <ClCompile Include="Chamomile.cpp" />
     <ClCompile Include="Deer.cpp" />
     <ClCompile Include="Deerchant.cpp" />
+    <ClCompile Include="DroppedLoot.cpp" />
     <ClCompile Include="DynamicObject.cpp" />
     <ClCompile Include="EmptyObject.cpp" />
     <ClCompile Include="EventHandler.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Chamomile.h" />
     <ClInclude Include="Deer.h" />
     <ClInclude Include="Deerchant.h" />
+    <ClInclude Include="DroppedLoot.h" />
     <ClInclude Include="DynamicObject.h" />
     <ClInclude Include="EmptyObject.h" />
     <ClInclude Include="EventHandler.h" />

@@ -12,8 +12,8 @@ class TextWriter
 public:
 	TextWriter();
 	~TextWriter();
-	void drawString(std::string str, FontName font, int size, float posX, float posY, RenderWindow* window);
-	void drawTextBox(std::string str, FontName font, int size, float posX, float posY, float width, float height, RenderWindow* window);
+	void drawString(std::string str, FontName font, int size, float posX, float posY, RenderWindow* window, Color color = Color::Black);
+	void drawTextBox(std::string str, FontName font, int size, float posX, float posY, float width, float height, RenderWindow* window, Color color = Color::Black);
 private:
 	void initFonts();
 	void initTextBoxes();

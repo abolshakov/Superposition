@@ -87,7 +87,9 @@ void Brazier::prepareSpriteNames(long long elapsedTime)
 	brazierBack.offset = Vector2f(textureBoxOffset);
     brazierFront.path = "Game/worldSprites/terrainObjects/brazier/brazier1.png";
 	brazierFront.size = Vector2f(conditionalSizeUnits);
-	brazierFront.offset = Vector2f(textureBoxOffset);
+	brazierFront.offset = Vector2f(textureBoxOffset.x, textureBoxOffset.y + conditionalSizeUnits.y / 5.5f);
+	brazierFront.position.x = position.x;
+	brazierFront.position.y = position.y + conditionalSizeUnits.y / 5.5f;
 	additionalSprites.push_back(brazierBack);
     additionalSprites.push_back(brazierFront);
 }

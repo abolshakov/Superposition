@@ -44,16 +44,10 @@ int MushroomStone::getBuildType(Vector2f ounPos, Vector2f otherPos)
 
 void MushroomStone::prepareSpriteNames(long long elapsedTime)
 {
-	/*timeForNewSprite += elapsedTime;
-
-	if (timeForNewSprite >= 40 / animationSpeed)
-	{
-		timeForNewSprite = 0;
-
-		if (++currentSprite[0] > animationLength)
-		{
-			currentSprite[0] = 1;
-		}
-	}
-	return "Game/worldSprites/terrainObjects/mushroomStone/t1_" + std::to_string(currentSprite[0]) + ".png";*/
+	additionalSprites.clear();
+	spriteChainElement bonfireBody;
+	bonfireBody.path = "Game/worldSprites/terrainObjects/mushroomStone/t1_" + std::to_string(currentSprite[0]) + ".png";
+	bonfireBody.size = Vector2f(conditionalSizeUnits);
+	bonfireBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(bonfireBody);
 }

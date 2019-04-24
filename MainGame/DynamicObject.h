@@ -8,7 +8,7 @@
 const float pi = 3.14159265358979323846f;
 
 enum Direction { RIGHT = 0, UPRIGHT = 45, UP = 90, UPLEFT = 135, LEFT = 180, DOWNLEFT = 225, DOWN = 270, DOWNRIGHT = 315, STAND = 360 };
-enum Actions { bottomHit = 0, upperHit = 1, directHit = 2, relax = 3, combatState = 4, move = 5, dead = 6, commonHit = 9, moveHit = 10, transitionToEnotherWorld = 12, 
+enum Actions { directHit = 2, relax = 3, combatState = 4, move = 5, dead = 6, commonHit = 9, moveHit = 10, dropping = 11, transitionToEnotherWorld = 12, 
 	openInventory = 13, absorbs = 14, grab = 15, builds = 16, jerking = 17, upFlap = 30, leftFlap = 31, rightFlap = 32, startFlap = 33, stopFlap = 34, throwNoose = 35 };
 enum Side { up = 1, right = 2, down = 3, left = 4 };
 

@@ -8,11 +8,13 @@
 
 using namespace sf;
 
-enum StaticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13, brazier = 14, yarrow = 15, hareTrap = 16, rock = 17, fence = 18, stump = 19, mugwort = 41 };
+enum StaticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13, brazier = 14, yarrow = 15, hareTrap = 16, rock = 17, fence = 18, stump = 19, mugwort = 41, droppedLoot = 20 };
 enum DynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3, hare = 4, deer = 5, noose = 6, owlBoss = 20 };
 
-enum Tag { emptyTag = 0, mainHeroTag = 1, groundTag = 2, forestTreeTag = 3, chamomileTag = 4, yarrowTag = 5, rockTag = 6, fenceTag = 7, grassTag = 8, stumpTag = 9, buildedObjectTag = 10, nooseTag = 21, deerTag = 31, mugwortTag = 41 };
+enum Tag { emptyTag = 0, mainHeroTag = 1, groundTag = 2, forestTreeTag = 3, chamomileTag = 4, yarrowTag = 5, rockTag = 6, fenceTag = 7, grassTag = 8, stumpTag = 9, buildedObjectTag = 10, droppedLootTag = 11, dropPointTag = 12, nooseTag = 21, deerTag = 31, mugwortTag = 41 };
 enum State { common = 1, absorbed = 2, constructed = 3 };
+
+enum class lootItemsIdList { bagCell = -1, chamomileFlower = 3, yarrowFlower = 4, noose = 10 };
 
 struct spriteChainElement
 {
@@ -26,12 +28,15 @@ struct spriteChainElement
 	int animationLength = 1;
 	int zCoord = 1;
     bool isBackground = false;
+	Tag tag;
 };
 
 struct birthStaticInfo
 {
 	StaticItemsIdList id;
 	Vector2f position;
+	int typeOfObject = 1;
+	int count = 1;
 };
 
 struct  birthDynamicInfo

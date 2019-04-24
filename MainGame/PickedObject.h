@@ -8,13 +8,13 @@
 class PickedObject : public TerrainObject
 {
 protected:
-	int id;
-	int count, maxCount;
+	lootItemsIdList id;
+	int count;
 public:
 	PickedObject::PickedObject(std::string objectName, Vector2f centerPosition);
 	virtual ~PickedObject();
 	bool pickUp(std::vector<HeroBag> *bags);
-	int getId() { return id; }
+	lootItemsIdList getId() { return id; }
 	int getCount() { return count; }
 };
 

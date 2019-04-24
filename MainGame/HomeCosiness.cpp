@@ -47,5 +47,10 @@ int HomeCosiness::getBuildType(Vector2f ounPos, Vector2f otherPos)
 
 void HomeCosiness::prepareSpriteNames(long long elapsedTime)
 {
-	//return "Game/worldSprites/terrainObjects/homeCosiness/homeCosiness" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement bonfireBody;
+	bonfireBody.path = "Game/worldSprites/terrainObjects/homeCosiness/homeCosiness" + std::to_string(typeOfObject) + ".png";
+	bonfireBody.size = Vector2f(conditionalSizeUnits);
+	bonfireBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(bonfireBody);
 }

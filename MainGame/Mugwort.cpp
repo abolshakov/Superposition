@@ -9,10 +9,8 @@ Mugwort::Mugwort(std::string objectName, Vector2f centerPosition, int typeOfObje
 	setType(typeOfObject);
 	radius = 50;
 	tag = mugwortTag;
-
 	count = 1;
-	id = 4;
-	maxCount = 4;
+	id = lootItemsIdList::yarrowFlower;
 }
 
 void Mugwort::setType(int typeOfObject)

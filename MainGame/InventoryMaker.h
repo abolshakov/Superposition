@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include<fstream>
 #include "Helper.h"
+#include "TextWriter.h"
 #include "WorldObject.h"
 #include "HeroBag.h"
 
@@ -28,14 +29,14 @@ public:
 	void resetAnimationValues();
 	void onMouseDownInteract();
 	void inventoryBounding(std::vector<std::reference_wrapper<HeroBag>> bags);
-	void temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <int, int>>> inventory);
+	void temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <lootItemsIdList, int>>> inventory);
 	void interact(float elapsedTime);
-	bool getUsedMouse() { return usedMouse; }
+	bool getUsedMouse() { return usedMouse; }	
 	bagCell &getHeldItem() { return heldItem; }
-	std::unordered_map<int, cell> getSpriteList() { return cellsSpriteList; }
+	std::unordered_map<lootItemsIdList, cell> getSpriteList() { return cellsSpriteList; }
 
 	bool wasDrawing = false;
-	std::string debugInfo = "";
+	std::string debugInfo = "", cursorText = "";
 
 	Sprite *selectedCellBackground;
 private:
@@ -44,22 +45,20 @@ private:
 	//another inventories 
 	int animationCounter = 1, currentInventorySize;
 	float timeForAnimationEffect = 50000, timeAfterAnimationEffect;
-	std::vector<std::reference_wrapper<std::pair <int, int>>> currentInventory;
+	std::vector<std::reference_wrapper<std::pair <lootItemsIdList, int>>> currentInventory;
 	//held item
 	bagCell heldItem;
-	float heldItemSpeed = 0;
+	float heldItemSpeed = 0, dropZoneRadius;
 	//drawing
 	std::string spritesFileDirectory = "Game/inventorySprites/inventorySprites.txt";
-	std::unordered_map<int, cell> cellsSpriteList;
+	std::unordered_map<lootItemsIdList, cell> cellsSpriteList;
 	void initSpriteList();
 	void drawNumberOfItems(Sprite sprite, int itemsCount, RenderWindow &window);
 	Font font;
 	Text numberOfItems;
-
-	std::vector<int> itemsMaxCount;
-	bool usedMouse = false;
-	float itemCommonRadius = 0;
-
+	bool usedMouse = false, cursorBlurUsing = false;
+	Vector2f cursorTextPos = {0, 0};
+	TextWriter textWriter;
 	//std::vector<std::pair<Vector2f, std::string>> temporaryPositions;
 };
 

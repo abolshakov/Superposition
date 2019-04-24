@@ -47,5 +47,10 @@ int HareTrap::getBuildType(Vector2f ounPos, Vector2f otherPos)
 
 void HareTrap::prepareSpriteNames(long long elapsedTime)
 {
-	//return "Game/worldSprites/terrainObjects/hareTrap/hareTrap" + std::to_string(typeOfObject) + ".png";
+	additionalSprites.clear();
+	spriteChainElement bonfireBody;
+	bonfireBody.path = "Game/worldSprites/terrainObjects/hareTrap/hareTrap" + std::to_string(currentSprite[0]) + ".png";
+	bonfireBody.size = Vector2f(conditionalSizeUnits);
+	bonfireBody.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(bonfireBody);
 }

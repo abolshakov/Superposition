@@ -11,8 +11,7 @@ Yarrow::Yarrow(std::string objectName, Vector2f centerPosition, int typeOfObject
 	tag = yarrowTag;
 
 	count = 1;
-	id = 4;
-	maxCount = 4;
+	id = lootItemsIdList::yarrowFlower;
 }
 
 void Yarrow::setType(int typeOfObject)

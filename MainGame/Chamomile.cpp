@@ -10,8 +10,7 @@ Chamomile::Chamomile(std::string objectName, Vector2f centerPosition, int typeOf
 	tag = chamomileTag;
 
 	count = 1;
-	id = 3;	
-	maxCount = 4;
+	id = lootItemsIdList::chamomileFlower;	
 }
 
 void Chamomile::setType(int typeOfObject)
