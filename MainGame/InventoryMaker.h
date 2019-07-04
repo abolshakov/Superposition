@@ -7,6 +7,7 @@
 #include<fstream>
 #include "Helper.h"
 #include "TextWriter.h"
+#include "UIEffectsSystemMaker.h"
 #include "WorldObject.h"
 #include "HeroBag.h"
 
@@ -28,7 +29,7 @@ public:
 	void drawInventory(Vector2f position, float elapsedTime, RenderWindow& window);
 	void resetAnimationValues();
 	void onMouseDownInteract();
-	void inventoryBounding(std::vector<std::reference_wrapper<HeroBag>> bags);
+	void inventoryBounding(std::vector<HeroBag>* bags);
 	void temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <lootItemsIdList, int>>> inventory);
 	void interact(float elapsedTime);
 	bool getUsedMouse() { return usedMouse; }	
@@ -38,10 +39,15 @@ public:
 	bool wasDrawing = false;
 	std::string debugInfo = "", cursorText = "";
 
-	Sprite *selectedCellBackground;
+	Sprite *selectedCellBackground, dropZone;
+	CircleShape bagPosDot;
+	Texture dropZoneTexture;
 private:
 	//hero bags
-	std::vector<std::reference_wrapper<HeroBag>> boundBags;
+	std::vector<HeroBag>* boundBags;
+	int currentMovingBag = -1;
+	float minDistToClosed = 10e4, minDistToOpen = 10e4;
+
 	//another inventories 
 	int animationCounter = 1, currentInventorySize;
 	float timeForAnimationEffect = 50000, timeAfterAnimationEffect;
@@ -54,11 +60,14 @@ private:
 	std::unordered_map<lootItemsIdList, cell> cellsSpriteList;
 	void initSpriteList();
 	void drawNumberOfItems(Sprite sprite, int itemsCount, RenderWindow &window);
+	void crashIntoOtherBags(int cnt);
+	std::vector<bool> visitedInDisplacement;
 	Font font;
 	Text numberOfItems;
 	bool usedMouse = false, cursorBlurUsing = false;
 	Vector2f cursorTextPos = {0, 0};
 	TextWriter textWriter;
+	UIEffectsSystemMaker uiEffectsSystem;
 	//std::vector<std::pair<Vector2f, std::string>> temporaryPositions;
 };
 

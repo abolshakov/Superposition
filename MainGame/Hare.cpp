@@ -1,4 +1,5 @@
 #include "Hare.h"
+#include "HareTrap.h"
 
 using namespace sf;
 
@@ -7,22 +8,21 @@ Hare::Hare(const std::string objectName, Vector2f centerPosition) : NeutralMob(o
 	conditionalSizeUnits = Vector2i (180, 150);
 	currentSprite[0] = 1;
 	timeForNewSprite = 0;
-	speed = 0.0006f;
-	animationSpeed = 0.0005f;
+	defaultSpeed = 0.0003f;
+	speed = 0.0003f;
+	animationSpeed = 0.0003f;
 	animationLength = 8;
 	radius = 70;
 	strength = 10;
 	sightRange = Helper::GetScreenSize().y * 1 / 2;
-	morality = 5; // from 1 to 10
-	fear = 0;
 	healthPoint = 50;
 	currentAction = relax;
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
 	timeForNewHit = 1000000;
-	//routeGenerationAbility = false;
-
+	id = hare;
 	toSaveName = "hare";
+	tag = hareTag;
 }
 
 Hare::~Hare()
@@ -38,17 +38,127 @@ Vector2i Hare::calculateTextureOffset()
 
 void Hare::setTarget(DynamicObject& object)
 {
-	return;
+	if (object.tag == nooseTag || currentAction == absorbs)
+		return;
+	if (Helper::getDist(position, object.getPosition()) <= sightRange)
+	{
+		if (object.tag == mainHeroTag)
+		{
+			boundTarget = &object;
+			distanceToNearest = Helper::getDist(position, object.getPosition());
+		}
+	}
 }
 
 void Hare::behaviorWithStatic(WorldObject* target, float elapsedTime)
 {
-
+	if (currentAction == absorbs)
+		return;
+	if (Helper::getDist(position, target->getPosition()) <= sightRange && timeAfterFear >= fearTime)		
+		if (target->tag == hareTrapTag)
+		{
+			if (boundTarget == nullptr)
+			{
+				boundTarget = target;
+				distanceToNearest = Helper::getDist(position, target->getPosition());
+			}
+		}
 }
 
 void Hare::behavior(float elapsedTime)
 {
+	endingPreviousAction();
+	if (healthPoint <= 0)
+	{
+		changeAction(dead, true);
+		direction = STAND;
+		return;
+	}
 
+	// first-priority actions
+	if (boundTarget)
+	{
+		if (boundTarget->tag == mainHeroTag)
+			timeAfterFear = 0;
+	}
+	else
+		timeAfterFear += elapsedTime;
+
+	if (currentAction == absorbs)
+	{
+		movePosition = position;
+		return;
+	}
+	//-----------------------	
+
+	if (boundTarget == nullptr)
+	{
+		if (Helper::getDist(position, movePosition) <= radius)
+		{
+			changeAction(relax, true, true);
+			movePosition = position;
+		}
+		return;
+	}
+	
+	const float distanceToTarget = Helper::getDist(this->position, boundTarget->getPosition());
+
+	// bouncing to a trap
+	if (boundTarget->tag == hareTrapTag)
+	{
+		setSide(boundTarget->getPosition(), elapsedTime);
+		if (Helper::getDist(position, boundTarget->getPosition()) <= radius)
+		{
+			const auto trap = dynamic_cast<HareTrap*>(boundTarget);
+			position = trap->getEnterPosition();
+			changeAction(absorbs, true, false);
+			movePosition = position;
+		}
+		else
+		{
+			changeAction(move, false, true);
+			movePosition = boundTarget->getPosition();
+		}
+	}
+	//-------------------
+
+	// runaway from enemy
+	if (boundTarget->tag == mainHeroTag)
+	{
+		setSide(movePosition, elapsedTime);
+		speed = std::max(defaultSpeed, (defaultSpeed * 10) * (1 - (Helper::getDist(position, boundTarget->getPosition()) / sightRange * 1.5f)));
+		animationSpeed = std::max(0.0004f, 0.0003f * speed / defaultSpeed);
+		if (distanceToTarget <= sightRange)
+		{
+			changeAction(move, false, true);
+			float k = (sightRange * 1.5f - Helper::getDist(position, boundTarget->getPosition())) / Helper::getDist(position, boundTarget->getPosition());
+			movePosition = Vector2f(position.x - (boundTarget->getPosition().x - position.x) * k, position.y - (boundTarget->getPosition().y - position.y) * k);
+		}
+		else
+		{
+			if (currentAction == move)
+			{
+				if (distanceToTarget >= sightRange * 1.5f)
+				{
+					changeAction(relax, true, true);
+					direction = STAND;
+					movePosition = position;
+				}
+				else
+				{
+					float k = (sightRange * 1.5f - Helper::getDist(position, boundTarget->getPosition())) / Helper::getDist(position, boundTarget->getPosition());
+					movePosition = Vector2f(position.x - (boundTarget->getPosition().x - position.x) * k, position.y - (boundTarget->getPosition().y - position.y) * k);
+				}
+			}
+		}
+	}
+	//-------------------
+
+	if (currentAction != absorbs)
+	{
+		distanceToNearest = 10e6;
+		boundTarget = nullptr;
+	}
 }
 
 Vector2f Hare::getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition)
@@ -59,6 +169,19 @@ Vector2f Hare::getBuildPosition(std::vector<WorldObject*> visibleItems, float sc
 int Hare::getBuildType(Vector2f ounPos, Vector2f otherPos)
 {
 	return 1;
+}
+
+void Hare::endingPreviousAction()
+{
+	if (lastAction == commonHit)
+		currentAction = relax;
+	if (lastAction == absorbs)
+	{
+		auto trap = dynamic_cast<HareTrap*>(boundTarget);
+		trap->inventory[0] = std::make_pair(lootItemsIdList::hare, 1);
+		deletePromiseOn();
+	}
+	lastAction = relax;
 }
 
 void Hare::jerk(float power, float deceleration, Vector2f destinationPoint)
@@ -79,23 +202,13 @@ void Hare::prepareSpriteNames(long long elapsedTime)
 		case relax:
 		{
 			animationLength = 1;
-			switch (side)
-			{
-				case left:
-					fullSprite.path = "Game/worldSprites/hare/stand/down/";
-					break;
-				case right:
-					fullSprite.path = "Game/worldSprites/hare/stand/right/";
-					break;
-				case up:
-					fullSprite.path = "Game/worldSprites/hare/stand/up/";
-					break;
-				case down:
-					fullSprite.path = "Game/worldSprites/hare/stand/down/";
-					break;
-				default:;
-			}		
-			fullSprite.path += std::to_string(currentSprite[0]) + ".png";
+			fullSprite.path = "Game/worldSprites/hare/stand/" + DynamicObject::sideToString(side) + '/' + std::to_string(currentSprite[0]) + ".png";
+			break;
+		}
+		case absorbs:
+		{
+			animationLength = 10;
+			fullSprite.path = "Game/worldSprites/hare/trap/" + std::to_string(currentSprite[0]) + ".png";
 			break;
 		}
 		case dead:
@@ -103,30 +216,15 @@ void Hare::prepareSpriteNames(long long elapsedTime)
 			animationLength = 1;
 			fullSprite.path = "Game/worldSprites/hare/stand/down/1.png";
 			currentSprite[0] = 1;
+			break;
 		}
 	default:;
 	}
 
 	if (currentAction == move)
 	{
-		animationLength = 5;
-		switch (side)
-		{
-			case left:
-				fullSprite.path = "Game/worldSprites/hare/move/left/";				
-				break;
-			case right:
-				fullSprite.path = "Game/worldSprites/hare/move/right/";
-				break;
-			case up:
-				fullSprite.path = "Game/worldSprites/hare/move/up/";
-				break;
-			case down:
-				fullSprite.path = "Game/worldSprites/hare/move/down/";
-				break;
-			default:;		
-		}
-		fullSprite.path += std::to_string(currentSprite[0]) + ".png";
+		animationLength = 5; 
+		fullSprite.path = "Game/worldSprites/hare/move/" + DynamicObject::sideToString(side) + '/' + std::to_string(currentSprite[0]) + ".png";
 	}
 
 	additionalSprites.push_back(fullSprite);
@@ -139,11 +237,7 @@ void Hare::prepareSpriteNames(long long elapsedTime)
 
 		if (++currentSprite[0] > animationLength)
 		{
-			if (currentAction >= static_cast<Actions>(0) && currentAction < static_cast<Actions>(3))
-			{
-				lastAction = currentAction;
-				currentAction = combatState;
-			}
+			lastAction = currentAction;
 			currentSprite[0] = 1;
 		}
 	}

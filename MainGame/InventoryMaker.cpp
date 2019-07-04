@@ -14,8 +14,12 @@ InventoryMaker::~InventoryMaker()
 
 void InventoryMaker::init()
 {
-	dropZoneRadius = Helper::GetScreenSize().y / 3;
+	dropZoneRadius = Helper::GetScreenSize().y * 2 / 7;
 	heldItem.content = { lootItemsIdList::bagCell, 0 };
+	dropZoneTexture.loadFromFile("Game/inventorySprites/dropZone.png");
+	dropZone.setTexture(dropZoneTexture); dropZone.setScale(Helper::GetScreenSize().x / dropZoneTexture.getSize().x, Helper::GetScreenSize().y / dropZoneTexture.getSize().y);	
+	bagPosDot.setRadius(Helper::GetScreenSize().y / 288);
+	bagPosDot.setFillColor(Color(53, 53, 53, 200));
 
 	//itemsMaxCount.resize(1000);
 	initSpriteList();
@@ -23,7 +27,7 @@ void InventoryMaker::init()
 	numberOfItems.setFont(font);
 	numberOfItems.setCharacterSize(30);
 	//numberOfItems.setFillColor(Color(200, 200, 200, 255));
-	numberOfItems.setFillColor(Color::White);
+	numberOfItems.setFillColor(Color::White);	
 }
 
 void InventoryMaker::initSpriteList()
@@ -52,7 +56,7 @@ void InventoryMaker::initSpriteList()
 	selectedCellBackground->setColor(Color(selectedCellBackground->getColor().r, selectedCellBackground->getColor().g, selectedCellBackground->getColor().b, 125));
 }
 
-void InventoryMaker::inventoryBounding(std::vector<std::reference_wrapper<HeroBag>> bags)
+void InventoryMaker::inventoryBounding(std::vector<HeroBag>* bags)
 {
 	boundBags = bags;
 }
@@ -61,34 +65,143 @@ void InventoryMaker::interact(float elapsedTime)
 {
 	const Vector2f mousePos = Vector2f(Mouse::getPosition());
 
-	for (auto& bag : boundBags)
-	{
-		if (bag.get().currentState == bagClosed)
+	int cnt = -1; minDistToClosed = 10e4; minDistToOpen = 10e4;
+	int minDistToClosedIndex = 0, minDistToOpenIndex = 0;
+	for (auto& bag : *boundBags)
+	{		
+		cnt++;
+
+		//move other bags while opening
+		const int lapsCount = 20;
+		if (boundBags->at(cnt).currentState == bagOpening || currentMovingBag != -1)
 		{
-			const Vector2f selectionZonePos = Vector2f(bag.get().getPosition().x + bag.get().selectionZoneClosedOffset.x,
-				bag.get().getPosition().y + bag.get().selectionZoneClosedOffset.y);
-			if (Helper::getDist(mousePos, selectionZonePos) <= bag.get().selectionZoneRadiusClosed)
-				bag.get().readyToChangeState = true;				
-			else
-				bag.get().readyToChangeState = false;
+			if ((boundBags->at(cnt).currentState != bagOpening))
+				if (boundBags->at(currentMovingBag).currentState == bagClosed)
+					break;
+			for (auto& anotherBag : *boundBags)
+			{
+				if (anotherBag.getPosition() == boundBags->at(cnt).getPosition())
+					continue;
+				const Vector2f newPos = Vector2f(boundBags->at(cnt).getPosition().x + boundBags->at(cnt).shiftVector.x, boundBags->at(cnt).getPosition().y + boundBags->at(cnt).shiftVector.y);
+
+				if (Helper::getDist(newPos, anotherBag.getPosition()) < boundBags->at(cnt).getRadius() + anotherBag.getRadius())
+				{
+					
+						float k = 0.05 * lapsCount * ((boundBags->at(cnt).getRadius() + anotherBag.getRadius()) - Helper::getDist(newPos, anotherBag.getPosition())) / Helper::getDist(newPos, anotherBag.getPosition());
+						anotherBag.shiftVector = Vector2f((anotherBag.getPosition().x - newPos.x) * k, (anotherBag.getPosition().y - newPos.y) * k);
+
+						Vector2f tempNewPos = Vector2f(anotherBag.getPosition().x + anotherBag.shiftVector.x, anotherBag.getPosition().y + (anotherBag.shiftVector.y));
+						anotherBag.movePosition = tempNewPos;
+						anotherBag.shiftVector.x = 0; anotherBag.shiftVector.y = 0;
+
+						//break;
+				}
+			}
+		}
+		//-----------------------------
+
+		// bag auto-moving
+		if (bag.movePosition != Vector2f(0, 0) && Helper::getDist(bag.getPosition(), bag.movePosition) > bag.speed * 10000)
+		{
+			float k = bag.speed * elapsedTime / Helper::getDist(bag.getPosition(), bag.movePosition);			
+			bag.changeCellsPosition(Vector2f((bag.movePosition.x - bag.getPosition().x) * k, (bag.movePosition.y - bag.getPosition().y) * k));
+			bag.setPosition(Vector2f(bag.getPosition().x + (bag.movePosition.x - bag.getPosition().x) * k, bag.getPosition().y + (bag.movePosition.y - bag.getPosition().y) * k));
 		}
 		else
-		if (bag.get().currentState == bagOpen)
+			bag.movePosition = Vector2f(0, 0);
+		//----------------
+
+		// bag selection
+		if (currentMovingBag == -1)
 		{
-			const Vector2f selectionZonePos = Vector2f(bag.get().getPosition().x + bag.get().selectionZoneOpenOffset.x,
-				bag.get().getPosition().y + bag.get().selectionZoneOpenOffset.y);
-			if (Helper::getDist(mousePos, selectionZonePos) <= bag.get().selectionZoneRadiusOpen)
-				bag.get().readyToChangeState = true;
+			for (int cntForDist = 0; cntForDist < boundBags->size(); cntForDist++)
+			{				
+				if (Helper::getDist(mousePos, boundBags->at(cntForDist).getPosition()) <= minDistToClosed && boundBags->at(cntForDist).currentState == bagClosed)
+				{
+					minDistToClosed = Helper::getDist(mousePos, boundBags->at(cntForDist).getPosition());
+					minDistToClosedIndex = cntForDist;
+				}
+				if (Helper::getDist(mousePos, boundBags->at(cntForDist).getPosition()) <= minDistToOpen && boundBags->at(cntForDist).currentState == bagOpen)
+				{
+					minDistToOpen = Helper::getDist(mousePos, boundBags->at(cntForDist).getPosition());
+					minDistToOpenIndex = cntForDist;
+				}
+			}
+
+			if (bag.currentState == bagClosed)
+			{
+				if (cnt == minDistToClosedIndex)
+				{
+					if (boundBags->at(boundBags->size() - 1).currentState != bagOpen)
+						std::swap(bag, boundBags->at(boundBags->size() - 1));
+					else
+						std::swap(bag, boundBags->at(boundBags->size() - 2));
+				}
+				const Vector2f selectionZonePos = Vector2f(bag.getPosition().x + bag.selectionZoneClosedOffset.x, bag.getPosition().y + bag.selectionZoneClosedOffset.y);
+				if (Helper::getDist(mousePos, selectionZonePos) <= bag.selectionZoneRadiusClosed)
+					bag.readyToChangeState = true;
+				else
+					bag.readyToChangeState = false;				
+				
+			}
 			else
-				bag.get().readyToChangeState = false;
+				if (bag.currentState == bagOpen)
+				{
+					if (cnt == minDistToOpenIndex)
+					{
+						std::swap(bag, boundBags->at(boundBags->size() - 1));
+					}
+					const Vector2f selectionZonePos = Vector2f(bag.getPosition().x + bag.selectionZoneOpenOffset.x, bag.getPosition().y + bag.selectionZoneOpenOffset.y);
+					if (Helper::getDist(mousePos, selectionZonePos) <= bag.selectionZoneRadiusOpen)
+						bag.readyToChangeState = true;
+					else
+						bag.readyToChangeState = false;					
+					
+				}
 		}
+		//--------------		
 	}
 
 	if (heldItem.content.first != lootItemsIdList::bagCell)
 	{
-		Vector2f shiftVector = Vector2f((Mouse::getPosition().x - heldItem.position.x)*heldItemSpeed*elapsedTime, (Mouse::getPosition().y - heldItem.position.y)*heldItemSpeed*elapsedTime);
+		const Vector2f shiftVector = Vector2f((Mouse::getPosition().x - heldItem.position.x)*heldItemSpeed*elapsedTime, (Mouse::getPosition().y - heldItem.position.y)*heldItemSpeed*elapsedTime);
 		heldItem.position.x += shiftVector.x; heldItem.position.y += shiftVector.y;
 	}
+
+	uiEffectsSystem.interact(elapsedTime);
+}
+
+void InventoryMaker::crashIntoOtherBags(int cnt)
+{
+	int lapsCount = 20;
+	while (true)
+	{
+		bool isBreak = true;
+		for (auto& anotherBag : *boundBags)
+		{
+			if (anotherBag.getPosition() == boundBags->at(cnt).getPosition())
+				continue;
+			const Vector2f newPos = Vector2f(boundBags->at(cnt).getPosition().x + boundBags->at(cnt).shiftVector.x, boundBags->at(cnt).getPosition().y + boundBags->at(cnt).shiftVector.y);
+
+			if (Helper::getDist(newPos, anotherBag.getPosition()) < boundBags->at(cnt).getRadius() + anotherBag.getRadius())
+			{
+				if (boundBags->at(cnt).currentState == bagClosed)
+				{
+					float k = 0.05 * lapsCount * ((boundBags->at(cnt).getRadius() + anotherBag.getRadius()) - Helper::getDist(newPos, anotherBag.getPosition())) / Helper::getDist(newPos, anotherBag.getPosition());
+					boundBags->at(cnt).shiftVector = Vector2f((newPos.x - anotherBag.getPosition().x) * k, (newPos.y - anotherBag.getPosition().y) * k);
+					isBreak = false;
+					break;
+				}				
+			}			
+		}
+		if (isBreak)
+			break;
+		lapsCount++;
+	}
+
+	Vector2f newPos = Vector2f(boundBags->at(cnt).getPosition().x + boundBags->at(cnt).shiftVector.x, boundBags->at(cnt).getPosition().y + (boundBags->at(cnt).shiftVector.y));
+	boundBags->at(cnt).movePosition = newPos;
+	boundBags->at(cnt).shiftVector.x = 0; boundBags->at(cnt).shiftVector.y = 0;
 }
 
 void InventoryMaker::onMouseDownInteract()
@@ -96,90 +209,90 @@ void InventoryMaker::onMouseDownInteract()
 	usedMouse = false;
 	const Vector2f mousePos = Vector2f(Mouse::getPosition());
 
-	//cell positioning
-	/*for (int i = 0; i < temporaryPositions.size(); i++)
-	{
-		if (Helper::getDist(mousePos, temporaryPositions[i].first) <= HeroBag::itemCommonRadius)
-		{
-			temporaryPositions.erase(temporaryPositions.begin() + i);
-			return;
-		}
-	}
-	std::string str1 = std::to_string((Mouse::getPosition().x - boundBags[0].get().getPosition().x) / boundBags[0].get().getSizeOpen().x), 
-	str2 = std::to_string((Mouse::getPosition().y - boundBags[0].get().getPosition().y) / boundBags[0].get().getSizeOpen().y);
-	std::string toSave = str1.substr(0, 5) + " " + str2.substr(0, 5);
-
-	temporaryPositions.push_back({mousePos, toSave});*/
-	//-----------------
-
-	for (auto& bag : boundBags)
+	int cnt = -1;
+	for (auto& bag : *boundBags)
 	{		
-		// bag state changing		
-		if (bag.get().readyToEject)
-			bag.get().currentState = ejected;
-		if (bag.get().currentState != bagOpen)
+		cnt++;
+		// crash into other bags
+		if (bag.currentState == bagClosed && bag.wasMoved)
 		{
-			if (bag.get().currentState == bagClosed && bag.get().readyToChangeState && !bag.get().wasMoved)
-			{
-				bag.get().currentState = bagOpening;
-				bag.get().wasMoved = false;
-				break;
-			}
+			crashIntoOtherBags(cnt);
 		}
-		else
-		{
-			if (bag.get().currentState == bagOpen && bag.get().readyToChangeState)
-			{
-				bag.get().currentState = bagClosing;
-				bag.get().wasMoved = false;
-				break;
-			}
-		}
-		bag.get().wasMoved = false;
-		if (bag.get().currentState != bagOpen)
-			break;
-		//-------------------
+		//----------------------
 
-		// put cursor item to bag
-		if (heldItem.content.first != lootItemsIdList::bagCell)
+		// bag state changing
+		if (cnt == currentMovingBag || currentMovingBag == -1)
 		{
-			int curIndex = bag.get().getSelectedCell(mousePos);
-			if (curIndex == -1)
-				continue;
-			usedMouse = true;
-			auto& item = bag.get().cells[curIndex];
-			if (item.content.first == lootItemsIdList::bagCell || item.content.first == heldItem.content.first)
+			if (bag.readyToEject)
+				bag.currentState = ejected;
+			if (bag.currentState != bagOpen)
 			{
-				item.content.first = heldItem.content.first;
-				item.content.second += heldItem.content.second;
-				if (item.content.second > HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first)))
+				if (bag.currentState == bagClosed && bag.readyToChangeState && !bag.wasMoved)
 				{
-					heldItem.content.second = item.content.second % HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first));
-					item.content.second = HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first));
+					bag.currentState = bagOpening;
+					bag.wasMoved = false;
+					continue;
 				}
-				else
-					heldItem.content = { lootItemsIdList::bagCell, 0 };
-				break;
 			}
 			else
 			{
-				const std::pair<lootItemsIdList, int> temp = heldItem.content;
-				heldItem.content = item.content;
-				item.content = temp;
+				if (bag.currentState == bagOpen && bag.readyToChangeState)
+				{
+					bag.currentState = bagClosing;
+					bag.wasMoved = false;
+					continue;
+				}
 			}
 		}
-		else
+		bag.wasMoved = false;		
+		if (bag.currentState != bagOpen)
+			continue;
+		//-------------------
+
+		// put cursor item to bag
+		if (cnt == boundBags->size() - 1)
 		{
-			int curIndex = bag.get().getSelectedCell(mousePos);
-			if (curIndex != -1)
+			if (heldItem.content.first != lootItemsIdList::bagCell)
 			{
-				heldItem.content = bag.get().cells[curIndex].content;
-				heldItem.position = bag.get().cells[curIndex].position;
-				bag.get().cells[curIndex].content = { lootItemsIdList::bagCell, 0 };
+				int curIndex = bag.getSelectedCell(mousePos);
+				if (curIndex == -1)
+					continue;
+				usedMouse = true;
+				auto& item = bag.cells[curIndex];
+				if (item.content.first == lootItemsIdList::bagCell || item.content.first == heldItem.content.first)
+				{
+					item.content.first = heldItem.content.first;
+					item.content.second += heldItem.content.second;
+					if (item.content.second > HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first)))
+					{
+						heldItem.content.second = item.content.second % HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first));
+						item.content.second = HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first));
+					}
+					else
+						heldItem.content = { lootItemsIdList::bagCell, 0 };
+					break;
+				}
+				else
+				{
+					const std::pair<lootItemsIdList, int> temp = heldItem.content;
+					heldItem.content = item.content;
+					item.content = temp;
+				}
+			}
+			else
+			{
+				int curIndex = bag.getSelectedCell(mousePos);
+				if (curIndex != -1)
+				{
+					heldItem.content = bag.cells[curIndex].content;
+					heldItem.position = bag.cells[curIndex].position;
+					bag.cells[curIndex].content = { lootItemsIdList::bagCell, 0 };
+				}
 			}
 		}
 		//-----------------------
 	}
+	currentMovingBag = -1;
 }
 
 void InventoryMaker::temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <lootItemsIdList, int>>> inventory)
@@ -199,39 +312,52 @@ void InventoryMaker::drawNumberOfItems(Sprite sprite, int itemsCount, RenderWind
 void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 {
 	// draw bags
-	for (auto& bag : boundBags)
+	int cnt = -1;
+	bool cursorTurnedOn = false;
+	//cursorText = "";
+	bagPosDot.setPosition(0, 0);
+	for (auto& bag : *boundBags)
 	{
-		bag.get().draw(&window, elapsedTime);
-		bag.get().readyToEject = false;
-		//bag.get().drawCircuit(&window);
-	}
-	cursorText = "";
-	//drawing bags content
-	for (auto bag : boundBags)
-	{
-		if (Helper::getDist(bag.get().getPosition(), Vector2f(Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2)) <= dropZoneRadius && bag.get().currentState == bagClosed)
+		cnt++;
+		bag.draw(&window, elapsedTime, (cnt == currentMovingBag || currentMovingBag == -1));
+		bag.readyToEject = false;
+		if (bag.wasMoved)
+			currentMovingBag = cnt;
+		
+		// dropping bag
+		if (Helper::getDist(bag.getPosition(), Vector2f(Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2)) <= dropZoneRadius && bag.currentState == bagClosed)
 		{
-			cursorText = "drop on the ground";
-			cursorTextPos = bag.get().getPosition();
-			bag.get().readyToEject = true;
-		}			
+			cursorTurnedOn = true;
+			if (cursorText.empty())
+			{
+				uiEffectsSystem.addEffect(UIEffects::transparencyRemoval, &dropZone, "dropZone", 3 * 10e4);				
+			}
+			cursorText = "  throw away";
+			cursorTextPos = bag.getPosition();
+			bag.readyToEject = true;
+			bagPosDot.setPosition(bag.getPosition());
+		}
+		//-------------
+
+		if (cnt == currentMovingBag)
+			bagPosDot.setPosition(bag.getPosition());
 
 		// drawing bag content
-		if (bag.get().currentState != bagOpen)
+		if (bag.currentState != bagOpen)
 			continue;
-		for (int cnt = 0; cnt < bag.get().cells.size(); cnt++)
+		for (int cnt2 = 0; cnt2 < bag.cells.size(); cnt2++)
 		{
-			auto& item = bag.get().cells[cnt];
+			auto& item = bag.cells[cnt2];
 			//drawing cell background
-			if (bag.get().getSelectedCell(Vector2f(Mouse::getPosition())) == cnt)
+			if (bag.getSelectedCell(Vector2f(Mouse::getPosition())) == cnt2)
 			{
-				Vector2f backgroundOffset = cellsSpriteList.at(lootItemsIdList::bagCell).offset;
+				const Vector2f backgroundOffset = cellsSpriteList.at(lootItemsIdList::bagCell).offset;
 				selectedCellBackground->setPosition(item.position.x - HeroBag::itemCommonRadius - backgroundOffset.x, item.position.y - HeroBag::itemCommonRadius - backgroundOffset.y);
 				window.draw(*selectedCellBackground);
 			}
 			//-----------------------
 
-			if (bag.get().cells[cnt].content.first == lootItemsIdList::bagCell)
+			if (bag.cells[cnt2].content.first == lootItemsIdList::bagCell)
 				continue;
 
 			auto sprite = cellsSpriteList.at(lootItemsIdList(item.content.first)).sprite;
@@ -244,8 +370,9 @@ void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 			if (HeroBag::itemsMaxCount.at(item.content.first) != 1)
 				drawNumberOfItems(sprite, item.content.second, window);
 		}
+		//--------------------
 	}
-	//--------------------
+	//----------
 
 	//drawing held item
 	if (heldItem.content.first != lootItemsIdList::bagCell)
@@ -259,29 +386,20 @@ void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 	}
 	//-----------------
 
-	//cell positioning visualization
-	/*
-	for (auto pos : temporaryPositions)
-	{
-		for (int i = pos.first.x - HeroBag::itemCommonRadius; i <= pos.first.x + HeroBag::itemCommonRadius; i+= 10)
-			for (int j = pos.first.y - HeroBag::itemCommonRadius; j <= pos.first.y + HeroBag::itemCommonRadius; j += 10)
-			{
-				if (Helper::getDist(Vector2f(i, j), pos.first) <= HeroBag::itemCommonRadius)
-				{
-					RectangleShape rec;
-					rec.setPosition(i, j);
-					rec.setSize(Vector2f(5, 5));
-					rec.setFillColor(Color::Red);
-					window.draw(rec);
-					Helper::drawText(pos.second, 20, pos.first.x - HeroBag::itemCommonRadius, pos.first.y - HeroBag::itemCommonRadius / 2, &window);
-				}
-			}
-	}*/
-
 	// draw cursor text
-	if (cursorText == "drop on the ground")
-		textWriter.drawTextBox(cursorText, NormalFont, 35 * Helper::GetScreenSize().y / 1440, cursorTextPos.x - Helper::GetScreenSize().x / 24, cursorTextPos.y - Helper::GetScreenSize().y / 24, 
-			Helper::GetScreenSize().x / 6, Helper::GetScreenSize().y / 12, &window, Color::White);
+	if (!cursorTurnedOn)
+	{
+		cursorText = "";
+		uiEffectsSystem.resetEffects({ "dropZone" });
+	}
+	if (cursorText == "  throw away")
+	{
+		textWriter.drawString(cursorText, NormalFont, 35 * Helper::GetScreenSize().y / 1440, cursorTextPos.x - Helper::GetScreenSize().x / 26, cursorTextPos.y - Helper::GetScreenSize().y / 30,
+			&window, Color(53, 53, 53, 255));
+		window.draw(dropZone);		
+	}
+	if (bagPosDot.getPosition() != Vector2f(0, 0))
+		window.draw(bagPosDot);
 }
 
 void InventoryMaker::drawInventory(Vector2f position, float elapsedTime, RenderWindow& window)

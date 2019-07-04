@@ -111,7 +111,20 @@
     <ClCompile Include="HeroBag.cpp">
       <Filter>UISystems</Filter>
     </ClCompile>
-    <ClCompile Include="DroppedLoot.cpp" />
+    <ClCompile Include="DroppedLoot.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="HeroBagSpriteSystem.cpp" />
+    <ClCompile Include="EffectsSystemMaker.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="UIEffectsSystemMaker.cpp" />
+    <ClCompile Include="Fog.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="WreathDraft.cpp">
+      <Filter>HeroBook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoardSprite.h" />
@@ -225,7 +238,20 @@
     <ClInclude Include="HeroBag.h">
       <Filter>UISystems</Filter>
     </ClInclude>
-    <ClInclude Include="DroppedLoot.h" />
+    <ClInclude Include="DroppedLoot.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="HeroBagSpriteSystem.h" />
+    <ClInclude Include="EffectsSystemMaker.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="UIEffectsSystemMaker.h" />
+    <ClInclude Include="Fog.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="WreathDraft.h">
+      <Filter>HeroBook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Terrain">

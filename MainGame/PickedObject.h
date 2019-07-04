@@ -16,6 +16,8 @@ public:
 	bool pickUp(std::vector<HeroBag> *bags);
 	lootItemsIdList getId() { return id; }
 	int getCount() { return count; }
+
+	std::vector<bagCell> ownInventory;
 };
 
 #endif

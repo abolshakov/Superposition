@@ -97,11 +97,11 @@ Vector2f GridList<T>::getPointByMicroblock(int microblockIndex) const
 template <class T>
 void GridList<T>::fillLocalMatrix(Vector2f targetPos, int upperLeftX, int upperLeftY, int bottomRightX, int bottomRightY)
 {
-	int xMicroblocksCount = ceil((bottomRightX - upperLeftX) / microsize.x);
-	int yMicroblocksCount = ceil((bottomRightY - upperLeftY) / microsize.y);
+	const int xMicroblocksCount = ceil((bottomRightX - upperLeftX) / microsize.x);
+	const int yMicroblocksCount = ceil((bottomRightY - upperLeftY) / microsize.y);
 
-	int startXInd = upperLeftX / microsize.x;
-	int startYInd = upperLeftY / microsize.y;
+	const int startXInd = upperLeftX / microsize.x;
+	const int startYInd = upperLeftY / microsize.y;
 
 	for (int i = startXInd; i < startXInd + xMicroblocksCount; i++)
 	{
@@ -119,17 +119,17 @@ void GridList<T>::fillLocalMatrix(Vector2f targetPos, int upperLeftX, int upperL
 			if (!object || object->isBackground)
 				continue;
 
-			int curMicroblockX = int(object->getPosition().x) / microsize.x;
-			int curMicroblockY = int(object->getPosition().y) / microsize.y;
+			const int curMicroblockX = int(object->getPosition().x) / microsize.x;
+			const int curMicroblockY = int(object->getPosition().y) / microsize.y;
 
-			int xFillFactor = (object->getRadius() / microsize.x) * 5;
-			int yFillFactor = (object->getRadius() / microsize.y) * 5;
+			const int xFillFactor = (object->getRadius() / microsize.x) * 5;
+			const int yFillFactor = (object->getRadius() / microsize.y) * 5;
 
 			for (int i = curMicroblockX - xFillFactor; i <= curMicroblockX + xFillFactor; i++)
 			{
 				for (int j = curMicroblockY - yFillFactor; j <= curMicroblockY + yFillFactor; j++)
 				{
-					Vector2f microblockPos = Vector2f(microsize.x * i + microsize.x / 2, microsize.y * j + microsize.y / 2);
+					const Vector2f microblockPos = Vector2f(microsize.x * i + microsize.x / 2, microsize.y * j + microsize.y / 2);
 					
 					if (object->isMultiellipse)
 					{
@@ -167,9 +167,9 @@ void GridList<T>::fillLocalMatrix(Vector2f targetPos, int upperLeftX, int upperL
 								continue;
 							if (i >= 0 && j >= 0 && i < microblockMatrix.size() && j < microblockMatrix[0].size())
 								microblockMatrix[i][j] = 0;
-						}					
+						}
 				}
-			}			
+			}
 		}
 	}
 }
@@ -180,11 +180,11 @@ void GridList<T>::makeRoute(Vector2f startPos, Vector2f finishPos, int upperLeft
 	//if (blockArea.size() == 0)
 		//return;
 
-	int xMicroblocksCount = ceil((bottomRightX - upperLeftX) / microsize.x);
-	int yMicroblocksCount = ceil((bottomRightY - upperLeftY) / microsize.y);
+	const int xMicroblocksCount = ceil((bottomRightX - upperLeftX) / microsize.x);
+	const int yMicroblocksCount = ceil((bottomRightY - upperLeftY) / microsize.y);
 
-	int startXInd = upperLeftX / microsize.x;
-	int startYInd = upperLeftY / microsize.y;
+	const int startXInd = upperLeftX / microsize.x;
+	const int startYInd = upperLeftY / microsize.y;
 
 	int curMicroblockX = startPos.x / microsize.x, curMicroblockY = startPos.y / microsize.y;
 	int lastMicroblockX = finishPos.x / microsize.x, lastMicroblockY = finishPos.y / microsize.y;
@@ -199,7 +199,7 @@ void GridList<T>::makeRoute(Vector2f startPos, Vector2f finishPos, int upperLeft
 		}
 	}
 
-	if (microblockMatrix[curMicroblockX][curMicroblockY] == 0)
+	/*if (microblockMatrix[curMicroblockX][curMicroblockY] == 0)
 	{
 		float minD = 10e6;
 		int curI = curMicroblockX, curJ = curMicroblockY;
@@ -222,7 +222,7 @@ void GridList<T>::makeRoute(Vector2f startPos, Vector2f finishPos, int upperLeft
 			}
 		curMicroblockX += curI;
 		curMicroblockY += curJ;
-	}
+	}*/
 
 	distances[curMicroblockX][curMicroblockY] = 0;
 	bfs(startXInd + xMicroblocksCount, startYInd + yMicroblocksCount, curMicroblockX, curMicroblockY, lastMicroblockX, lastMicroblockY);
@@ -236,7 +236,9 @@ void GridList<T>::bfs(int iBorder, int jBorder, int startX, int startY, int fini
 	visited[startX][startY] = true;
 	std::vector<std::vector<std::pair<int, int>>> p;
 	p.resize(500, std::vector<std::pair<int, int>>(500, {-1, -1}));
-	
+
+	int minDistToFinish = 1000;
+
 	while (!q.empty()) 
 	{
 		std::pair<int, int> v = q.front();
@@ -258,13 +260,28 @@ void GridList<T>::bfs(int iBorder, int jBorder, int startX, int startY, int fini
 					q.push(to);
 					distances[to.first][to.second] = distances[v.first][v.second] + 1;
 					p[to.first][to.second] = v;
+					if (abs(to.first - finishX) + abs(to.second = finishY) <= minDistToFinish)
+					{
+						minDistToFinish = abs(to.first - finishX) + abs(to.second = finishY);
+						reserveDestination = to;
+					}
 				}
 			}
 	}
-	
+
+	bool canCreateRoute = true;
+
 	if (!visited[finishX][finishY])
-		routes[finishX][finishY].clear();
-	else 
+	{
+		finishX = reserveDestination.first; finishY = reserveDestination.second;
+		if (!visited[finishX][finishY])
+		{
+			canCreateRoute = false;
+			routes[finishX][finishY].clear();
+		}
+	}
+
+	if (canCreateRoute)
 	{
 		std::vector<std::pair<int, int>> path;
 
@@ -283,6 +300,8 @@ void GridList<T>::bfs(int iBorder, int jBorder, int startX, int startY, int fini
 		}
 		reverse(path.begin(), path.end());
 
+
+		// cut the corners
 		if (path.size() >= 2)
 		while (true)
 		{
@@ -305,6 +324,7 @@ void GridList<T>::bfs(int iBorder, int jBorder, int startX, int startY, int fini
 			if (isBreak)
 				break;
 		}
+		//----------------
 
 		if (path[0] == std::make_pair(startX, startY))
 			path.erase(path.begin() + 0);
@@ -417,7 +437,7 @@ bool GridList<T>::isIntersectWithOthers(Vector2f position1, float radius1, std::
 		if (!anotherObject)
 			continue;
 
-		if (anotherObject->isBackground || anotherObject->tag == mainHeroTag)
+		if (anotherObject->isBackground || anotherObject->tag == mainHeroTag || anotherObject->intangible)
 			continue;
 
 		if (anotherItem->isDotsAdjusted && isDotAdjustded)
@@ -630,7 +650,5 @@ void GridList<T>::updateItemPosition(const std::string name, int x, int y)
 	items.at(name) = position;
 	cells[index].push_back(item);
 }
-
-
 
 #endif

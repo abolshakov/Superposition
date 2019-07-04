@@ -51,6 +51,7 @@ public:
 	std::vector<std::vector<float>> distances;
 	std::vector<std::vector<bool>> visited;
 	std::vector<std::vector<std::vector<std::pair<int, int>>>> routes;
+	std::pair<int, int> reserveDestination = std::make_pair(-1, -1);
 };
 
 #include "GridList.cpp"

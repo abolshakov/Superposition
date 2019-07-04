@@ -34,6 +34,9 @@ int main() {
 
 	TextWriter textWriter;
 
+	//Sprite test; Texture testT; testT.loadFromFile("Game/Shaders/fog/fog (1).png"); test.setTexture(testT); test.setPosition(Vector2f(0, 0)); 
+	//test.setScale(Helper::GetScreenSize().x / testT.getSize().x, Helper::GetScreenSize().y / testT.getSize().y);
+
 	while (mainWindow.isOpen())
 	{
 		Event event;
@@ -57,7 +60,7 @@ int main() {
 				if (menuSystem.getState() == closed && world.getBuildSystem().succesInit)
 				{
 					world.onMouseDownInteract(currentMouseButton);
-					mainBook.onMouseDown();
+					mainBook.onMouseUp();
 				}
 					
 				if (currentMouseButton == 1)
@@ -93,7 +96,7 @@ int main() {
 			interactClock.restart();
 			drawClock.restart();
 			continue;
-		}	 	
+		}
 
 		if (windowFocus && menuSystem.getState() != gameMenu)
 		{
@@ -105,6 +108,8 @@ int main() {
 
 			world.focusedObject->handleInput();
 			world.interact(mainWindow, interactTime);
+			mainBook.boundHeldItem(&world.getInventorySystem().getHeldItem());
+			mainBook.interact(interactTime);
 
 			mainWindow.clear(Color::White);
 
@@ -112,11 +117,10 @@ int main() {
 			world.runBuildSystemDrawing(mainWindow, drawTime);
 			mainBook.draw(&mainWindow, world.focusedObject->getHealthPoint() / world.focusedObject->getMaxHealthPointValue(), drawTime);
 			world.runInventorySystemDrawing(mainWindow, drawTime);
-		}	
+		}
 		else
 		{
 			world.draw(mainWindow, 0);
-
 			interactClock.restart();
 			drawClock.restart();
 		}
@@ -125,7 +129,7 @@ int main() {
 
 		auto hero = dynamic_cast<DynamicObject*>(world.focusedObject);
 
-		//textWriter.drawString(std::to_string(menuSystem.getState()), NormalFont, 30, 200, 200, &mainWindow);
+		textWriter.drawString(mainBook.debugInfo, NormalFont, 30, 500, 500, &mainWindow);
 
 		/*if (hero->getHealthPoint() <= 0)
 		{
@@ -141,8 +145,10 @@ int main() {
 			mainWindow.draw(testS);
 		}*/
 
-		//Helper::drawText(std::to_string(world.focusedObject->getSpriteNumber()), 30, 200, 200, &mainWindow);
-
+		textWriter.drawString(std::to_string(10e5 / drawTime), NormalFont, 30, 200, 200, &mainWindow, Color::Black);
+		/*const int groundIndX = hero->getPosition().x / 1000;
+		const int groundIndY = hero->getPosition().y / 1000;
+		textWriter.drawString(std::to_string(world.biomeMatrix[groundIndX][groundIndY].biomeCell), NormalFont, 30, 200, 200, &mainWindow, Color::Black);*/
 		mainWindow.display();
 	}
 }

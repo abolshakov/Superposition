@@ -15,6 +15,7 @@
 #include "InventoryMaker.h"
 #include "Helper.h"
 #include "BuildSystemMaker.h"
+#include "EffectsSystemMaker.h"
 #include "BoardSprite.h"
 #include "EventHandler.h"
 
@@ -25,7 +26,7 @@
 
 using namespace sf;
 
-enum Biomes {highGrass = 1, mud = 2, grassWithFlowers = 3 };
+enum Biomes {mud = 1, highGrass = 2, grassWithFlowers = 3, oldMud = 4 };
 
 typedef void(*LPSEARCHFUNC)(LPCTSTR lpszFileName, std::unordered_map<std::string, BoardSprite> &spriteMap);
 typedef bool(*func)(Vector2f &pos);
@@ -95,6 +96,7 @@ private:
 	sf::Shader spiritWorldShader;
 	sf::Texture distortionMap;
 	void initShaders();
+	EffectsSystemMaker effectSystem;
 
 	//inventorySystem
 	InventoryMaker inventorySystem;
@@ -115,7 +117,7 @@ public:
 
 	//adding to the grid
 	void birthObjects();
-	void initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName, bool reliable, int count = 1);
+	void initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName, bool reliable, int count = 1, std::vector<std::pair<lootItemsIdList, int>> inventory = {});
 	void initializeDynamicItem(DynamicItemsIdList itemClass, Vector2f itemPosition, std::string itemName);
 
 	//getters

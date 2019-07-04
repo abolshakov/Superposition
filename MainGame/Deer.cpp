@@ -1,5 +1,4 @@
 #include "Deer.h"
-#include "Hare.h"
 
 using namespace sf;
 

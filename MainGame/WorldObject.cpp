@@ -7,6 +7,7 @@ WorldObject::WorldObject(std::string objectName, Vector2f centerPosition)
 	position = centerPosition;
 	WorldObject::initPedestal();
 	currentSprite.resize(1);
+	currentSprite[0] = 1;
 }
 
 void WorldObject::setTextureSize(Vector2f textureSize)

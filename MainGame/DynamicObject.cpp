@@ -326,7 +326,7 @@ void DynamicObject::changeAction(Actions newAction, bool resetSpriteNumber, bool
 	currentAction = newAction;
 
 	if (resetSpriteNumber)
-		for (auto number : currentSprite)
+		for (auto& number : currentSprite)
 			number = 1;
 }
 

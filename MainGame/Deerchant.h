@@ -35,7 +35,7 @@ public:
 	void behaviorWithDynamic(DynamicObject* target, float elapsedTime) override;
 	void behaviorWithStatic(WorldObject* target, float elapsedTime) override;
 	void behavior(float elapsedTime) override;
-	void onMouseDownBehavior(WorldObject *object, Vector2f mouseWorldPos, bool isBuilding = false);
+	void onMouseDownBehavior(int currentMouseButton, WorldObject *object, Vector2f mouseWorldPos, bool isBuilding = false);
 	void setTarget(DynamicObject& object) override;
 	void endingPreviousAction();
 	void stopping(bool doStand = false, bool forgetSelectedTarget = false);

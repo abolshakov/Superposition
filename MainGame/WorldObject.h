@@ -8,13 +8,13 @@
 
 using namespace sf;
 
-enum StaticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13, brazier = 14, yarrow = 15, hareTrap = 16, rock = 17, fence = 18, stump = 19, mugwort = 41, droppedLoot = 20 };
+enum StaticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13, brazier = 14, yarrow = 15, hareTrap = 16, rock = 17, fence = 18, stump = 19, mugwort = 41, droppedLoot = 20, fog = 50 };
 enum DynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3, hare = 4, deer = 5, noose = 6, owlBoss = 20 };
 
-enum Tag { emptyTag = 0, mainHeroTag = 1, groundTag = 2, forestTreeTag = 3, chamomileTag = 4, yarrowTag = 5, rockTag = 6, fenceTag = 7, grassTag = 8, stumpTag = 9, buildedObjectTag = 10, droppedLootTag = 11, dropPointTag = 12, nooseTag = 21, deerTag = 31, mugwortTag = 41 };
+enum Tag { emptyTag = 0, mainHeroTag = 1, groundTag = 2, forestTreeTag = 3, chamomileTag = 4, yarrowTag = 5, rockTag = 6, fenceTag = 7, grassTag = 8, stumpTag = 9, buildedObjectTag = 10, droppedLootTag = 11, dropPointTag = 12, heroBagTag = 13, hareTrapTag = 14, nooseTag = 21, deerTag = 31, hareTag = 32, mugwortTag = 41, fogTag = 50 };
 enum State { common = 1, absorbed = 2, constructed = 3 };
 
-enum class lootItemsIdList { bagCell = -1, chamomileFlower = 3, yarrowFlower = 4, noose = 10 };
+enum class lootItemsIdList { bagCell = -1, bagCellSelected = 0, chamomileFlower = 101, yarrowFlower = 102, fernFlower = 103, mugwortFlower = 104, poppyFlower = 105, someWreathDraft = 201, noose = 10, droppedBag = 11, hareTrap = 12, hare = 13, inkyBlackPen = 30 };
 
 struct spriteChainElement
 {
@@ -37,6 +37,7 @@ struct birthStaticInfo
 	Vector2f position;
 	int typeOfObject = 1;
 	int count = 1;
+	std::vector<std::pair<lootItemsIdList, int>> inventory;
 };
 
 struct  birthDynamicInfo
@@ -75,19 +76,20 @@ public:
 	void clearBirthStack() { birthStatics = std::stack<birthStaticInfo>(); birthDynamics = std::stack<birthDynamicInfo>(); }
 	void setPosition(Vector2f newPosition);
 	void setName(std::string name) { this->name = name; }
-	void delatePromiseOn() { deletePromise = true; }
+	void deletePromiseOn() { deletePromise = true; }
 	virtual void setTextureSize(Vector2f textureSize);
 	void setState(State state) { this->state = state; }
 
 	bool isTransparent = false, isVisibleName = false, isSelected = false;
 	bool isProcessed = false;
-	bool isBackground = false, isTerrain = false, isDotsAdjusted = false, isMultiellipse = false;
+	bool isBackground = false, isTerrain = false, isDotsAdjusted = false, isMultiellipse = false, intangible = false;
 
 	virtual Vector2i calculateTextureOffset();
 	virtual void initPedestal();
 
 	int transparency = 100;
 	int currentBlock = 0;
+	std::vector<std::pair<lootItemsIdList, int>> inventory;
 
 	Tag tag;
 

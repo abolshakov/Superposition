@@ -108,7 +108,7 @@ void Noose::endingPreviousAction()
 		currentAction = dead;		
 		stillLoop = additionalSprites[0];
 		stillRope = additionalSprites[1];
-        //delatePromiseOn();
+        //deletePromiseOn();
 	}
 	lastAction = relax;
 }

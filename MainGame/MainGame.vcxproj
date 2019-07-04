@@ -142,9 +142,11 @@
     <ClCompile Include="Deerchant.cpp" />
     <ClCompile Include="DroppedLoot.cpp" />
     <ClCompile Include="DynamicObject.cpp" />
+    <ClCompile Include="EffectsSystemMaker.cpp" />
     <ClCompile Include="EmptyObject.cpp" />
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="Fence.cpp" />
+    <ClCompile Include="Fog.cpp" />
     <ClCompile Include="Grass.cpp" />
     <ClCompile Include="GridList.cpp" />
     <ClCompile Include="Ground.cpp" />
@@ -153,6 +155,7 @@
     <ClCompile Include="HareTrap.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="HeroBag.cpp" />
+    <ClCompile Include="HeroBagSpriteSystem.cpp" />
     <ClCompile Include="HeroBook.cpp" />
     <ClCompile Include="HeroBookPage.cpp" />
     <ClCompile Include="HomeCosiness.cpp" />
@@ -174,9 +177,11 @@
     <ClCompile Include="TerrainObject.cpp" />
     <ClCompile Include="NeutralMob.cpp" />
     <ClCompile Include="TextWriter.cpp" />
+    <ClCompile Include="UIEffectsSystemMaker.cpp" />
     <ClCompile Include="Wolf.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="WorldObject.cpp" />
+    <ClCompile Include="WreathDraft.cpp" />
     <ClCompile Include="Yarrow.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -190,9 +195,11 @@
     <ClInclude Include="Deerchant.h" />
     <ClInclude Include="DroppedLoot.h" />
     <ClInclude Include="DynamicObject.h" />
+    <ClInclude Include="EffectsSystemMaker.h" />
     <ClInclude Include="EmptyObject.h" />
     <ClInclude Include="EventHandler.h" />
     <ClInclude Include="Fence.h" />
+    <ClInclude Include="Fog.h" />
     <ClInclude Include="Grass.h" />
     <ClInclude Include="GridList.h" />
     <ClInclude Include="Ground.h" />
@@ -201,6 +208,7 @@
     <ClInclude Include="HareTrap.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="HeroBag.h" />
+    <ClInclude Include="HeroBagSpriteSystem.h" />
     <ClInclude Include="HeroBook.h" />
     <ClInclude Include="HeroBookPage.h" />
     <ClInclude Include="HomeCosiness.h" />
@@ -222,9 +230,11 @@
     <ClInclude Include="TerrainObject.h" />
     <ClInclude Include="NeutralMob.h" />
     <ClInclude Include="TextWriter.h" />
+    <ClInclude Include="UIEffectsSystemMaker.h" />
     <ClInclude Include="Wolf.h" />
     <ClInclude Include="World.h" />
     <ClInclude Include="WorldObject.h" />
+    <ClInclude Include="WreathDraft.h" />
     <ClInclude Include="Yarrow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

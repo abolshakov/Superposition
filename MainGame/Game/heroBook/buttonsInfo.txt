@@ -2,8 +2,12 @@
 0 Game/heroBook/Sprites/pageBackground.png 70 22 55 20
 0 Game/heroBook/Sprites/pagePattern.png 70 22 55 21
 0 Game/heroBook/Sprites/bookmarksList.png 70 22 55 22
+0 Game/heroBook/Sprites/sketching.png 70 22 55 46
 0 Game/heroBook/Sprites/yarrowBlock.png 0 0 6 29
-0 Game/heroBook/Sprites/hareBlock.png 0 0 6 30
+0 Game/heroBook/Sprites/hare.png 0 0 3.8 30
+0 Game/heroBook/Sprites/owl.png 0 0 3.8 51
+0 Game/heroBook/Sprites/deer.png 0 0 3.8 52
+0 Game/heroBook/Sprites/bear.png 0 0 3.8 53
 0 Game/heroBook/Sprites/heroBookBlock.png 0 0 6 23
 0 Game/heroBook/Sprites/chamomileBlock.png 0 0 6 24
 0 Game/heroBook/Sprites/wreathBlock.png 0 0 6 27
@@ -24,3 +28,13 @@
 0 Game/heroBook/Sprites/bookLightning.png 10 10 12 43
 0 Game/heroBook/Sprites/hpLine.png 10 10 3.5 44
 0 Game/heroBook/Sprites/hpFrame.png 10 10 3.5 45
+0 Game/heroBook/Sprites/cell1.png 0 0 3.5 47
+0 Game/heroBook/Sprites/cell2.png 0 0 3.5 48 
+1 Game/heroBook/Sprites/cell3.png Game/heroBook/Sprites/cell4.png Game/heroBook/Sprites/cell4.png 0 0 3.5 200
+0 Game/inventorySprites/someWreathDraft.png 0 0 3.5 201
+
+1 Game/heroBook/Sprites/Plants/chamomile.png Game/heroBook/Sprites/Plants/chamomileL.png Game/heroBook/Sprites/Plants/chamomileL.png 0 0 4.5 101
+1 Game/heroBook/Sprites/Plants/yarrow.png Game/heroBook/Sprites/Plants/yarrowL.png Game/heroBook/Sprites/Plants/yarrowL.png 0 0 4.5 102
+1 Game/heroBook/Sprites/Plants/fern.png Game/heroBook/Sprites/Plants/fernL.png Game/heroBook/Sprites/Plants/fernL.png 0 0 4.5 103
+1 Game/heroBook/Sprites/Plants/mugwort.png Game/heroBook/Sprites/Plants/mugwortL.png Game/heroBook/Sprites/Plants/mugwortL.png 0 0 4.5 104
+1 Game/heroBook/Sprites/Plants/poppy.png Game/heroBook/Sprites/Plants/poppyL.png Game/heroBook/Sprites/Plants/poppyL.png 0 0 4.5 105

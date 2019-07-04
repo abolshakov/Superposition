@@ -146,7 +146,7 @@ void Rock::prepareSpriteNames(long long elapsedTime)
 			if (state == absorbed)
 			{
 				state = common;
-				delatePromiseOn();
+				deletePromiseOn();
 			}
 			currentSprite[0] = 1;
 		}

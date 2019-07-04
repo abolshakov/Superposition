@@ -9,6 +9,8 @@ PickedObject::PickedObject(std::string objectName, Vector2f centerPosition) : Te
 
 bool PickedObject::pickUp(std::vector<HeroBag> *bags)
 {
+	if (this->tag == heroBagTag)
+		return true;
 	while (true)
 	{
 		bagCell *maximumFilledCell = nullptr;
@@ -40,7 +42,7 @@ bool PickedObject::pickUp(std::vector<HeroBag> *bags)
 			{
 				count = 0;
 				id = lootItemsIdList::bagCell;
-				delatePromiseOn();
+				deletePromiseOn();
 				return true;
 			}
 		}

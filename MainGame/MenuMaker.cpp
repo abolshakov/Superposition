@@ -76,7 +76,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 
 	if (menuState == mainMenu)
 	{
-		if (buttonList[newRunTag].isSelected(mousePos))
+		if (buttonList[ButtonTag::newRunTag].isSelected(mousePos))
 		{
 			world.generate(500);
 			menuState = closed;
@@ -84,7 +84,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 			return;
 		}
 
-		if (buttonList[continueTag].isSelected(mousePos))
+		if (buttonList[ButtonTag::continueTag].isSelected(mousePos))
 		{
 			world.Load();
 			menuState = closed;
@@ -92,7 +92,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 			return;
 		}
 
-		if (buttonList[exitTag].isSelected(mousePos))
+		if (buttonList[ButtonTag::exitTag].isSelected(mousePos))
 		{
 			menuState = closed;
 			window.close();
@@ -105,7 +105,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 
 	if (menuState == gameMenu)
 	{
-		if (buttonList[newRunTag].isSelected(mousePos))
+		if (buttonList[ButtonTag::newRunTag].isSelected(mousePos))
 		{
 			world.generate(500);
 			menuState = closed;
@@ -113,14 +113,14 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 			return;
 		}
 
-		if (buttonList[continueTag].isSelected(mousePos))
+		if (buttonList[ButtonTag::continueTag].isSelected(mousePos))
 		{
 			menuState = closed;
 			wasActive = true;
 			return;
 		}
 
-		if (buttonList[menuTag].isSelected(mousePos))
+		if (buttonList[ButtonTag::menuTag].isSelected(mousePos))
 		{
 			world.Save();
 			menuState = mainMenu;
@@ -133,7 +133,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 
 	/*if (menuState == closed)
 	{
-		if (buttonList.at(openMenu).isSelected(mousePos))
+		if (buttonList.at(ButtonTag::openMenu).isSelected(mousePos))
 		{
 			menuState = gameMenu;
 			wasActive = true;
@@ -146,25 +146,25 @@ void MenuMaker::drawButtons(RenderWindow &window)
 {
 	if (menuState == mainMenu)
 	{
-		buttonList.at(newRunTag).draw(window);
-		buttonList.at(continueTag).draw(window);
-		buttonList.at(settingsTag).draw(window);
-		buttonList.at(exitTag).draw(window);
+		buttonList.at(ButtonTag::newRunTag).draw(window);
+		buttonList.at(ButtonTag::continueTag).draw(window);
+		buttonList.at(ButtonTag::settingsTag).draw(window);
+		buttonList.at(ButtonTag::exitTag).draw(window);
 		return;
 	}
 
 	if (menuState == gameMenu)
 	{
-		buttonList.at(newRunTag).draw(window);
-		buttonList.at(continueTag).draw(window);
-		buttonList.at(settingsTag).draw(window);
-		buttonList.at(menuTag).draw(window);
+		buttonList.at(ButtonTag::newRunTag).draw(window);
+		buttonList.at(ButtonTag::continueTag).draw(window);
+		buttonList.at(ButtonTag::settingsTag).draw(window);
+		buttonList.at(ButtonTag::menuTag).draw(window);
 		return;
 	}
 
 	if (menuState == closed)
 	{
-		//buttonList.at(openMenu).draw(window);
+		//buttonList.at(ButtonTag::openMenu).draw(window);
 		return;
 	}
 }

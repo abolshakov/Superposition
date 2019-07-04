@@ -61,11 +61,30 @@ void DroppedLoot::prepareSpriteNames(long long elapsedTime)
 		case 4:
 			sprite.path = "Game/inventorySprites/yarrow";
 			break;
+		case 10:
+			sprite.path = "Game/inventorySprites/noose";
+			break;
+		case 11:
+			sprite.path = "Game/inventorySprites/bag1Icon";
+			break;
+		case 13:
+			sprite.path = "Game/inventorySprites/hare";
+			break;
+		case 201:
+			sprite.path = "Game/inventorySprites/someWreathDraft";
+			break;
 		default:
 			sprite.path = "Game/inventorySprites/bagCell";
 			break;
 	}
-	if (this->isSelected) sprite.path += "L";
+	if (this->isSelected)
+	{
+		if (typeOfObject == 11)
+			sprite.path = "Game/inventorySprites/bag1IconHover";
+		else
+			if (typeOfObject != 13)
+				sprite.path += "L";
+	}
 	sprite.path += ".png";
 	sprite.size = Vector2f(conditionalSizeUnits);
 	sprite.offset = Vector2f(textureBoxOffset);

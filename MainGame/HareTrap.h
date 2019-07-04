@@ -2,9 +2,9 @@
 #ifndef HARETRAP_H
 #define HARETRAP_H
 
-#include "TerrainObject.h"
+#include "PickedObject.h"
 
-class HareTrap : public TerrainObject
+class HareTrap : public PickedObject
 {
 protected:
 public:
@@ -14,6 +14,7 @@ public:
 	void prepareSpriteNames(long long elapsedTime) override;
 	void setType(int typeOfObject) override;
 	Vector2f getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition) override;
+	Vector2f getEnterPosition() const;
 	int getBuildType(Vector2f ounPos, Vector2f otherPos) override;
 };
 
