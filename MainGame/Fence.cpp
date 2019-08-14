@@ -9,7 +9,7 @@ Fence::Fence(std::string objectName, Vector2f centerPosition, int typeOfObject) 
 	toSaveName = "fence";
 	setType(typeOfObject);
 	isDotsAdjusted = true;
-	tag = fenceTag;
+	tag = Tag::fence;
 }
 
 void Fence::setType(int typeOfObject)
@@ -127,9 +127,9 @@ Vector2f Fence::getBuildPosition(std::vector<WorldObject*> visibleItems, float s
 	const Vector2f dot1 = Vector2f ((this->dot1.x - this->position.x) + mouseWorldPos.x, (this->dot1.y - this->position.y) + mouseWorldPos.y);
 	const Vector2f dot2 = Vector2f ((this->dot2.x - this->position.x) + mouseWorldPos.x, (this->dot2.y - this->position.y) + mouseWorldPos.y);
 
-	for (auto item : visibleItems)
+	for (auto&item : visibleItems)
 	{
-		if (item->tag == fenceTag)
+		if (item->tag == Tag::fence)
 		{
 			auto object = dynamic_cast<Fence*>(item);
 

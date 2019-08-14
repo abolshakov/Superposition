@@ -10,18 +10,18 @@ HeroBag::~HeroBag()
 {
 }
 
-std::unordered_map<lootItemsIdList, int> HeroBag::itemsMaxCount = std::unordered_map<lootItemsIdList, int>();
+std::unordered_map<Tag, int> HeroBag::itemsMaxCount = std::unordered_map<Tag, int>();
 float HeroBag::itemCommonRadius = Helper::GetScreenSize().y / 36;
 std::string HeroBag::textureCB = "Game/inventorySprites/bag1Icon.png";
 std::string HeroBag::textureCBS = "Game/inventorySprites/bag1IconHover.png";
 std::string HeroBag::textureOB = "Game/inventorySprites/bag1.png";
 std::string HeroBag::textureOBS = "Game/inventorySprites/bag1Hover.png";
-std::vector<std::pair<lootItemsIdList, int>> HeroBag::testInventory = 
-{ {lootItemsIdList::yarrowFlower, 2}, {lootItemsIdList::yarrowFlower, 3}, {lootItemsIdList::someWreathDraft, 1}, {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0} };
-std::vector<std::pair<lootItemsIdList, int>> HeroBag::emptyInventory =
-{ {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0}, {lootItemsIdList::bagCell, 0} };
+std::vector<std::pair<Tag, int>> HeroBag::testInventory = 
+{ {Tag::yarrow, 2}, {Tag::yarrow, 3}, {Tag::emptyCell, 0}, {Tag::inkyBlackPen, 1}, {Tag::emptyCell, 0}, {Tag::emptyCell, 0}, {Tag::emptyCell, 0} };
+std::vector<std::pair<Tag, int>> HeroBag::emptyInventory =
+{ {Tag::emptyCell, 0}, {Tag::emptyCell, 0}, {Tag::emptyCell, 0}, {Tag::emptyCell, 0}, {Tag::emptyCell, 0}, {Tag::emptyCell, 0}, {Tag::emptyCell, 0} };
 
-void HeroBag::initialize(Vector2f position, Vector2f sizeClosed, Vector2f sizeOpen, bool isSelectable, std::vector<std::pair<lootItemsIdList, int>> inventory, std::string textureClosedBagPath, std::string textureClosedBagSelectedPath, std::string textureOpenBagPath, std::string textureOpenBagSelectedPath)
+void HeroBag::initialize(Vector2f position, Vector2f sizeClosed, Vector2f sizeOpen, bool isSelectable, std::vector<std::pair<Tag, int>> inventory, std::string textureClosedBagPath, std::string textureClosedBagSelectedPath, std::string textureOpenBagPath, std::string textureOpenBagSelectedPath)
 {
 	this->textureClosedBag.loadFromFile(textureClosedBagPath);
 	this->textureClosedBagSelected.loadFromFile(textureClosedBagSelectedPath);
@@ -69,9 +69,9 @@ void HeroBag::initialize(Vector2f position, Vector2f sizeClosed, Vector2f sizeOp
 	cells.push_back(createCell(Vector2f(position.x + sizeOpen.x * 0.131f, position.y + sizeOpen.y * 0.150f), inventory[6], itemCommonRadius));
 }
 
-bagCell HeroBag::createCell(Vector2f position, std::pair<lootItemsIdList, int> content, float radius)
+Cell HeroBag::createCell(Vector2f position, std::pair<Tag, int> content, float radius)
 {
-	bagCell cell;
+	Cell cell;
 	cell.position = position;
 	cell.content = content;
 	return cell;
@@ -124,24 +124,24 @@ void HeroBag::changeCellsPosition(Vector2f shift)
 	}
 }
 
-std::vector<std::pair<lootItemsIdList, int>> HeroBag::cellsToInventory(std::vector<bagCell> cells)
+std::vector<std::pair<Tag, int>> HeroBag::cellsToInventory(std::vector<Cell> cells)
 {
-	std::vector<std::pair<lootItemsIdList, int>> ans;
-	for (auto cell : cells)	
+	std::vector<std::pair<Tag, int>> ans;
+	for (auto&cell : cells)	
 		ans.push_back({ cell.content.first, cell.content.second });
 	return ans;
 }
 
-bool HeroBag::canAfford(std::vector<std::pair<lootItemsIdList, int>> recipe, std::vector<HeroBag>* bags, bagCell* heldItem)
+bool HeroBag::canAfford(std::vector<std::pair<Tag, int>> recipe, std::vector<HeroBag>* bags, Cell* heldItem)
 {
-	for (auto item : recipe)
+	for (auto&item : recipe)
 	{
 		if (heldItem != nullptr)
 		{
 			if (item.first == heldItem->content.first)
 				item.second -= heldItem->content.second;
 		}
-		for (auto bag : *bags)
+		for (auto&bag : *bags)
 		{
 			if (item.second <= 0)
 				break;
@@ -155,9 +155,9 @@ bool HeroBag::canAfford(std::vector<std::pair<lootItemsIdList, int>> recipe, std
 	return true;
 }
 
-void HeroBag::takeItems(std::vector<std::pair<lootItemsIdList, int>> recipe, std::vector<HeroBag>* bags, bagCell* heldItem)
+void HeroBag::takeItems(std::vector<std::pair<Tag, int>> recipe, std::vector<HeroBag>* bags, Cell* heldItem)
 {
-	for (auto item : recipe)
+	for (auto&item : recipe)
 	{
 		if (heldItem != nullptr)
 		{
@@ -169,7 +169,7 @@ void HeroBag::takeItems(std::vector<std::pair<lootItemsIdList, int>> recipe, std
 			}
 			item.second -= heldItem->content.second;
 			heldItem->content.second = 0;
-			heldItem->content.first = lootItemsIdList::bagCell;
+			heldItem->content.first = Tag::emptyCell;
 		}
 		for (auto& bag : *bags)
 		{
@@ -187,7 +187,7 @@ void HeroBag::takeItems(std::vector<std::pair<lootItemsIdList, int>> recipe, std
 					{
 						item.second -= bag.cells[cnt].content.second;
 						bag.cells[cnt].content.second = 0;
-						bag.cells[cnt].content.first = lootItemsIdList::bagCell;
+						bag.cells[cnt].content.first = Tag::emptyCell;
 					}
 				}
 			if (isBreak)
@@ -196,22 +196,22 @@ void HeroBag::takeItems(std::vector<std::pair<lootItemsIdList, int>> recipe, std
 	}
 }
 
-bool HeroBag::putItemsIn(std::vector<std::pair<lootItemsIdList, int>> loot, std::vector<HeroBag>* bags)
+bool HeroBag::putItemsIn(std::vector<std::pair<Tag, int>> loot, std::vector<HeroBag>* bags)
 {
 	bool result = true;
-	for (auto item : loot)
+	for (auto&item : loot)
 	{		
 		for (auto& bag : *bags)
 		{			
 			bool isBreak = false;
 			for (int cnt = 0; cnt < bag.cells.size(); cnt++)
-				if (item.first == bag.cells[cnt].content.first || bag.cells[cnt].content.first == lootItemsIdList::bagCell)
+				if (item.first == bag.cells[cnt].content.first || bag.cells[cnt].content.first == Tag::emptyCell)
 				{
 					if (item.second <= (HeroBag::itemsMaxCount[item.first] - bag.cells[cnt].content.second))
 					{
 						bag.cells[cnt].content.second += item.second;
 						bag.cells[cnt].content.first = item.first;
-						item = std::make_pair(lootItemsIdList::bagCell, 0);
+						item = std::make_pair(Tag::emptyCell, 0);
 						isBreak = true;
 						break;
 					}
@@ -233,8 +233,7 @@ bool HeroBag::putItemsIn(std::vector<std::pair<lootItemsIdList, int>> loot, std:
 
 void HeroBag::draw(RenderWindow* window, float elapsedTime, bool canBeMoved)
 {
-	Vector2f screenCenter = Vector2f(Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2);	
-	
+	Vector2f screenCenter = Vector2f(Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2);			
 	if (currentState == bagClosed && (readyToChangeState || wasMoved) && canBeMoved)
 	{
 		if (Mouse::isButtonPressed(Mouse::Left))
@@ -248,22 +247,19 @@ void HeroBag::draw(RenderWindow* window, float elapsedTime, bool canBeMoved)
 				wasMoved = true;
 		}
 	}
+
 	lastMousePos = Vector2f(Mouse::getPosition());
 
 	if (currentState == bagOpen)
 	{	
 		textureOpenOffset = Vector2f(sizeOpen.x / 2, sizeOpen.y / 1.7);
 		if (readyToChangeState)
-		{
-			spriteOpenBagSelected.setTexture(textureOpenBagSelected);
-			spriteOpenBagSelected.setScale(sizeOpen.x / textureOpenBag.getSize().x, sizeOpen.y / textureOpenBag.getSize().y);
+		{			
 			spriteOpenBagSelected.setPosition(position.x - textureOpenOffset.x, position.y - textureOpenOffset.y);
 			window->draw(spriteOpenBagSelected);
 		}
 		else
-		{
-			spriteOpenBag.setTexture(textureOpenBag);
-			spriteOpenBag.setScale(sizeOpen.x / textureOpenBag.getSize().x, sizeOpen.y / textureOpenBag.getSize().y);
+		{			
 			spriteOpenBag.setPosition(position.x - textureOpenOffset.x, position.y - textureOpenOffset.y);
 			window->draw(spriteOpenBag);
 		}			
@@ -274,35 +270,30 @@ void HeroBag::draw(RenderWindow* window, float elapsedTime, bool canBeMoved)
 	{
 		textureClosedOffset = Vector2f(sizeClosed.x / 2, sizeClosed.y / 1.7);
 		if (readyToChangeState)
-		{
-			spriteClosedBagSelected.setTexture(textureClosedBagSelected);
-			spriteClosedBagSelected.setScale(sizeClosed.x / textureClosedBag.getSize().x, sizeClosed.y / textureClosedBag.getSize().y);
+		{			
 			spriteClosedBagSelected.setPosition(position.x - textureClosedOffset.x, position.y - textureClosedOffset.y);
 			window->draw(spriteClosedBagSelected);
 		}
 		else
-		{
-			spriteClosedBag.setTexture(textureClosedBag);
-			spriteClosedBag.setScale(sizeClosed.x / textureClosedBag.getSize().x, sizeClosed.y / textureClosedBag.getSize().y);
+		{			
 			spriteClosedBag.setPosition(position.x - textureClosedOffset.x, position.y - textureClosedOffset.y);
 			window->draw(spriteClosedBag);
-		}				
+		}		
 		return;
 	}
 
 	if (currentState == bagOpening)
 	{		
-		spriteOpenBag.setTexture(textureOpenBag);
 		stateChangingTime += elapsedTime;
 		if (stateChangingTime >= stateChangeTime)
 		{
 			currentState = bagOpen;
-			stateChangingTime = 0.1f;
+			stateChangingTime = 0;
 		}
 		else
 		{
 			const Vector2f toCenterVector = Vector2f(screenCenter.x - position.x, screenCenter.y - position.y);
-			const float cutCoefficient = sqrt(pow((sizeOpen.x - sizeClosed.x) * elapsedTime / stateChangeTime * (textureClosedOffset.x / spriteOpenBag.getGlobalBounds().width), 2) + pow((sizeOpen.y - sizeClosed.y) * elapsedTime / stateChangeTime * (textureClosedOffset.y / spriteOpenBag.getGlobalBounds().height), 2)) /
+			const float cutCoefficient = sqrt(pow((sizeOpen.x - sizeClosed.x) / 2 * elapsedTime / stateChangeTime, 2) + pow((sizeOpen.y - sizeClosed.y) / 2 * elapsedTime / stateChangeTime, 2)) /
 				sqrt(pow(toCenterVector.x, 2) + pow(toCenterVector.y, 2));
 			position.x += toCenterVector.x * cutCoefficient; position.y += toCenterVector.y * cutCoefficient;
 
@@ -312,25 +303,24 @@ void HeroBag::draw(RenderWindow* window, float elapsedTime, bool canBeMoved)
 			textureClosedOffset = Vector2f(spriteOpenBag.getGlobalBounds().width / 2, spriteOpenBag.getGlobalBounds().height / 1.7);
 			spriteOpenBag.setPosition(position.x - textureClosedOffset.x, position.y - textureClosedOffset.y);
 
-			changeCellsPosition(Vector2f(toCenterVector.x * cutCoefficient, toCenterVector.y * cutCoefficient));
-			window->draw(spriteOpenBag);
+			changeCellsPosition(Vector2f(toCenterVector.x * cutCoefficient, toCenterVector.y * cutCoefficient));			
 		}
+		window->draw(spriteOpenBag);
 		return;
 	}
 
 	if (currentState == bagClosing)
 	{
-		spriteClosedBag.setTexture(textureClosedBag);
 		stateChangingTime += elapsedTime;
 		if (stateChangingTime >= stateChangeTime)
 		{
 			currentState = bagClosed;
-			stateChangingTime = 0.1f;
+			stateChangingTime = 0;
 		}
 		else
 		{
 			const Vector2f fromCenterVector = Vector2f(position.x - screenCenter.x, position.y - screenCenter.y);
-			const float cutCoefficient = sqrt(pow((sizeOpen.x - sizeClosed.x) * elapsedTime / stateChangeTime * (textureOpenOffset.x / spriteClosedBag.getGlobalBounds().width), 2) + pow((sizeOpen.y - sizeClosed.y) * elapsedTime / stateChangeTime * (textureOpenOffset.y / spriteClosedBag.getGlobalBounds().height), 2)) /
+			const float cutCoefficient = sqrt(pow((sizeOpen.x - sizeClosed.x) / 2 * elapsedTime / stateChangeTime, 2) + pow((sizeOpen.y - sizeClosed.y) / 2 * elapsedTime / stateChangeTime, 2)) /
 				sqrt(pow(fromCenterVector.x, 2) + pow(fromCenterVector.y, 2));
 			position.x += fromCenterVector.x * cutCoefficient; position.y += fromCenterVector.y * cutCoefficient;
 
@@ -340,9 +330,9 @@ void HeroBag::draw(RenderWindow* window, float elapsedTime, bool canBeMoved)
 			textureOpenOffset = Vector2f(spriteClosedBag.getGlobalBounds().width / 2, spriteClosedBag.getGlobalBounds().height / 1.7);
 			spriteClosedBag.setPosition(position.x - textureOpenOffset.x, position.y - textureOpenOffset.y);
 
-			changeCellsPosition(Vector2f(fromCenterVector.x * cutCoefficient, fromCenterVector.y * cutCoefficient));
-			window->draw(spriteClosedBag);
+			changeCellsPosition(Vector2f(fromCenterVector.x * cutCoefficient, fromCenterVector.y * cutCoefficient));			
 		}
+		window->draw(spriteClosedBag);
 		return;
 	}
 }

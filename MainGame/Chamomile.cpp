@@ -7,10 +7,10 @@ Chamomile::Chamomile(std::string objectName, Vector2f centerPosition, int typeOf
 	this->typeOfObject = typeOfObject;
 	toSaveName = "chamomile";
 	setType(typeOfObject);
-	tag = chamomileTag;
+	tag = Tag::chamomile;
 
 	count = 1;
-	id = lootItemsIdList::chamomileFlower;	
+	id = Tag::chamomile;	
 }
 
 void Chamomile::setType(int typeOfObject)

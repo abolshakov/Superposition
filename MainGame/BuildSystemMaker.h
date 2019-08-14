@@ -14,7 +14,7 @@ struct objectInfo {
 	std::string type, icon;
 	Sprite sprite, iconSprite;
 	Texture iconTexture;
-	std::vector<std::pair<lootItemsIdList, int>> recipe;
+	std::vector<std::pair<Tag, int>> recipe;
 };
 
 class BuildSystemMaker
@@ -29,7 +29,7 @@ public:
 	datatype blankref;
 	std::vector<std::reference_wrapper<HeroBag>> boundBags;
 
-	void Init(const std::unordered_map<lootItemsIdList, cell>& itemsSpriteList);
+	void Init(const std::unordered_map<Tag, cell>& itemsSpriteList);
 	void draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f cameraPosition, std::vector<WorldObject*> visibleItems, bool showPositioning = true);
 	void onMouseDownInteract(Vector2f focusedObjectPosition, float scaleFactor);
 	void buildHeldItem(Vector2f focusedObjectPosition, float scaleFactor);
@@ -46,10 +46,10 @@ public:
 	bool getUsedMouse() { return usedMouse; }
 	bool canBePlaced = false;
 	int selectedObject = -1;
-	void setHeldItem(std::pair<lootItemsIdList, int>& heldItem) { if (nullptr != &heldItem) this->heldItem = &heldItem; }
+	void setHeldItem(std::pair<Tag, int>& heldItem) { if (nullptr != &heldItem) this->heldItem = &heldItem; }
 private:	
-	std::unordered_map<lootItemsIdList, cell> craftIngredientsSpriteList;
-	std::pair<lootItemsIdList, int> *heldItem = nullptr;
+	std::unordered_map<Tag, cell> craftIngredientsSpriteList;
+	std::pair<Tag, int> *heldItem = nullptr;
 	Vector2f spriteBuildPos = Vector2f (-1, -1);
 	int buildType = 1;
 	void initializeButtons();

@@ -41,7 +41,7 @@ void MenuMaker::initButtons()
 		buttonSize.y = buttonSize.y * screenSize.y / 100;
 		buttonSize.x = buttonTextureDefault.getSize().x * buttonSize.y / buttonTextureDefault.getSize().y;
 
-		buttonList[ButtonTag(tag)].initialize(buttonTextureDefault, buttonTexturePressed, buttonTextureSelected, buttonPosition, buttonSize, isSelectable, ButtonTag(tag));
+		buttonList[ButtonTag(tag)].initialize(buttonTextureDefault, buttonTexturePressed, buttonTextureSelected, buttonPosition, buttonSize, isSelectable, ButtonTag(tag), {0, 0});
 	}
 
 	fin.close();

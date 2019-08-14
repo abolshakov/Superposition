@@ -9,8 +9,8 @@ HareTrap::HareTrap(std::string objectName, Vector2f centerPosition, int typeOfOb
 	toSaveName = "hareTrap";
 	setType(typeOfObject);
 	currentSprite[0] = 1;
-	id = lootItemsIdList::hareTrap;
-	tag = hareTrapTag;
+	id = Tag::hareTrap;
+	tag = Tag::hareTrap;
 	inventory = HeroBag::emptyInventory;
 }
 

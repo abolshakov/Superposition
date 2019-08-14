@@ -21,7 +21,7 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 	energy = 50; maxEnergyValue = 100;
 	currentAction = relax;
 	toSaveName = "this1";
-	tag = mainHeroTag;
+	tag = Tag::hero1;
 	canCrashIntoDynamic = false;
 
 	bags.resize(3);
@@ -29,7 +29,7 @@ Deerchant::Deerchant(std::string objectName, Vector2f centerPosition) : DynamicO
 		closedBagSize = Vector2f(Helper::GetScreenSize().x / 12, Helper::GetScreenSize().y / 6);
 	bags[0].initialize(Vector2f(Helper::GetScreenSize().x - closedBagSize.x, closedBagSize.y), closedBagSize,openBagSize, true);
 	bags[1].initialize(Vector2f(Helper::GetScreenSize().x - closedBagSize.x, Helper::GetScreenSize().y - closedBagSize.y), closedBagSize, openBagSize, true);
-	bags[2].initialize(Vector2f(Helper::GetScreenSize().x - closedBagSize.x, Helper::GetScreenSize().y / 2 - closedBagSize.y), closedBagSize, openBagSize, true);
+	bags[2].initialize(Vector2f(Helper::GetScreenSize().x / 3 - closedBagSize.x, Helper::GetScreenSize().y / 2 - closedBagSize.y), closedBagSize, openBagSize, true);
 }
 
 Deerchant::~Deerchant()
@@ -108,7 +108,7 @@ void Deerchant::handleInput()
 	if (Keyboard::isKeyPressed(Keyboard::E))
 		changeAction(openInventory, true, false);
 
-	if (Mouse::isButtonPressed(Mouse::Left) && heldItem->content.first == lootItemsIdList::noose)
+	if (Mouse::isButtonPressed(Mouse::Left) && heldItem->content.first == Tag::noose)
 	{
 		changeAction(throwNoose, true, false);
 		return;
@@ -191,7 +191,7 @@ void Deerchant::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 
 void Deerchant::behaviorWithStatic(WorldObject* target, float elapsedTime)
 {
-	if (target->tag == fogTag && target->getState() == common)
+	if (target->tag == Tag::fog && target->getState() == common)
 	{
 		if (abs(position.x - target->getPosition().x) <= target->getConditionalSizeUnits().x / 2.5 && abs(position.y - target->getPosition().y) <= target->getConditionalSizeUnits().y / 2.5)
 			target->setState(absorbed);
@@ -220,7 +220,7 @@ void Deerchant::behavior(float elapsedTime)
 		boundTarget->isProcessed = true;
 		switch (boundTarget->tag)
 		{
-		case forestTreeTag:
+		case Tag::tree:
 		{
 			if (boundTarget->getState() == absorbed)
 				break;
@@ -232,19 +232,19 @@ void Deerchant::behavior(float elapsedTime)
 			stopping(true, true);
 			break;
 		}
-		case chamomileTag:
-		case yarrowTag:
-		case nooseTag:
-		case droppedLootTag:
-		case hareTrapTag:
-		case heroBagTag:
+		case Tag::chamomile:
+		case Tag::yarrow:
+		case Tag::noose:
+		case Tag::droppedLoot:
+		case Tag::hareTrap:
+		case Tag::heroBag:
 		{
 			currentAction = grab;
 			currentSprite[0] = 1;
 			stopping(true);
 			break;
 		}
-		case dropPointTag:
+		case Tag::dropPoint:
 		{		
 			currentAction = dropping;
 			currentSprite[0] = 1;
@@ -253,7 +253,7 @@ void Deerchant::behavior(float elapsedTime)
 			stopping(true, true);
 			break;
 		}
-		case buildedObjectTag:
+		case Tag::buildObject:
 		{
 			currentAction = builds;
 			currentSprite[0] = 1;
@@ -292,14 +292,14 @@ void Deerchant::onMouseDownBehavior(int currentMouseButton, WorldObject *object,
 			boundTarget = nullptr;			
 		}
 		boundTarget = new EmptyObject("buildItem", mouseWorldPos);
-		boundTarget->tag = buildedObjectTag;
+		boundTarget->tag = Tag::buildObject;
 		movePosition = mouseWorldPos;
 		return;
 	}
 
 	if (!object)
 	{
-		if (heldItem->content.first != lootItemsIdList::bagCell && currentMouseButton == 2)
+		if (heldItem->content.first != Tag::emptyCell && currentMouseButton == 2)
 		{
 			if (boundTarget != nullptr)
 			{
@@ -307,12 +307,12 @@ void Deerchant::onMouseDownBehavior(int currentMouseButton, WorldObject *object,
 				boundTarget = nullptr;				
 			}
 			boundTarget = new EmptyObject("droppedItem", mouseWorldPos);
-			boundTarget->tag = dropPointTag;
+			boundTarget->tag = Tag::dropPoint;
 			movePosition = mouseWorldPos;
 			return;
 		}
 
-		for (auto bag : bags)
+		for (auto& bag : bags)
 		{
 			if (bag.currentState == ejected)
 			{
@@ -322,7 +322,7 @@ void Deerchant::onMouseDownBehavior(int currentMouseButton, WorldObject *object,
 					boundTarget = nullptr;
 				}
 				boundTarget = new EmptyObject("droppedItem", mouseWorldPos);
-				boundTarget->tag = dropPointTag;
+				boundTarget->tag = Tag::dropPoint;
 				movePosition = mouseWorldPos;
 			}
 		}
@@ -352,15 +352,15 @@ void Deerchant::endingPreviousAction()
 	{
 		stopping(true, true);
 		currentAction = relax;
-		if (heldItem->content.first != lootItemsIdList::bagCell)
+		if (heldItem->content.first != Tag::emptyCell)
 		{
 			birthStaticInfo dropObject;
 			dropObject.position = position;
-			dropObject.id = droppedLoot;
+			dropObject.tag = Tag::droppedLoot;
 			dropObject.typeOfObject = int(heldItem->content.first);
 			dropObject.count = heldItem->content.second;
 			birthStatics.push(dropObject);
-			heldItem->content = std::make_pair(lootItemsIdList::bagCell, 0);
+			heldItem->content = std::make_pair(Tag::emptyCell, 0);
 		}
 		else
 		{
@@ -368,43 +368,38 @@ void Deerchant::endingPreviousAction()
 				if (bags[cnt].currentState == ejected)
 				{
 					bool isHareTrap = true;
-					for (auto item : bags[cnt].cells)					
-						if (item.content.first != lootItemsIdList::yarrowFlower && item.content.first != lootItemsIdList::bagCell)
+					for (auto& item : bags[cnt].cells)					
+						if (item.content.first != Tag::yarrow && item.content.first != Tag::emptyCell)
 						{
 							isHareTrap = false;
 							break;
 						}
+					birthStaticInfo dropObject;
 					if (isHareTrap)
-					{
-						birthStaticInfo dropObject;
-						dropObject.position = position;
-						dropObject.id = hareTrap;
-						dropObject.inventory = HeroBag::cellsToInventory(bags[cnt].cells);
-						birthStatics.push(dropObject);
-						bags.erase(bags.begin() + cnt);
+					{											
+						dropObject.tag = Tag::hareTrap;											
 					}
 					else
 					{
-						birthStaticInfo dropObject;
-						dropObject.position = position;
-						dropObject.id = droppedLoot;
-						dropObject.typeOfObject = int(lootItemsIdList::droppedBag);
-						dropObject.inventory = HeroBag::cellsToInventory(bags[cnt].cells);
-						birthStatics.push(dropObject);
-						bags.erase(bags.begin() + cnt);
+						dropObject.tag = Tag::droppedLoot;
+						dropObject.typeOfObject = int(Tag::heroBag);						
 					}
+					dropObject.position = position;
+					dropObject.inventory = HeroBag::cellsToInventory(bags[cnt].cells);
+					bags.erase(bags.begin() + cnt);
+					birthStatics.push(dropObject);
 					break;
 				}	
 		}
 	}
     if (lastAction == throwNoose)
     {
-		if (HeroBag::canAfford({ std::make_pair(lootItemsIdList::noose, 1) }, &bags), heldItem)
+		if (HeroBag::canAfford({ std::make_pair(Tag::noose, 1) }, &bags), heldItem)
 		{
-			HeroBag::takeItems({ std::make_pair(lootItemsIdList::noose, 1) }, &bags, heldItem);
+			HeroBag::takeItems({ std::make_pair(Tag::noose, 1) }, &bags, heldItem);
 			birthDynamicInfo nooseObject;
 			nooseObject.position = position;
-			nooseObject.id = noose;
+			nooseObject.tag = Tag::noose;
 			birthDynamics.push(nooseObject);
 		}
 		currentAction = relax;
@@ -416,7 +411,7 @@ void Deerchant::endingPreviousAction()
 			auto pickedItem = dynamic_cast<PickedObject*>(boundTarget);
 			if (pickedItem)
 			{
-				if (pickedItem->getType() == int(lootItemsIdList::droppedBag) || pickedItem->getId() == lootItemsIdList::hareTrap)
+				if (pickedItem->getType() == int(Tag::heroBag) || pickedItem->getId() == Tag::hareTrap)
 				{
 					const Vector2f openBagSize = Vector2f(Helper::GetScreenSize().x / 6, Helper::GetScreenSize().y / 3),
 						closedBagSize = Vector2f(Helper::GetScreenSize().x / 12, Helper::GetScreenSize().y / 6);
@@ -432,7 +427,7 @@ void Deerchant::endingPreviousAction()
 			auto nooseItem = dynamic_cast<Noose*>(boundTarget);
 			if (nooseItem)
 			{
-				if (HeroBag::putItemsIn({ std::make_pair(lootItemsIdList::noose, 1) }, &bags))
+				if (HeroBag::putItemsIn({ std::make_pair(Tag::noose, 1) }, &bags))
 					nooseItem->deletePromiseOn();
 			}
 			stopping(true, true);

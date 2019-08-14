@@ -20,7 +20,7 @@ Noose::Noose(const std::string objectName, Vector2f centerPosition, WorldObject*
 	canCrashIntoDynamic = false;
 	jerk(2, 1);
 	toSaveName = "noose";
-	tag = nooseTag;
+	tag = Tag::noose;
 }
 
 Noose::~Noose()
@@ -42,7 +42,7 @@ void Noose::setTarget(DynamicObject& object)
 
 void Noose::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 {
-	if (target->getId() == deer)
+	if (target->tag == Tag::deer)
 	{
 		auto deer = dynamic_cast<Deer*>(target);
 		if (Helper::getDist(position, deer->getHeadPosition()) <= radius + target->getRadius())

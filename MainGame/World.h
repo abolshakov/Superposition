@@ -117,8 +117,8 @@ public:
 
 	//adding to the grid
 	void birthObjects();
-	void initializeStaticItem(StaticItemsIdList itemClass, Vector2f itemPosition, int itemType, std::string itemName, bool reliable, int count = 1, std::vector<std::pair<lootItemsIdList, int>> inventory = {});
-	void initializeDynamicItem(DynamicItemsIdList itemClass, Vector2f itemPosition, std::string itemName);
+	void initializeStaticItem(Tag itemClass, Vector2f itemPosition, int itemType, std::string itemName, bool reliable, int count = 1, std::vector<std::pair<Tag, int>> inventory = {});
+	void initializeDynamicItem(Tag itemClass, Vector2f itemPosition, std::string itemName);
 
 	//getters
 	Vector2f getBossSpawnPosition() { return bossSpawnPosition; }
@@ -129,6 +129,8 @@ public:
 	InventoryMaker& getInventorySystem() { return inventorySystem; }
 	BuildSystemMaker& getBuildSystem() { return buildSystem; }
 	ltbl::LightSystem& getLightSystem() { return ls; }
+	std::string getMouseDisplayName() const { return mouseDisplayName; }
+	WorldObject* getSelectedObject() const { return selectedObject; }
 
 	//save-load logic
 	void clearWorld();

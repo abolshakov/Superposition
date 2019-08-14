@@ -1,40 +1,42 @@
-0 Game/heroBook/Sprites/bookCover.png 70 22 55 18
-0 Game/heroBook/Sprites/pageBackground.png 70 22 55 20
-0 Game/heroBook/Sprites/pagePattern.png 70 22 55 21
-0 Game/heroBook/Sprites/bookmarksList.png 70 22 55 22
-0 Game/heroBook/Sprites/sketching.png 70 22 55 46
-0 Game/heroBook/Sprites/yarrowBlock.png 0 0 6 29
-0 Game/heroBook/Sprites/hare.png 0 0 3.8 30
-0 Game/heroBook/Sprites/owl.png 0 0 3.8 51
-0 Game/heroBook/Sprites/deer.png 0 0 3.8 52
-0 Game/heroBook/Sprites/bear.png 0 0 3.8 53
-0 Game/heroBook/Sprites/heroBookBlock.png 0 0 6 23
-0 Game/heroBook/Sprites/chamomileBlock.png 0 0 6 24
-0 Game/heroBook/Sprites/wreathBlock.png 0 0 6 27
-0 Game/heroBook/Sprites/nightmareBlock.png 0 0 6 28
-1 Game/heroBook/Sprites/nextPage1.png Game/heroBook/Sprites/nextPage2.png Game/heroBook/Sprites/nextPage3.png 0 0 6 16
-1 Game/heroBook/Sprites/previousPage1.png Game/heroBook/Sprites/previousPage2.png Game/heroBook/Sprites/previousPage3.png 0 0 6 17
+0 Game/heroBook/Sprites/bookCover.png 70 22 55 0 0 18
+0 Game/heroBook/Sprites/pageBackground.png 70 22 55 0 0 20
+0 Game/heroBook/Sprites/pagePattern.png 70 22 44.275 0 0 21
+0 Game/heroBook/Sprites/bookmarksList.png 70 22 44.275 0 0 22
+0 Game/heroBook/Sprites/sketching.png 70 22 44.275 0 0 46
+1 Game/heroBook/Sprites/arrowBig/nextPage1.png Game/heroBook/Sprites/arrowBig/nextPage2.png Game/heroBook/Sprites/arrowBig/nextPage3.png 0 0 4.83 0 0 16
+1 Game/heroBook/Sprites/arrowBig/previousPage1.png Game/heroBook/Sprites/arrowBig/previousPage2.png Game/heroBook/Sprites/arrowBig/previousPage3.png 0 0 4.83 0 0 17
 
-0 Game/heroBook/Sprites/bookmark.png 0 0 5 19
-1 Game/heroBook/Sprites/bookmarks/animals1.png Game/heroBook/Sprites/bookmarks/animals2.png Game/heroBook/Sprites/bookmarks/animals3.png 0 0 5 31
-1 Game/heroBook/Sprites/bookmarks/objects1.png Game/heroBook/Sprites/bookmarks/objects2.png Game/heroBook/Sprites/bookmarks/objects3.png 0 0 5 32
-1 Game/heroBook/Sprites/bookmarks/plants1.png Game/heroBook/Sprites/bookmarks/plants2.png Game/heroBook/Sprites/bookmarks/plants3.png 0 0 5 33
-1 Game/heroBook/Sprites/bookmarks/wreaths1.png Game/heroBook/Sprites/bookmarks/wreaths2.png Game/heroBook/Sprites/bookmarks/wreaths3.png 0 0 5 34
-1 Game/heroBook/Sprites/bookmarks/nightmare1.png Game/heroBook/Sprites/bookmarks/nightmare2.png Game/heroBook/Sprites/bookmarks/nightmare3.png 0 0 5 35
+0 Game/heroBook/Sprites/bookmark.png 0 0 5 0 0 19
+1 Game/heroBook/Sprites/bookmarks/animals1.png Game/heroBook/Sprites/bookmarks/animals2.png Game/heroBook/Sprites/bookmarks/animals3.png 0 0 5 0 0 31
+1 Game/heroBook/Sprites/bookmarks/objects1.png Game/heroBook/Sprites/bookmarks/objects2.png Game/heroBook/Sprites/bookmarks/objects3.png 0 0 5 0 0 32
+1 Game/heroBook/Sprites/bookmarks/plants1.png Game/heroBook/Sprites/bookmarks/plants2.png Game/heroBook/Sprites/bookmarks/plants3.png 0 0 5 0 0 33
+1 Game/heroBook/Sprites/bookmarks/plants1.png Game/heroBook/Sprites/bookmarks/plants2.png Game/heroBook/Sprites/bookmarks/plants3.png 0 0 5 0 0 34
+1 Game/heroBook/Sprites/bookmarks/wreaths1.png Game/heroBook/Sprites/bookmarks/wreaths2.png Game/heroBook/Sprites/bookmarks/wreaths3.png 0 0 5 0 0 35
+1 Game/heroBook/Sprites/bookmarks/nightmare1.png Game/heroBook/Sprites/bookmarks/nightmare2.png Game/heroBook/Sprites/bookmarks/nightmare3.png 0 0 5 0 0 36
 
-0 Game/heroBook/Sprites/book.png 10 10 12 40
-0 Game/heroBook/Sprites/bookStand.png 10 10 12 41
-0 Game/heroBook/Sprites/bookGlow.png 10 10 12 42
-0 Game/heroBook/Sprites/bookLightning.png 10 10 12 43
-0 Game/heroBook/Sprites/hpLine.png 10 10 3.5 44
-0 Game/heroBook/Sprites/hpFrame.png 10 10 3.5 45
-0 Game/heroBook/Sprites/cell1.png 0 0 3.5 47
-0 Game/heroBook/Sprites/cell2.png 0 0 3.5 48 
-1 Game/heroBook/Sprites/cell3.png Game/heroBook/Sprites/cell4.png Game/heroBook/Sprites/cell4.png 0 0 3.5 200
-0 Game/inventorySprites/someWreathDraft.png 0 0 3.5 201
+0 Game/heroBook/Sprites/book.png 10 10 12 0 0 40
+0 Game/heroBook/Sprites/bookStand.png 10 10 12 0 0 41
+0 Game/heroBook/Sprites/bookGlow.png 10 10 12 0 0 42
+0 Game/heroBook/Sprites/bookLightning.png 10 10 12 0 0 43
+0 Game/heroBook/Sprites/hpLine.png 10 10 3.5 0 0 44
+0 Game/heroBook/Sprites/hpFrame.png 10 10 3.5 0 0 45
+0 Game/heroBook/Sprites/cell1.png 0 0 3.5 0 0 47
+0 Game/heroBook/Sprites/cell2.png 0 0 3.5 0 0 48
+1 Game/heroBook/Sprites/frame1/default.png Game/heroBook/Sprites/frame1/hover.png Game/heroBook/Sprites/frame1/click.png 0 0 5.189 -0.06 -0.06 49 
+1 Game/heroBook/Sprites/frame2/default.png Game/heroBook/Sprites/frame2/hover.png Game/heroBook/Sprites/frame2/click.png 0 0 5.876 0 0 50
+1 Game/heroBook/Sprites/Plus/plus1.png Game/heroBook/Sprites/Plus/plus2.png Game/heroBook/Sprites/Plus/plus3.png 0 0 5.876 0 0 51
 
-1 Game/heroBook/Sprites/Plants/chamomile.png Game/heroBook/Sprites/Plants/chamomileL.png Game/heroBook/Sprites/Plants/chamomileL.png 0 0 4.5 101
-1 Game/heroBook/Sprites/Plants/yarrow.png Game/heroBook/Sprites/Plants/yarrowL.png Game/heroBook/Sprites/Plants/yarrowL.png 0 0 4.5 102
-1 Game/heroBook/Sprites/Plants/fern.png Game/heroBook/Sprites/Plants/fernL.png Game/heroBook/Sprites/Plants/fernL.png 0 0 4.5 103
-1 Game/heroBook/Sprites/Plants/mugwort.png Game/heroBook/Sprites/Plants/mugwortL.png Game/heroBook/Sprites/Plants/mugwortL.png 0 0 4.5 104
-1 Game/heroBook/Sprites/Plants/poppy.png Game/heroBook/Sprites/Plants/poppyL.png Game/heroBook/Sprites/Plants/poppyL.png 0 0 4.5 105
+0 Game/heroBook/Sprites/hare.png 0 0 5.876 0 0 102
+0 Game/heroBook/Sprites/owl.png 0 0 5.876 0 0 103
+0 Game/heroBook/Sprites/deer.png 0 0 5.876 0 0 104
+0 Game/heroBook/Sprites/deer.png 0 0 5.876 0 0 105
+0 Game/heroBook/Sprites/bear.png 0 0 5.876 0 0 106
+0 Game/heroBook/Sprites/wolf.png 0 0 5.876 0 0 107
+
+0 Game/heroBook/Sprites/Craft/bag.png 0 0 5.876 0 0 201
+
+0 Game/heroBook/Sprites/Plants/chamomile.png 0 0 5.876 0 0 401
+0 Game/heroBook/Sprites/Plants/yarrow.png 0 0 5.876 0 0 402
+0 Game/heroBook/Sprites/Plants/fern.png 0 0 5.876 0 0 403
+0 Game/heroBook/Sprites/Plants/mugwort.png 0 0 5.876 0 0 404
+0 Game/heroBook/Sprites/Plants/poppy.png 0 0 5.876 0 0 405

@@ -43,30 +43,38 @@ void TextWriter::drawString(std::string str, FontName font, int size, float posX
 void TextWriter::drawTextBox(std::string str, FontName font, int size, float posX, float posY, float width, float height, RenderWindow* window, Color color)
 {
 	auto curText = textBoxes.at(font);
-	curText.setString('a');
-	curText.setCharacterSize(size);
+	curText.setString(str);
+	const int lineLength = str.size() * (width / curText.getGlobalBounds().width);
+	float curPosY = posY;
 
-	float curPosY = posY + float(size) / 2, curPosX = posX + float(size) / 2;
-
-	while (true)
+	if (curText.getGlobalBounds().width <= width)
 	{
-		if (curPosY > posY + height)
-			break;
-		if (str.length() + 1 < width / size)
+		drawString(str, font, size, posX, curPosY, window, color);
+		return;
+	}
+
+	while (!str.empty())
+	{
+		if (curPosY > posY + height - curText.getGlobalBounds().height / 2)
+			return;
+		
+		int spacePos = std::min(lineLength, int(str.size() - 1));
+		if (str.length() > lineLength)
 		{
-			drawString(str, font, size, curPosX, curPosY, window, color);
-			break;
+			while (!(str[spacePos] == ' ' || str[spacePos] == '_') && spacePos > 0)
+				spacePos--;
 		}
 		else
-		{
-			int k = 0;
-			for (k = 0; k < width / size - 1; k++)
-				if (str[width / size - 1 - k] == ' ')
-					break;
-			drawString(str.substr(0, width / size - 1 - k), font, size, curPosX, curPosY, window, color);
-			curPosY += size;
-			str.erase(0, width / size - 1);
-		}
+			spacePos = 0;
+
+		if (spacePos != 0)
+			str.erase(str.begin() + spacePos);
+		else
+			spacePos = lineLength;
+
+		drawString(str.substr(0, spacePos), font, size, posX, curPosY, window, color);
+		curPosY += curText.getGlobalBounds().height;
+		str.erase(0, spacePos);
 	}
 }
 

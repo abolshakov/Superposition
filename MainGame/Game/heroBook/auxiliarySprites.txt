@@ -1,0 +1,7 @@
+Game/heroBook/Sprites/Lines/line1.png 0 0 2.442 0 0 1
+Game/heroBook/Sprites/Lines/line2.png 0 0 11.755 0 0 2
+Game/heroBook/Sprites/Lines/line3.png 0 0 20.152 0 0 3
+Game/heroBook/Sprites/Lines/line4.png 0 0 6.03 0 0 4
+Game/heroBook/Sprites/Lines/line5.png 0 0 16.182 0 0 5
+Game/heroBook/Sprites/Lines/line6.png 0 0 19.694 0 0 6
+Game/heroBook/Sprites/Lines/line7.png 0 0 9.236 0 0 7

@@ -138,6 +138,7 @@
     <ClCompile Include="BuildSystemMaker.cpp" />
     <ClCompile Include="ButtonMaker.cpp" />
     <ClCompile Include="Chamomile.cpp" />
+    <ClCompile Include="ComplexIdInterpreter.cpp" />
     <ClCompile Include="Deer.cpp" />
     <ClCompile Include="Deerchant.cpp" />
     <ClCompile Include="DroppedLoot.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="BuildSystemMaker.h" />
     <ClInclude Include="ButtonMaker.h" />
     <ClInclude Include="Chamomile.h" />
+    <ClInclude Include="ComplexIdInterpreter.h" />
     <ClInclude Include="Deer.h" />
     <ClInclude Include="Deerchant.h" />
     <ClInclude Include="DroppedLoot.h" />

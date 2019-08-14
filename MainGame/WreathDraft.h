@@ -9,9 +9,9 @@ using namespace sf;
 
 struct DraftInfo
 {
-	std::vector<std::pair<lootItemsIdList, std::pair<int, int>>> plants;
+	std::vector<std::pair<Tag, std::pair<int, int>>> plants;
 	std::vector<int> rings;
-	ButtonTag id;
+	Tag id;
 };
 
 class WreathDraft

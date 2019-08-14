@@ -231,7 +231,7 @@ Vector2f DynamicObject::doSlip(Vector2f newPosition, std::vector<StaticObject*> 
 {
 	bool crashed = false;
 
-	for (auto staticItem : localStaticItems)
+	for (auto&staticItem : localStaticItems)
 	{
 		auto terrain = dynamic_cast<TerrainObject*>(staticItem);
 		if (!terrain || staticItem->isBackground)
@@ -243,7 +243,7 @@ Vector2f DynamicObject::doSlip(Vector2f newPosition, std::vector<StaticObject*> 
 			Vector2f motionAfterSlipping;
 
 			if (!curEllipses.empty())
-				for (auto curEllipse : curEllipses)
+				for (auto&curEllipse : curEllipses)
 				{
 					if (crashed)
 						return Vector2f(-1, -1);
@@ -295,7 +295,7 @@ Vector2f DynamicObject::doSlipOffDynamic(Vector2f newPosition, std::vector<Dynam
 
 	lastIntersected = "";
 
-	for (auto otherDynamicItem : localDynamicItems)
+	for (auto&otherDynamicItem : localDynamicItems)
 	{
 		if (otherDynamicItem == this)
 			continue;

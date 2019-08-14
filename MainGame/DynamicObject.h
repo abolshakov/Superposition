@@ -28,7 +28,6 @@ protected:
 	Vector2f moveOffset = Vector2f (-1, -1);
 	WorldObject *boundTarget = nullptr;
 	bool routeGenerationAbility = true;
-	DynamicItemsIdList id;
 
 	//jerk mechanics
 	float jerkPower, jerkDeceleration = 0, jerkDistance = 0;
@@ -56,7 +55,6 @@ public:
 	Direction getDirection() { return direction; }
 	Side getSide() { return side; }
 	WorldObject *getSelectedTarget() { return boundTarget; }
-	DynamicItemsIdList getId() { return id; }
 	static std::string sideToString(Side side);
 	static std::string directionToString(Direction direction);
 

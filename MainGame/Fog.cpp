@@ -7,7 +7,7 @@ Fog::Fog(std::string objectName, Vector2f centerPosition, int typeOfObject) : Te
 	this->typeOfObject = typeOfObject;
 	radius = 100;
 	state = common;
-	tag = fogTag;
+	tag = Tag::fog;
 	toSaveName = "fog";
 	intangible = true;
 	transparency = 100;

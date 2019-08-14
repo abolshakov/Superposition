@@ -32,10 +32,7 @@ int main() {
 
 	HeroBook mainBook;
 
-	TextWriter textWriter;
-
-	//Sprite test; Texture testT; testT.loadFromFile("Game/Shaders/fog/fog (1).png"); test.setTexture(testT); test.setPosition(Vector2f(0, 0)); 
-	//test.setScale(Helper::GetScreenSize().x / testT.getSize().x, Helper::GetScreenSize().y / testT.getSize().y);
+	TextWriter textWriter;	
 
 	while (mainWindow.isOpen())
 	{
@@ -108,6 +105,8 @@ int main() {
 
 			world.focusedObject->handleInput();
 			world.interact(mainWindow, interactTime);
+			mainBook.setWorldMouseName(world.getMouseDisplayName());
+			mainBook.setWorldSelectedObject(world.getSelectedObject());
 			mainBook.boundHeldItem(&world.getInventorySystem().getHeldItem());
 			mainBook.interact(interactTime);
 
@@ -129,26 +128,9 @@ int main() {
 
 		auto hero = dynamic_cast<DynamicObject*>(world.focusedObject);
 
-		textWriter.drawString(mainBook.debugInfo, NormalFont, 30, 500, 500, &mainWindow);
-
-		/*if (hero->getHealthPoint() <= 0)
-		{
-			menuSystem.setState(mainMenu);
-		}*/
-
-		/*Sprite testS;
-		Texture testT;
-		for (int i = 0; i < 100; i++)
-		{
-			testT.loadFromFile("Game/heroBook/Sprites/nightmareBlock.png");
-			testS.setTexture(testT);
-			mainWindow.draw(testS);
-		}*/
+		//textWriter.drawString(world.getInventorySystem().debugInfo, NormalFont, 30, 500, 500, &mainWindow);
 
 		textWriter.drawString(std::to_string(10e5 / drawTime), NormalFont, 30, 200, 200, &mainWindow, Color::Black);
-		/*const int groundIndX = hero->getPosition().x / 1000;
-		const int groundIndY = hero->getPosition().y / 1000;
-		textWriter.drawString(std::to_string(world.biomeMatrix[groundIndX][groundIndY].biomeCell), NormalFont, 30, 200, 200, &mainWindow, Color::Black);*/
 		mainWindow.display();
 	}
 }

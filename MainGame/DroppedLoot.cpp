@@ -8,7 +8,7 @@ DroppedLoot::DroppedLoot(std::string objectName, Vector2f centerPosition, int ty
 	toSaveName = "drop";
 	setType(typeOfObject);
 	radius = Helper::GetScreenSize().y / 36;
-	tag = droppedLootTag;
+	tag = Tag::droppedLoot;
 	this->count = count;
 }
 
@@ -18,7 +18,7 @@ void DroppedLoot::setType(int typeOfObject)
 		return;
 
 	this->typeOfObject = typeOfObject;
-	id = lootItemsIdList(typeOfObject);
+	id = Tag(typeOfObject);
 	conditionalSizeUnits = Vector2i(radius * 3, radius * 3);
 }
 
@@ -52,26 +52,23 @@ void DroppedLoot::prepareSpriteNames(long long elapsedTime)
 	spriteChainElement sprite;
 	switch (typeOfObject)
 	{
-		case 1:
+		case 401:
 			sprite.path = "Game/inventorySprites/chamomile";
 			break;
-		case 3:
-			sprite.path = "Game/inventorySprites/chamomile";
-			break;
-		case 4:
+		case 402:
 			sprite.path = "Game/inventorySprites/yarrow";
 			break;
-		case 10:
-			sprite.path = "Game/inventorySprites/noose";
-			break;
-		case 11:
+		case 201:
 			sprite.path = "Game/inventorySprites/bag1Icon";
 			break;
-		case 13:
-			sprite.path = "Game/inventorySprites/hare";
+		case 202:
+			sprite.path = "Game/inventorySprites/noose";
 			break;
-		case 201:
-			sprite.path = "Game/inventorySprites/someWreathDraft";
+		case 219:
+			sprite.path = "Game/inventorySprites/inkyBlackPen";
+			break;
+		case 102:
+			sprite.path = "Game/inventorySprites/hare";
 			break;
 		default:
 			sprite.path = "Game/inventorySprites/bagCell";
@@ -79,10 +76,10 @@ void DroppedLoot::prepareSpriteNames(long long elapsedTime)
 	}
 	if (this->isSelected)
 	{
-		if (typeOfObject == 11)
+		if (typeOfObject == 201)
 			sprite.path = "Game/inventorySprites/bag1IconHover";
 		else
-			if (typeOfObject != 13)
+			if (typeOfObject >= 401 && typeOfObject <= 499)
 				sprite.path += "L";
 	}
 	sprite.path += ".png";

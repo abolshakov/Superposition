@@ -15,7 +15,7 @@ NeutralMob::~NeutralMob()
 
 void NeutralMob::setTarget(DynamicObject& object)
 {
-	if (object.tag == nooseTag)
+	if (object.tag == Tag::noose)
 		return;
 	if (Helper::getDist(position, object.getPosition()) < distanceToNearest)
 	{

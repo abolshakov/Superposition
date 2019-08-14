@@ -10,7 +10,7 @@ BuildSystemMaker::~BuildSystemMaker()
 
 }
 
-void BuildSystemMaker::Init(const std::unordered_map<lootItemsIdList, cell>& itemsSpriteList)
+void BuildSystemMaker::Init(const std::unordered_map<Tag, cell>& itemsSpriteList)
 {
 	this->craftIngredientsSpriteList = itemsSpriteList;
 	inicializeObjectsInfo();
@@ -77,7 +77,7 @@ void BuildSystemMaker::inicializeObjectsInfo()
 		for (int i = 0; i < recipeLength; i++)
 		{
 			fin >> recipeItemId >> recipeItemAmount;
-			infoItem.recipe.push_back(std::make_pair(lootItemsIdList(recipeItemId), recipeItemAmount));
+			infoItem.recipe.push_back(std::make_pair(Tag(recipeItemId), recipeItemAmount));
 		}
 
 		builtObjects.push_back(infoItem);
@@ -169,7 +169,7 @@ void BuildSystemMaker::drawRecipeFrame(RenderWindow &window)
 		window.draw(recipeFrame);
 		for (int i = 0; i < builtObjects[currentObject].recipe.size(); i++)
 		{
-			Sprite *currentRecipeItem = &craftIngredientsSpriteList[lootItemsIdList(builtObjects[currentObject].recipe[i].first)].sprite;
+			Sprite *currentRecipeItem = &craftIngredientsSpriteList[Tag(builtObjects[currentObject].recipe[i].first)].sprite;
 			currentRecipeItem->setPosition(recipeFrame.getPosition().x + i * currentRecipeItem->getGlobalBounds().width, recipeFrame.getPosition().y);
 			Vector2f scale = buildStartButton.getScale();
 			currentRecipeItem->setScale(scale);
@@ -225,7 +225,7 @@ void BuildSystemMaker::interact()
 	{
 		if (heldItem == nullptr)
 			return;
-		if (heldItem->first == lootItemsIdList::yarrowFlower)
+		if (heldItem->first == Tag::yarrow)
 		{
 			selectedObject = int(heldItem->first);
 		}
@@ -289,7 +289,7 @@ void BuildSystemMaker::buildHeldItem(Vector2f focusedObjectPosition, float scale
 	if (isBuilding)
 		return;
 
-	if (heldItem->first == lootItemsIdList::bagCell)
+	if (heldItem->first == Tag::emptyCell)
 	{
 		buildingPosition = Vector2f (-1, -1);
 		return;
@@ -306,14 +306,14 @@ bool BuildSystemMaker::canAfford()
 {
 	if (currentObject != -1)
 	{
-		std::vector<std::pair <lootItemsIdList, int>> temporaryInventory = builtObjects[currentObject].recipe;
+		std::vector<std::pair <Tag, int>> temporaryInventory = builtObjects[currentObject].recipe;
 
-		for (auto curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
+		for (auto&curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
 		{
-			for (auto bag : boundBags)
+			for (auto&bag : boundBags)
 			{
 				bool isBreak = false;
-				for (auto item : bag.get().cells)
+				for (auto&item : bag.get().cells)
 				{
 					if (curRecipeItem->first == item.content.first)
 					{
@@ -341,9 +341,9 @@ bool BuildSystemMaker::canAfford()
 
 void BuildSystemMaker::wasPlaced()
 {
-	std::vector<std::pair <lootItemsIdList, int>> temporaryInventory = builtObjects[selectedObject].recipe;
+	std::vector<std::pair <Tag, int>> temporaryInventory = builtObjects[selectedObject].recipe;
 
-	for (auto curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
+	for (auto&curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
 	{
 		for (auto& bag : boundBags)
 		{
@@ -355,14 +355,14 @@ void BuildSystemMaker::wasPlaced()
 					{
 						item.content.second -= curRecipeItem->second;
 						if (item.content.second == 0)
-							item.content.first = lootItemsIdList::bagCell;
+							item.content.first = Tag::emptyCell;
 						curRecipeItem->second = 0;
 					}
 					else
 					{
 						curRecipeItem->second -= item.content.second;
 						item.content.second = 0;
-						item.content.first = lootItemsIdList::bagCell;
+						item.content.first = Tag::emptyCell;
 					}
 				}
 			}

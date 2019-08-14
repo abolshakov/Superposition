@@ -8,16 +8,16 @@
 class PickedObject : public TerrainObject
 {
 protected:
-	lootItemsIdList id;
+	Tag id;
 	int count;
 public:
 	PickedObject::PickedObject(std::string objectName, Vector2f centerPosition);
 	virtual ~PickedObject();
 	bool pickUp(std::vector<HeroBag> *bags);
-	lootItemsIdList getId() { return id; }
+	Tag getId() { return id; }
 	int getCount() { return count; }
 
-	std::vector<bagCell> ownInventory;
+	std::vector<Cell> ownInventory;
 };
 
 #endif

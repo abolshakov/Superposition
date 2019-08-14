@@ -15,7 +15,7 @@ InventoryMaker::~InventoryMaker()
 void InventoryMaker::init()
 {
 	dropZoneRadius = Helper::GetScreenSize().y * 2 / 7;
-	heldItem.content = { lootItemsIdList::bagCell, 0 };
+	heldItem.content = { Tag::emptyCell, 0 };
 	dropZoneTexture.loadFromFile("Game/inventorySprites/dropZone.png");
 	dropZone.setTexture(dropZoneTexture); dropZone.setScale(Helper::GetScreenSize().x / dropZoneTexture.getSize().x, Helper::GetScreenSize().y / dropZoneTexture.getSize().y);	
 	bagPosDot.setRadius(Helper::GetScreenSize().y / 288);
@@ -39,20 +39,20 @@ void InventoryMaker::initSpriteList()
 	std::ifstream fin(spritesFileDirectory);
 	while (fin >> spriteName >> offset.x >> offset.y >> id >> maxCount)
 	{
-		cellsSpriteList.insert({ lootItemsIdList(id), cell() });
-		auto itemSprite = &cellsSpriteList[lootItemsIdList(id)].sprite;
-		auto itemTexture = &cellsSpriteList[lootItemsIdList(id)].texture;
+		cellsSpriteList.insert({ Tag(id), cell() });
+		auto itemSprite = &cellsSpriteList[Tag(id)].sprite;
+		auto itemTexture = &cellsSpriteList[Tag(id)].texture;
 		itemTexture->loadFromFile("Game/inventorySprites/" + spriteName + ".png");
 		itemSprite->setTexture(*itemTexture);
 		offset.x *= HeroBag::itemCommonRadius * 2;
 		offset.y *= HeroBag::itemCommonRadius * 2;
-		cellsSpriteList[lootItemsIdList(id)].offset = offset;
-		HeroBag::itemsMaxCount[lootItemsIdList(id)] = maxCount;
+		cellsSpriteList[Tag(id)].offset = offset;
+		HeroBag::itemsMaxCount[Tag(id)] = maxCount;
 	}
 	fin.close();
 
-	selectedCellBackground = &cellsSpriteList.at(lootItemsIdList::bagCell).sprite;
-	selectedCellBackground->setScale(HeroBag::itemCommonRadius * 2.6 / cellsSpriteList.at(lootItemsIdList::bagCell).texture.getSize().x, HeroBag::itemCommonRadius * 2.6 / cellsSpriteList.at(lootItemsIdList::bagCell).texture.getSize().y);
+	selectedCellBackground = &cellsSpriteList.at(Tag::emptyCell).sprite;
+	selectedCellBackground->setScale(HeroBag::itemCommonRadius * 2.6 / cellsSpriteList.at(Tag::emptyCell).texture.getSize().x, HeroBag::itemCommonRadius * 2.6 / cellsSpriteList.at(Tag::emptyCell).texture.getSize().y);
 	selectedCellBackground->setColor(Color(selectedCellBackground->getColor().r, selectedCellBackground->getColor().g, selectedCellBackground->getColor().b, 125));
 }
 
@@ -162,9 +162,9 @@ void InventoryMaker::interact(float elapsedTime)
 		//--------------		
 	}
 
-	if (heldItem.content.first != lootItemsIdList::bagCell)
+	if (heldItem.content.first != Tag::emptyCell)
 	{
-		const Vector2f shiftVector = Vector2f((Mouse::getPosition().x - heldItem.position.x)*heldItemSpeed*elapsedTime, (Mouse::getPosition().y - heldItem.position.y)*heldItemSpeed*elapsedTime);
+		const Vector2f shiftVector = Vector2f(Mouse::getPosition().x - heldItem.position.x, Mouse::getPosition().y - heldItem.position.y);
 		heldItem.position.x += shiftVector.x; heldItem.position.y += shiftVector.y;
 	}
 
@@ -252,29 +252,29 @@ void InventoryMaker::onMouseDownInteract()
 		// put cursor item to bag
 		if (cnt == boundBags->size() - 1)
 		{
-			if (heldItem.content.first != lootItemsIdList::bagCell)
+			if (heldItem.content.first != Tag::emptyCell)
 			{
 				int curIndex = bag.getSelectedCell(mousePos);
 				if (curIndex == -1)
 					continue;
 				usedMouse = true;
 				auto& item = bag.cells[curIndex];
-				if (item.content.first == lootItemsIdList::bagCell || item.content.first == heldItem.content.first)
+				if (item.content.first == Tag::emptyCell || item.content.first == heldItem.content.first)
 				{
 					item.content.first = heldItem.content.first;
 					item.content.second += heldItem.content.second;
-					if (item.content.second > HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first)))
+					if (item.content.second > HeroBag::itemsMaxCount.at(Tag(item.content.first)))
 					{
-						heldItem.content.second = item.content.second % HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first));
-						item.content.second = HeroBag::itemsMaxCount.at(lootItemsIdList(item.content.first));
+						heldItem.content.second = item.content.second % HeroBag::itemsMaxCount.at(Tag(item.content.first));
+						item.content.second = HeroBag::itemsMaxCount.at(Tag(item.content.first));
 					}
 					else
-						heldItem.content = { lootItemsIdList::bagCell, 0 };
+						heldItem.content = { Tag::emptyCell, 0 };
 					break;
 				}
 				else
 				{
-					const std::pair<lootItemsIdList, int> temp = heldItem.content;
+					const std::pair<Tag, int> temp = heldItem.content;
 					heldItem.content = item.content;
 					item.content = temp;
 				}
@@ -286,7 +286,7 @@ void InventoryMaker::onMouseDownInteract()
 				{
 					heldItem.content = bag.cells[curIndex].content;
 					heldItem.position = bag.cells[curIndex].position;
-					bag.cells[curIndex].content = { lootItemsIdList::bagCell, 0 };
+					bag.cells[curIndex].content = { Tag::emptyCell, 0 };
 				}
 			}
 		}
@@ -295,7 +295,7 @@ void InventoryMaker::onMouseDownInteract()
 	currentMovingBag = -1;
 }
 
-void InventoryMaker::temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <lootItemsIdList, int>>> inventory)
+void InventoryMaker::temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <Tag, int>>> inventory)
 {
 	currentInventory = inventory;
 	currentInventorySize = inventory.size();
@@ -323,7 +323,7 @@ void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 		bag.readyToEject = false;
 		if (bag.wasMoved)
 			currentMovingBag = cnt;
-		
+
 		// dropping bag
 		if (Helper::getDist(bag.getPosition(), Vector2f(Helper::GetScreenSize().x / 2, Helper::GetScreenSize().y / 2)) <= dropZoneRadius && bag.currentState == bagClosed)
 		{
@@ -351,18 +351,18 @@ void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 			//drawing cell background
 			if (bag.getSelectedCell(Vector2f(Mouse::getPosition())) == cnt2)
 			{
-				const Vector2f backgroundOffset = cellsSpriteList.at(lootItemsIdList::bagCell).offset;
+				const Vector2f backgroundOffset = cellsSpriteList.at(Tag::emptyCell).offset;
 				selectedCellBackground->setPosition(item.position.x - HeroBag::itemCommonRadius - backgroundOffset.x, item.position.y - HeroBag::itemCommonRadius - backgroundOffset.y);
 				window.draw(*selectedCellBackground);
 			}
 			//-----------------------
 
-			if (bag.cells[cnt2].content.first == lootItemsIdList::bagCell)
+			if (bag.cells[cnt2].content.first == Tag::emptyCell)
 				continue;
 
-			auto sprite = cellsSpriteList.at(lootItemsIdList(item.content.first)).sprite;
+			auto sprite = cellsSpriteList.at(Tag(item.content.first)).sprite;
 			sprite.setScale(HeroBag::itemCommonRadius * 2.6 / sprite.getGlobalBounds().width, HeroBag::itemCommonRadius * 2.6 / sprite.getGlobalBounds().height);
-			Vector2f offset = cellsSpriteList.at(lootItemsIdList(item.content.first)).offset;
+			Vector2f offset = cellsSpriteList.at(Tag(item.content.first)).offset;
 			sprite.setPosition(Vector2f(item.position.x - HeroBag::itemCommonRadius - offset.x, item.position.y - HeroBag::itemCommonRadius - offset.y));
 			sprite.setColor(Color(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, 255));
 			window.draw(sprite);
@@ -375,9 +375,9 @@ void InventoryMaker::drawHeroInventory(float elapsedTime, RenderWindow& window)
 	//----------
 
 	//drawing held item
-	if (heldItem.content.first != lootItemsIdList::bagCell)
+	if (heldItem.content.first != Tag::emptyCell)
 	{
-		auto sprite = cellsSpriteList.at(lootItemsIdList(heldItem.content.first)).sprite;
+		auto sprite = cellsSpriteList.at(Tag(heldItem.content.first)).sprite;
 		sprite.setScale(HeroBag::itemCommonRadius * 2.6 / sprite.getGlobalBounds().width, HeroBag::itemCommonRadius * 2.6 / sprite.getGlobalBounds().height);
 		sprite.setPosition(Vector2f(heldItem.position.x - HeroBag::itemCommonRadius, heldItem.position.y - HeroBag::itemCommonRadius));
 		window.draw(sprite);

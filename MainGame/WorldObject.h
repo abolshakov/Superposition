@@ -7,14 +7,16 @@
 #include <stack>
 
 using namespace sf;
+// mobs 101 - 199; craft objects 201 - 299; world objects 301 - 399; flowers 401 - 499; auxiliary objects 501 - 599;
+enum class Tag { 
+	hero1 = 101, hare = 102, owl = 103, deer = 104, fox = 105, bear = 106, wolf = 107, monster = 108, owlBoss = 109,
+	heroBag = 201, noose = 202, hareTrap = 216, fence = 218, inkyBlackPen = 219, tree = 301, grass = 302, spawn = 303, bonefireOfInsight = 304, homeCosiness = 305,
+	mushroomStone = 306, mushroomsOnStone = 307, ground = 311, groundConnection = 312, brazier = 314, rock = 317, 
+	stump = 319, droppedLoot = 320, fog = 350,
+	chamomile = 401, yarrow = 402, fern = 403, mugwort = 404, poppy = 405, buildObject = 501, dropPoint = 502, emptyDraft = 503, emptyPage = 504, emptyCell = 505, selectedCell = 506
+};
 
-enum StaticItemsIdList { tree = 1, grass = 2, spawn = 3, bonefireOfInsight = 4, homeCosiness = 5, mushroomStone = 6, mushroomsOnStone = 7, ground = 11, groundConnection = 12, chamomile = 13, brazier = 14, yarrow = 15, hareTrap = 16, rock = 17, fence = 18, stump = 19, mugwort = 41, droppedLoot = 20, fog = 50 };
-enum DynamicItemsIdList { hero1 = 1,  monster = 2, wolf = 3, hare = 4, deer = 5, noose = 6, owlBoss = 20 };
-
-enum Tag { emptyTag = 0, mainHeroTag = 1, groundTag = 2, forestTreeTag = 3, chamomileTag = 4, yarrowTag = 5, rockTag = 6, fenceTag = 7, grassTag = 8, stumpTag = 9, buildedObjectTag = 10, droppedLootTag = 11, dropPointTag = 12, heroBagTag = 13, hareTrapTag = 14, nooseTag = 21, deerTag = 31, hareTag = 32, mugwortTag = 41, fogTag = 50 };
 enum State { common = 1, absorbed = 2, constructed = 3 };
-
-enum class lootItemsIdList { bagCell = -1, bagCellSelected = 0, chamomileFlower = 101, yarrowFlower = 102, fernFlower = 103, mugwortFlower = 104, poppyFlower = 105, someWreathDraft = 201, noose = 10, droppedBag = 11, hareTrap = 12, hare = 13, inkyBlackPen = 30 };
 
 struct spriteChainElement
 {
@@ -33,16 +35,16 @@ struct spriteChainElement
 
 struct birthStaticInfo
 {
-	StaticItemsIdList id;
+	Tag tag;
 	Vector2f position;
 	int typeOfObject = 1;
 	int count = 1;
-	std::vector<std::pair<lootItemsIdList, int>> inventory;
+	std::vector<std::pair<Tag, int>> inventory;
 };
 
 struct  birthDynamicInfo
 {
-	DynamicItemsIdList id;
+	Tag tag;
 	Vector2f position;
 };
 
@@ -89,25 +91,25 @@ public:
 
 	int transparency = 100;
 	int currentBlock = 0;
-	std::vector<std::pair<lootItemsIdList, int>> inventory;
+	std::vector<std::pair<Tag, int>> inventory;
 
 	Tag tag;
 
     std::vector<spriteChainElement> additionalSprites;
 protected:
-	int typeOfObject;
-	int animationLength;
+	int typeOfObject{};
+	int animationLength{};
 	int zCoord = 1;
 	std::vector<int> currentSprite;
-	int varietyOfTypes;
+	int varietyOfTypes{};
 	bool deletePromise = false;
-	float timeForNewSprite, animationSpeed;
+	float timeForNewSprite{}, animationSpeed{};
 	std::string name, toSaveName;
 	IntRect textureBox, originalTextureBox;
 	Vector2i textureBoxOffset;
 	Vector2i conditionalSizeUnits;
 	Vector2f position;
-	int radius;
+	int radius{};
 	State state = common;
 	std::stack<birthStaticInfo> birthStatics;
 	std::stack<birthDynamicInfo> birthDynamics;

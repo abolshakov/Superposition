@@ -30,11 +30,11 @@ public:
 	void resetAnimationValues();
 	void onMouseDownInteract();
 	void inventoryBounding(std::vector<HeroBag>* bags);
-	void temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <lootItemsIdList, int>>> inventory);
+	void temporaryInventoryBounding(std::vector<std::reference_wrapper<std::pair <Tag, int>>> inventory);
 	void interact(float elapsedTime);
 	bool getUsedMouse() { return usedMouse; }	
-	bagCell &getHeldItem() { return heldItem; }
-	std::unordered_map<lootItemsIdList, cell> getSpriteList() { return cellsSpriteList; }
+	Cell &getHeldItem() { return heldItem; }
+	std::unordered_map<Tag, cell> getSpriteList() { return cellsSpriteList; }
 
 	bool wasDrawing = false;
 	std::string debugInfo = "", cursorText = "";
@@ -51,13 +51,13 @@ private:
 	//another inventories 
 	int animationCounter = 1, currentInventorySize;
 	float timeForAnimationEffect = 50000, timeAfterAnimationEffect;
-	std::vector<std::reference_wrapper<std::pair <lootItemsIdList, int>>> currentInventory;
+	std::vector<std::reference_wrapper<std::pair <Tag, int>>> currentInventory;
 	//held item
-	bagCell heldItem;
+	Cell heldItem;
 	float heldItemSpeed = 0, dropZoneRadius;
 	//drawing
 	std::string spritesFileDirectory = "Game/inventorySprites/inventorySprites.txt";
-	std::unordered_map<lootItemsIdList, cell> cellsSpriteList;
+	std::unordered_map<Tag, cell> cellsSpriteList;
 	void initSpriteList();
 	void drawNumberOfItems(Sprite sprite, int itemsCount, RenderWindow &window);
 	void crashIntoOtherBags(int cnt);

@@ -10,7 +10,7 @@ Rock::Rock(std::string objectName, Vector2f centerPosition, int typeOfObject) : 
 	animationSpeed = 0.0005f;
 	toSaveName = "rock";
 	setType(typeOfObject);
-	tag = rockTag;
+	tag = Tag::rock;
 }
 
 void Rock::setType(int typeOfObject)

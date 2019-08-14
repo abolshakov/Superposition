@@ -20,9 +20,8 @@ Hare::Hare(const std::string objectName, Vector2f centerPosition) : NeutralMob(o
 	timeAfterHitself = 100000;
 	timeForNewHitself = timeAfterHitself;
 	timeForNewHit = 1000000;
-	id = hare;
 	toSaveName = "hare";
-	tag = hareTag;
+	tag = Tag::hare;
 }
 
 Hare::~Hare()
@@ -38,11 +37,11 @@ Vector2i Hare::calculateTextureOffset()
 
 void Hare::setTarget(DynamicObject& object)
 {
-	if (object.tag == nooseTag || currentAction == absorbs)
+	if (object.tag == Tag::noose || currentAction == absorbs)
 		return;
 	if (Helper::getDist(position, object.getPosition()) <= sightRange)
 	{
-		if (object.tag == mainHeroTag)
+		if (object.tag == Tag::hero1)
 		{
 			boundTarget = &object;
 			distanceToNearest = Helper::getDist(position, object.getPosition());
@@ -55,7 +54,7 @@ void Hare::behaviorWithStatic(WorldObject* target, float elapsedTime)
 	if (currentAction == absorbs)
 		return;
 	if (Helper::getDist(position, target->getPosition()) <= sightRange && timeAfterFear >= fearTime)		
-		if (target->tag == hareTrapTag)
+		if (target->tag == Tag::hareTrap)
 		{
 			if (boundTarget == nullptr)
 			{
@@ -78,7 +77,7 @@ void Hare::behavior(float elapsedTime)
 	// first-priority actions
 	if (boundTarget)
 	{
-		if (boundTarget->tag == mainHeroTag)
+		if (boundTarget->tag == Tag::hero1)
 			timeAfterFear = 0;
 	}
 	else
@@ -104,7 +103,7 @@ void Hare::behavior(float elapsedTime)
 	const float distanceToTarget = Helper::getDist(this->position, boundTarget->getPosition());
 
 	// bouncing to a trap
-	if (boundTarget->tag == hareTrapTag)
+	if (boundTarget->tag == Tag::hareTrap)
 	{
 		setSide(boundTarget->getPosition(), elapsedTime);
 		if (Helper::getDist(position, boundTarget->getPosition()) <= radius)
@@ -123,7 +122,7 @@ void Hare::behavior(float elapsedTime)
 	//-------------------
 
 	// runaway from enemy
-	if (boundTarget->tag == mainHeroTag)
+	if (boundTarget->tag == Tag::hero1)
 	{
 		setSide(movePosition, elapsedTime);
 		speed = std::max(defaultSpeed, (defaultSpeed * 10) * (1 - (Helper::getDist(position, boundTarget->getPosition()) / sightRange * 1.5f)));
@@ -178,7 +177,7 @@ void Hare::endingPreviousAction()
 	if (lastAction == absorbs)
 	{
 		auto trap = dynamic_cast<HareTrap*>(boundTarget);
-		trap->inventory[0] = std::make_pair(lootItemsIdList::hare, 1);
+		trap->inventory[0] = std::make_pair(Tag::hare, 1);
 		deletePromiseOn();
 	}
 	lastAction = relax;

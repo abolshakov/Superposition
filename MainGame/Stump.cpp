@@ -10,7 +10,7 @@ Stump::Stump(std::string objectName, Vector2f centerPosition, int typeOfObject) 
 	animationSpeed = 0.0005f;
 	toSaveName = "stump";
 	setType(typeOfObject);
-	tag = stumpTag;
+	tag = Tag::stump;
 }
 
 void Stump::setType(int typeOfObject)

@@ -87,7 +87,7 @@ Vector2i OwlBoss::calculateTextureOffset()
 
 void OwlBoss::setTarget(DynamicObject& object)
 {
-	if (object.tag == mainHeroTag)
+	if (object.tag == Tag::hero1)
 		return; //targetPosition = object.getPosition();
 }
 
@@ -101,7 +101,7 @@ void OwlBoss::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 		return;
 	}
 
-	if (target->tag != mainHeroTag)
+	if (target->tag != Tag::hero1)
 		return;
 
 	setSide(movePosition, elapsedTime);

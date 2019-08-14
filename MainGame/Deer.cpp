@@ -21,9 +21,8 @@ Deer::Deer(const std::string objectName, Vector2f centerPosition) : NeutralMob(o
 	timeAfterHitself = 10e5;
 	timeForNewHitself = timeAfterHitself;
 	timeForNewHit = 10e6;
-	id = deer;
 	toSaveName = "deer";
-	tag = deerTag;
+	tag = Tag::deer;
 }
 
 Deer::~Deer()

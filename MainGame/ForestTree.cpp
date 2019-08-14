@@ -10,7 +10,7 @@ ForestTree::ForestTree(std::string objectName, Vector2f centerPosition, int type
 	animationSpeed = 0.0005f;
 	toSaveName = "ForestTree";
 	setType(typeOfObject);
-	tag = forestTreeTag;
+	tag = Tag::tree;
 }
 
 void ForestTree::setType(int typeOfObject)

@@ -8,10 +8,10 @@ Yarrow::Yarrow(std::string objectName, Vector2f centerPosition, int typeOfObject
 	toSaveName = "yarrow";
 	setType(typeOfObject);
 	radius = 50;
-	tag = yarrowTag;
+	tag = Tag::yarrow;
 
 	count = 1;
-	id = lootItemsIdList::yarrowFlower;
+	id = Tag::yarrow;
 }
 
 void Yarrow::setType(int typeOfObject)

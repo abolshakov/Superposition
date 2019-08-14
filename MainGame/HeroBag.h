@@ -9,10 +9,10 @@ using namespace sf;
 
 enum BagState { bagOpen = 1, bagClosed = 2, bagOpening = 3, bagClosing = 4, ejected = 5 };
 
-struct bagCell
+struct Cell
 {
 	Vector2f position;
-	std::pair<lootItemsIdList, int> content;
+	std::pair<Tag, int> content;
 };
 
 class HeroBag
@@ -25,33 +25,33 @@ private:
 public:
 	HeroBag();
 	~HeroBag();
-	void initialize(Vector2f position, Vector2f sizeClosed, Vector2f sizeOpen, bool isSelectable, std::vector<std::pair<lootItemsIdList, int>> inventory = testInventory, std::string textureClosedBagPath = textureCB, std::string textureClosedBagSelectedPath = textureCBS, std::string textureOpenBagPath = textureOB, std::string textureOpenBagSelectedPath = textureOBS);
-	static bagCell createCell(Vector2f position, std::pair<lootItemsIdList, int> content, float radius);
+	void initialize(Vector2f position, Vector2f sizeClosed, Vector2f sizeOpen, bool isSelectable, std::vector<std::pair<Tag, int>> inventory = testInventory, std::string textureClosedBagPath = textureCB, std::string textureClosedBagSelectedPath = textureCBS, std::string textureOpenBagPath = textureOB, std::string textureOpenBagSelectedPath = textureOBS);
+	static Cell createCell(Vector2f position, std::pair<Tag, int> content, float radius);
 	Vector2f getPosition() const { return position; }
 	Vector2f getSizeClosed() const { return sizeClosed; }
 	Vector2f getSizeOpen() const { return sizeOpen; }	
 	Vector2f getLastMousePos() { return lastMousePos; }
 	float getRadius();
 	int getSelectedCell(Vector2f position);
-	bool static canAfford(std::vector<std::pair<lootItemsIdList, int>> recipe, std::vector<HeroBag>* bags, bagCell* heldItem = nullptr);
-	void static takeItems(std::vector<std::pair<lootItemsIdList, int>> recipe, std::vector<HeroBag>* bags, bagCell* heldItem = nullptr);
-	bool static putItemsIn(std::vector<std::pair<lootItemsIdList, int>> loot, std::vector<HeroBag>* bags);
-	static std::vector<std::pair<lootItemsIdList, int>> cellsToInventory(std::vector<bagCell> cells);
+	bool static canAfford(std::vector<std::pair<Tag, int>> recipe, std::vector<HeroBag>* bags, Cell* heldItem = nullptr);
+	void static takeItems(std::vector<std::pair<Tag, int>> recipe, std::vector<HeroBag>* bags, Cell* heldItem = nullptr);
+	bool static putItemsIn(std::vector<std::pair<Tag, int>> loot, std::vector<HeroBag>* bags);
+	static std::vector<std::pair<Tag, int>> cellsToInventory(std::vector<Cell> cells);
 	void setPosition(Vector2f position) { this->position = position; }
 	void changeCellsPosition(Vector2f shift);
 
-	static std::unordered_map<lootItemsIdList, int> itemsMaxCount;
+	static std::unordered_map<Tag, int> itemsMaxCount;
 	static float itemCommonRadius;
 	static std::string textureCB, textureCBS, textureOB, textureOBS;
-	static std::vector<std::pair<lootItemsIdList, int>> testInventory, emptyInventory;
+	static std::vector<std::pair<Tag, int>> testInventory, emptyInventory;
 
 	Vector2f textureOpenOffset, textureClosedOffset;
-	std::vector<bagCell> cells;
+	std::vector<Cell> cells;
 
 	//animation
 	void draw(RenderWindow* window, float elapsedTime, bool canBeMoved = true);
 	void drawCircuit(RenderWindow* window);
-	float stateChangeTime, stateChangingTime = 0.1f, speed = 0.0012f;
+	float stateChangeTime = 100000, stateChangingTime = 0, speed = 0.0012f;
 	BagState currentState = bagClosed;
 	float selectionZoneRadiusClosed, selectionZoneRadiusOpen;
 	Vector2f selectionZoneClosedOffset, selectionZoneOpenOffset, shiftVector = { 0, 0 }, movePosition = {0, 0};

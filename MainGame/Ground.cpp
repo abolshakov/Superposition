@@ -8,7 +8,7 @@ Ground::Ground(std::string objectName, Vector2f centerPosition, int typeOfObject
 	isBackground = true;
 	toSaveName = "ground";
 	setType(typeOfObject);
-	tag = forestTreeTag;
+	tag = Tag::tree;
 }
 
 void Ground::setType(int typeOfObject)

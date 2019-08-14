@@ -27,7 +27,7 @@ GridList<T>::GridList(int width, int height, Vector2i size, Vector2i microsize)
 	this->microsize = microsize;
 	auto vectorSize = int(ceil(double(height) / size.y) * ceil(double(width) / size.x));
 	cells.resize(vectorSize);
-	for (auto arr : cells)
+	for (auto&arr : cells)
 	{
 		arr.resize(0);
 	}
@@ -111,9 +111,9 @@ void GridList<T>::fillLocalMatrix(Vector2f targetPos, int upperLeftX, int upperL
 
 	std::vector<int> blockArea = getBlocksInSight(upperLeftX, upperLeftY, bottomRightX, bottomRightY);
 
-	for (auto blockInd : blockArea)
+	for (auto&blockInd : blockArea)
 	{
-		for (auto item : cells[blockInd])
+		for (auto&item : cells[blockInd])
 		{
 			auto object = dynamic_cast<TerrainObject*>(item);
 			if (!object || object->isBackground)
@@ -431,13 +431,13 @@ void GridList<T>::dfs(int i, int j, int iBorder, int jBorder, int startX, int st
 template <class T>
 bool GridList<T>::isIntersectWithOthers(Vector2f position1, float radius1, std::vector<WorldObject*> visibleTerrain, bool isDotAdjustded) const
 {
-	for (auto anotherItem : visibleTerrain)
+	for (auto&anotherItem : visibleTerrain)
 	{
 		auto const anotherObject = dynamic_cast<WorldObject*>(anotherItem);
 		if (!anotherObject)
 			continue;
 
-		if (anotherObject->isBackground || anotherObject->tag == mainHeroTag || anotherObject->intangible)
+		if (anotherObject->isBackground || anotherObject->tag == Tag::hero1 || anotherObject->intangible)
 			continue;
 
 		if (anotherItem->isDotsAdjusted && isDotAdjustded)
@@ -473,7 +473,7 @@ void GridList<T>::addItem(T* item, const std::string& name, int x, int y)
 template <class T>
 void GridList<T>::clearCell(int cellIndex)
 {
-	for (auto item : cells[cellIndex])
+	for (auto&item : cells[cellIndex])
 	{
 		auto itemObject = dynamic_cast<WorldObject*>(item);
 		if (itemObject)
@@ -617,7 +617,7 @@ std::vector<int> GridList<T>::getBlocksInSight(int upperLeftX, int upperLeftY, i
 	auto columnsPerRow = int(ceil(double(width) / size.x));
 	auto maxColumn = int(cells.size()) - 1;
 
-	for (auto i = 0; i <= rowsCount; i++)
+	for (auto&i = 0; i <= rowsCount; i++)
 	{
 		if (lastColumn >= maxColumn)
 			lastColumn = maxColumn;

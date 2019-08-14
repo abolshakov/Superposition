@@ -46,7 +46,7 @@ Vector2i Monster::calculateTextureOffset()
 
 void Monster::setTarget(DynamicObject& object)
 {
-	if (object.tag == mainHeroTag)
+	if (object.tag == Tag::hero1)
 		return; //targetPosition = object.getPosition();
 }
 
@@ -59,7 +59,7 @@ void Monster::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 		return;
 	}
 
-	if (target->tag != mainHeroTag)
+	if (target->tag != Tag::hero1)
 		return;	
 
 	setSide(movePosition, elapsedTime);

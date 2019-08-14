@@ -44,7 +44,7 @@ public:
 	void jerk(float power, float deceleration, Vector2f destinationPoint = Vector2f(-1, -1)) override;
 	void jerkInteract(float elapsedTime);
 
-	bagCell* heldItem = nullptr;
+	Cell* heldItem = nullptr;
 	Vector2f getBuildPosition(std::vector<WorldObject*> visibleItems, float scaleFactor, Vector2f cameraPosition) override;
 	int getBuildType(Vector2f ounPos, Vector2f otherPos) override;
 	std::vector<HeroBag> bags;

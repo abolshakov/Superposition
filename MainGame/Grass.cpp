@@ -7,7 +7,7 @@ Grass::Grass(std::string objectName, Vector2f centerPosition, int typeOfObject) 
 	this->typeOfObject = typeOfObject;
 	toSaveName = "grass";
 	setType(typeOfObject);
-	tag = grassTag;
+	tag = Tag::grass;
 }
 
 void Grass::setType(int typeOfObject)

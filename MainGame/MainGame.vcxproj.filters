@@ -114,7 +114,6 @@
     <ClCompile Include="DroppedLoot.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
-    <ClCompile Include="HeroBagSpriteSystem.cpp" />
     <ClCompile Include="EffectsSystemMaker.cpp">
       <Filter>UISystems</Filter>
     </ClCompile>
@@ -124,6 +123,12 @@
     </ClCompile>
     <ClCompile Include="WreathDraft.cpp">
       <Filter>HeroBook</Filter>
+    </ClCompile>
+    <ClCompile Include="ComplexIdInterpreter.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="HeroBagSpriteSystem.cpp">
+      <Filter>UISystems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -241,7 +246,6 @@
     <ClInclude Include="DroppedLoot.h">
       <Filter>Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="HeroBagSpriteSystem.h" />
     <ClInclude Include="EffectsSystemMaker.h">
       <Filter>UISystems</Filter>
     </ClInclude>
@@ -251,6 +255,12 @@
     </ClInclude>
     <ClInclude Include="WreathDraft.h">
       <Filter>HeroBook</Filter>
+    </ClInclude>
+    <ClInclude Include="ComplexIdInterpreter.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="HeroBagSpriteSystem.h">
+      <Filter>UISystems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
