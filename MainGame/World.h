@@ -16,13 +16,14 @@
 #include "Helper.h"
 #include "BuildSystemMaker.h"
 #include "EffectsSystemMaker.h"
-#include "BoardSprite.h"
+#include "SpriteStructures.h"
 #include "EventHandler.h"
 
 #include "DynamicObject.h"
 #include "EmptyObject.h"
 
 #include "ForestTree.h"
+#include "Brazier.h"
 
 using namespace sf;
 
@@ -39,74 +40,6 @@ struct BiomesMapCell
 
 class World
 {
-private:
-	//lightSystem
-	const Color commonWorldColor = Color(0, 0, 0, 255),
-		//commonWorldColorOutfill = Color(240, 200, 200, 255),
-		commonWorldColorOutfill = Color(255, 255, 255, 255),
-		spiritWorldColor = Color(73, 193, 214, 255),
-		spiritWorldColorOutfill = Color(12, 78, 89, 255);
-	ContextSettings contextSettings;
-	sf::RenderStates lightRenderStates;
-	sf::Sprite Lsprite;//Спрайт света.
-	Texture pointLightTexture, directionLightTexture;// Текстура света.
-	Texture penumbraTexture;// Текстура полутени.
-	Shader unshadowShader, lightOverShapeShader;// Шейдеры для рендера света.
-	ltbl::LightSystem ls;//Глобальная система света и тени.	
-	sf::View view;
-	std::shared_ptr<ltbl::LightPointEmission> brightner;
-
-	//hero
-	const std::string heroTextureName = "Game/worldSprites/hero/move/body/down/1.png";
-	bool isHeroBookVisible = false;
-
-	//world base
-	float width, height;
-	Vector2i blockSize, microblockSize;
-	Vector2f cameraPosition, maxCameraDistance = Vector2f (100, 100);
-	void initSpriteMap();
-	bool searchFiles(LPCTSTR lpszFileName, LPSEARCHFUNC lpSearchFunc, bool bInnerFolders = true);
-	float World::getScaleFactor();
-	Vector2f bossSpawnPosition;
-	std::string spriteNameFileDirectory = "Game/objects.txt";
-	const float heroToScreenRatio = 0.25f;
-	Vector2i focusedObjectBlock = Vector2i(0, 0), BiomesChangeCenter = Vector2i(0, 0);
-	bool fixedClimbingBeyond(Vector2f &pos);
-
-	//active generation
-	void inBlockGenerate(int blockIndex);
-	bool canBeRegenerated(int blockIndex);
-	void BiomesGenerate(int offset);
-	void perimeterGeneration(int offset);
-	void beyondScreenGeneration();
-
-	//time logic
-	Clock timer;
-	int newNameId = 10;
-	int biomeGenerateDistance = 4;
-	float timeForNewSave, timeAfterSave;
-	const float timeForNewRotutes = 5000000;
-
-	//selection logic
-	void setTransparent(std::vector<WorldObject*> visibleItems);
-	std::string mouseDisplayName;
-	WorldObject *selectedObject = focusedObject;
-
-	//shaders
-	sf::Shader spiritWorldShader;
-	sf::Texture distortionMap;
-	void initShaders();
-	EffectsSystemMaker effectSystem;
-
-	//inventorySystem
-	InventoryMaker inventorySystem;
-	BuildSystemMaker buildSystem;
-
-	//grids
-	GridList<StaticObject> staticGrid;
-	GridList<DynamicObject> dynamicGrid;
-	std::vector<spriteChainElement> visibleBackground, visibleTerrain;
-    std::vector<WorldObject*> localTerrain;
 public:
 	World(int width, int height);
 	~World();
@@ -118,10 +51,9 @@ public:
 	//adding to the grid
 	void birthObjects();
 	void initializeStaticItem(Tag itemClass, Vector2f itemPosition, int itemType, std::string itemName, bool reliable, int count = 1, std::vector<std::pair<Tag, int>> inventory = {});
-	void initializeDynamicItem(Tag itemClass, Vector2f itemPosition, std::string itemName);
+	void initializeDynamicItem(Tag itemClass, Vector2f itemPosition, std::string itemName, WorldObject* owner = nullptr);
 
 	//getters
-	Vector2f getBossSpawnPosition() { return bossSpawnPosition; }
 	Vector2f getWorldSize() { return Vector2f (width, height); }
 	GridList<StaticObject> getStaticGrid() { return staticGrid; }
 	GridList<DynamicObject> getDynamicGrid() { return dynamicGrid; }
@@ -155,16 +87,93 @@ public:
 	void scaleSmoothing();
 	float scaleDecrease, timeForScaleDecrease = 0;
 	Clock scaleDecreaseClock;
+	std::map<Tag, bool> unscaledObjects = {{Tag::hero1, true}, {Tag::nightmare1, true}, {Tag::nightmare2, true}, {Tag::nightmare3, true} };
 
 	//hero
-	DynamicObject* focusedObject;	
-	BiomesMapCell biomeMatrix[100][100];
+	DynamicObject* focusedObject;
+	Brazier* brazier;
+	BiomesMapCell biomeMatrix[100][100];	
 	//events
-	void onMouseDownInteract(int currentMouseButton);
+	void onMouseUp(int currentMouseButton);
 	bool getHeroBookVisability() { return isHeroBookVisible; }
 	void changeBookVisability() { isHeroBookVisible = !isHeroBookVisible; }
 
 	Vector2i currentTransparentPos = Vector2i(0, 0);
+private:
+	//lightSystem
+	const Color commonWorldColor = Color(0, 0, 0, 255),
+		//commonWorldColorOutfill = Color(240, 200, 200, 255),
+		commonWorldColorOutfill = Color(255, 255, 255, 255),
+		spiritWorldColor = Color(73, 193, 214, 255),
+		spiritWorldColorOutfill = Color(12, 78, 89, 255);
+	ContextSettings contextSettings;
+	sf::RenderStates lightRenderStates;
+	sf::Sprite Lsprite;//Спрайт света.
+	Texture pointLightTexture, directionLightTexture;// Текстура света.
+	Texture penumbraTexture;// Текстура полутени.
+	Shader unshadowShader, lightOverShapeShader;// Шейдеры для рендера света.
+	ltbl::LightSystem ls;//Глобальная система света и тени.	
+	sf::View view;
+	std::shared_ptr<ltbl::LightPointEmission> brightner;
+
+	//hero
+	const std::string heroTextureName = "Game/worldSprites/hero/move/body/down/1.png";
+	bool isHeroBookVisible = false;
+
+	//world base
+	float width, height;
+	Vector2i blockSize, microblockSize;
+	Vector2f cameraPosition, maxCameraDistance = Vector2f(100, 100), camOffset = { 0, -0.04f};
+	void initSpriteMap();
+	bool searchFiles(LPCTSTR lpszFileName, LPSEARCHFUNC lpSearchFunc, bool bInnerFolders = true);
+	float World::getScaleFactor();
+	std::string spriteNameFileDirectory = "Game/objects.txt";
+	const float heroToScreenRatio = 0.25f;
+	Vector2i focusedObjectBlock = Vector2i(0, 0), BiomesChangeCenter = Vector2i(0, 0);
+	bool fixedClimbingBeyond(Vector2f &pos);
+	void makeCameraShake(float power = 0.0002f);
+	void cameraShakeInteract(float elapsedTime);
+	Vector2f cameraShakeVector = { 0, 0 };
+	float cameraShakeDuration = 0, cameraShakePower = 0.0002f;
+
+	//active generation
+	void inBlockGenerate(int blockIndex);
+	bool canBeRegenerated(int blockIndex);
+	void BiomesGenerate(int offset);
+	void perimeterGeneration(int offset);
+	void beyondScreenGeneration();
+
+	//time logic
+	Clock timer;
+	int newNameId = 10;
+	int biomeGenerateDistance = 4;
+	float timeForNewSave, timeAfterSave;
+	const float timeForNewRotutes = 5000000;
+
+	//selection logic
+	void setTransparent(std::vector<WorldObject*> visibleItems, float elapsedTime);
+	std::string mouseDisplayName;
+	WorldObject *selectedObject = focusedObject;
+
+	//shaders
+	sf::Shader spiritWorldShader;
+	sf::Texture distortionMap;
+	void initShaders();
+	EffectsSystemMaker effectSystem;
+	UIEffectsSystemMaker uiEffectSystem;
+
+	//inventorySystem
+	InventoryMaker inventorySystem;
+	BuildSystemMaker buildSystem;
+
+	//grids
+	GridList<StaticObject> staticGrid;
+	GridList<DynamicObject> dynamicGrid;
+	std::vector<spriteChainElement> visibleBackground, visibleTerrain;
+	std::vector<WorldObject*> localTerrain;
+
+	//test
+	std::vector<std::pair<Tag, int>>* testInv = new std::vector<std::pair<Tag, int>>({ {Tag::chamomile, 2}, {Tag::chamomile, 2}, {Tag::chamomile, 2} });
 };
 
 #endif

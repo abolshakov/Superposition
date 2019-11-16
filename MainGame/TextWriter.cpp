@@ -1,6 +1,5 @@
 #include "TextWriter.h"
-
-
+#include "HeroBag.h"
 
 TextWriter::TextWriter()
 {
@@ -29,6 +28,10 @@ void TextWriter::initTextBoxes()
 	textBoxes.insert({ BebasFont, currentText });
 	currentText.setFont(fonts[NormalFont]);
 	textBoxes.insert({ NormalFont, currentText });
+
+	numberOfItems.setFont(fonts[BebasFont]);
+	numberOfItems.setCharacterSize(30);
+	numberOfItems.setFillColor(Color::White);
 }
 
 void TextWriter::drawString(std::string str, FontName font, int size, float posX, float posY, RenderWindow* window, Color color)
@@ -76,6 +79,14 @@ void TextWriter::drawTextBox(std::string str, FontName font, int size, float pos
 		curPosY += curText.getGlobalBounds().height;
 		str.erase(0, spacePos);
 	}
+}
+
+void TextWriter::drawNumberOfItems(Vector2f pos, int itemsCount, RenderWindow &window)
+{
+	numberOfItems.setString(std::to_string(itemsCount));
+	numberOfItems.setOrigin(numberOfItems.getGlobalBounds().width, numberOfItems.getGlobalBounds().height);
+	numberOfItems.setPosition(pos.x + HeroBag::itemCommonRadius * 2, pos.y + HeroBag::itemCommonRadius * 2);
+	window.draw(numberOfItems);
 }
 
 

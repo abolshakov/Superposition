@@ -68,6 +68,15 @@ void HeroBook::initContent()
 	somePage.initObjectInfo();
 }
 
+void HeroBook::getAllOuterInfo(std::vector<HeroBag>* bags, std::string name, WorldObject* object, Cell* worldHeldItem, bool nearTheTable)
+{
+	boundBags = bags;
+	somePage.boundBags = bags;
+	this->worldMouseName = name;
+	this->worldSelectedObject = object;
+	somePage.nearTheTable = nearTheTable;
+}
+
 void HeroBook::setPage(int page)
 {
 	currentPage = page;
@@ -221,6 +230,27 @@ void HeroBook::drawPlantsList(RenderWindow* window)
 	}
 }
 
+void HeroBook::drawWreathCost(Vector2f pos, RenderWindow* window)
+{
+	const Tag currentObject = somePage.pageToObjectId(currentPage);
+	if (!somePage.nearTheTable || !somePage.getObjectInfo()->at(currentObject).isUnlocked || somePage.doneRecipes.count(currentObject) == 0)
+		return;
+
+	Vector2f drawPos = pos;
+
+	for (auto item : somePage.doneRecipes.at(currentObject))
+	{
+		auto flowerButton = ButtonTag(item.first);
+		if (buttonList.count(flowerButton) > 0)
+		{
+			buttonList.at(flowerButton).setPosition(drawPos);
+			buttonList.at(flowerButton).draw(*window);
+			textWriter.drawNumberOfItems(drawPos, item.second, *window);
+			drawPos.x += buttonList.at(flowerButton).getGlobalBounds().width;
+		}
+	}
+}
+
 void HeroBook::draw(RenderWindow* window, float hpRatio, float elapsedTime)
 {
 	drawHpLine(window, hpRatio);
@@ -269,6 +299,9 @@ void HeroBook::draw(RenderWindow* window, float hpRatio, float elapsedTime)
 		pageGlobalBounds.top + pageGlobalBounds.height * pageDescriptionPoint.y, pageGlobalBounds.width * 0.4, pageGlobalBounds.height * 0.24, window, Color(100, 68, 34, 180));
 
 	somePage.drawHeadingText(window);
+
+	if (buttonList.at(ButtonTag::makeWreath).isSelected(Vector2f(Mouse::getPosition())))
+		drawWreathCost(buttonList.at(ButtonTag::makeWreath).getPosition(), window);
 	//------------------
 
 	//draw arrows
@@ -347,17 +380,29 @@ void HeroBook::onMouseUp()
 			setPage(somePage.buttonToPage(button.first));
 	//------------	
 
+	// craft a wreath
+	if (buttonList.at(ButtonTag::makeWreath).isActive && somePage.nearTheTable)
+		if (buttonList.at(ButtonTag::makeWreath).isSelected(Vector2f(Mouse::getPosition())))		
+			if (boundBags)
+				if (HeroBookPage::tagToWreath(Tag(currentPage)) != Tag::emptyCell)
+				HeroBag::putItemIn(new std::pair<Tag, int>(HeroBookPage::tagToWreath(Tag(currentPage)), 1), boundBags);					
+	//---------------
+
 	// clicking the plus in the draft center
 	if (buttonList.at(ButtonTag::plus).isActive)
 	{
 		if (buttonList.at(ButtonTag::plus).isSelected(Vector2f(Mouse::getPosition())))
 		{
+			for (auto& raw : somePage.wreathMatrix)
+				for (auto& column : raw)
+					if (column != Tag::emptyCell)
+						somePage.doneRecipes[currentDraft][column] += 1;
+
 			somePage.unlockObject(currentDraft);
 			setPage(somePage.getHeadingPage(currentDraft));
 			somePage.clearWreathMatrix();
 			currentDraft = Tag::emptyDraft;
 			somePage.readyToFinishDraft = false;
-			
 		}
 	}
 	//--------------------------------------

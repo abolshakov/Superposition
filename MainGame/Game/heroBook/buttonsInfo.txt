@@ -25,6 +25,7 @@
 1 Game/heroBook/Sprites/frame1/default.png Game/heroBook/Sprites/frame1/hover.png Game/heroBook/Sprites/frame1/click.png 0 0 5.189 -0.06 -0.06 49 
 1 Game/heroBook/Sprites/frame2/default.png Game/heroBook/Sprites/frame2/hover.png Game/heroBook/Sprites/frame2/click.png 0 0 5.876 0 0 50
 1 Game/heroBook/Sprites/Plus/plus1.png Game/heroBook/Sprites/Plus/plus2.png Game/heroBook/Sprites/Plus/plus3.png 0 0 5.876 0 0 51
+1 Game/heroBook/Sprites/wreath.png Game/heroBook/Sprites/wreathSelected.png Game/heroBook/Sprites/wreathPressed.png 0 0 5.876 0 0 52
 
 0 Game/heroBook/Sprites/hare.png 0 0 5.876 0 0 102
 0 Game/heroBook/Sprites/owl.png 0 0 5.876 0 0 103

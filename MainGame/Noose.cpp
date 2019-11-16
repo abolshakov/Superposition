@@ -31,7 +31,8 @@ Vector2i Noose::calculateTextureOffset()
 {
 	textureBox.width = int(float(textureBox.width)*getScaleRatio().x);
 	textureBox.height = int(float(textureBox.height)*getScaleRatio().y);	
-	ropeElongation = textureBox.width / 15.0f;
+	ropeElongation = textureBox.width / 20.0f;
+	//ropeElongation = 0;
 	return Vector2i(0, int(textureBox.height / 1.8));
 }
 
@@ -42,15 +43,20 @@ void Noose::setTarget(DynamicObject& object)
 
 void Noose::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 {
+	if (currentAction == dead)
+		return;
+
 	if (target->tag == Tag::deer)
-	{
-		auto deer = dynamic_cast<Deer*>(target);
+	{		
+		auto deer = dynamic_cast<Deer*>(target);		
+
 		if (Helper::getDist(position, deer->getHeadPosition()) <= radius + target->getRadius())
 		{
 			boundTarget = target;
 			if (deer->getOwner() == nullptr && deer->getCurrentAction() != commonHit)
 				deer->changeAction(commonHit, true, false);
-			deer->setOwner(owner);
+			if (owner != nullptr)
+				deer->setOwner(owner);
 		}
 	}
 
@@ -59,20 +65,41 @@ void Noose::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 
 void Noose::behaviorWithStatic(WorldObject* target, float elapsedTime)
 {
-
+	if (currentAction == dead)
+		return;
 }
 
 void Noose::behavior(float elapsedTime)
 {
+	if (currentAction == dead)
+		return;
+
 	endingPreviousAction();
 	jerkInteract(elapsedTime);
+
+	if (owner != nullptr)
+	{
+		ownerPos = Vector2f(owner->getPosition().x + owner->getConditionalSizeUnits().x / 10.0f, owner->getPosition().y - owner->getConditionalSizeUnits().y / 13.0f);
+		ownerGlobalBounds = owner->getConditionalSizeUnits();
+	}
+
+	if (boundTarget != nullptr && owner != nullptr)
+		if (Helper::getDist(position, owner->getPosition()) >= maximumLength)
+		{
+			auto deer = dynamic_cast<Deer*>(boundTarget);
+			if (deer)
+				deer->setOwner(nullptr);
+			stopping(true, true);			
+			changeAction(dead, true, false);			
+			owner = nullptr;		
+		}
 
 	if (boundTarget != nullptr)
 	{
 		auto deer = dynamic_cast<Deer*>(boundTarget);
-		position = deer->getHeadPosition();		
+		position = deer->getHeadPosition();
 		speed = 0;
-		changeAction(relax, false, false);
+		changeAction(relax, false, true);
 	}
 }
 
@@ -105,10 +132,9 @@ void Noose::endingPreviousAction()
 {
 	if (lastAction == jerking)
 	{
-		currentAction = dead;		
-		stillLoop = additionalSprites[0];
-		stillRope = additionalSprites[1];
-        //deletePromiseOn();
+		currentAction = dead;				
+		stillRope = additionalSprites[0];
+		stillLoop = additionalSprites[1];
 	}
 	lastAction = relax;
 }
@@ -145,7 +171,46 @@ void Noose::jerk(float power, float deceleration, Vector2f destinationPoint)
 	movePosition = Vector2f(owner->getPosition().x + (mousePos.x - screenCenter.x) * coeff, owner->getPosition().y + (mousePos.y - screenCenter.y) * coeff);
 }
 
-void Noose::prepareSpriteNames(long long elapsedTime)
+void Noose::fightLogic(float elapsedTime, DynamicObject* target)
+{
+	return;
+}
+
+void Noose::rotateAndExtend(spriteChainElement* rope, spriteChainElement* loop)
+{
+	if (ownerPos != Vector2f(0, 0))
+	{
+		const Vector2f beginPoint = Vector2f(ownerPos.x/* + ownerGlobalBounds.x / 12.0f*/, ownerPos.y - ownerGlobalBounds.y / 13.0f);
+		rope->size = Vector2f(Helper::getDist(beginPoint, position) + ropeElongation, rope->size.y); // a little bit longer rope for sprite joining		
+		if (position.y <= beginPoint.y)
+			rope->rotation = acos((beginPoint.x - position.x) / sqrt(pow(beginPoint.x - position.x, 2) + pow(beginPoint.y - position.y, 2))) / pi * 180;
+		else
+			rope->rotation = -acos((beginPoint.x - position.x) / sqrt(pow(beginPoint.x - position.x, 2) + pow(beginPoint.y - position.y, 2))) / pi * 180;
+	}
+
+	if (currentAction != relax)
+	{
+		loop->rotation = rope->rotation + 180;
+		loop->offset.x -= sin(loop->rotation / 180 * pi) * (textureBoxOffset.y); // rotational position correction
+		loop->offset.y -= (1 - cos(loop->rotation / 180 * pi)) * (textureBoxOffset.y);
+	}
+
+	if (ownerPos != Vector2f(0, 0))
+	{
+		rope->offset.x += (ownerPos.x - position.x) * ropeElongation / Helper::getDist(position, ownerPos); // offset of the extended rope
+		rope->offset.y += (ownerPos.y - position.y) * ropeElongation / Helper::getDist(position, ownerPos);
+
+		// change position to hero belt
+		auto dynOwner = dynamic_cast<Deerchant*>(owner);
+		if (dynOwner)
+		{
+			rope->position = dynOwner->getBeltPosition();
+			rope->offset = Vector2f(rope->offset.x + rope->position.x - position.x, rope->offset.y + rope->position.y - position.y);
+		}
+	}
+}
+
+void Noose::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	spriteChainElement ropeSprite, loopSprite;
 
@@ -165,8 +230,9 @@ void Noose::prepareSpriteNames(long long elapsedTime)
 			animationSpeed = 0.0005f;
 			ropeSprite.path = "Game/worldSprites/noose/nooseRope/caught.png";
 			ropeSprite.size.y = 60;
-			if (owner->getPosition().x < position.x)
-				ropeSprite.size.y *= -1;
+			if (owner != nullptr)
+				if (owner->getPosition().x < position.x)
+					ropeSprite.size.y *= -1;
             loopSprite.path = "Game/worldSprites/noose/nooseRope/knot.png";
 			loopSprite.size = Vector2f(40, 30);
 			loopSprite.offset = Vector2f(float(loopSprite.size.x)*getScaleRatio().x / 1.8, float(loopSprite.size.y)*getScaleRatio().y / 1.8);
@@ -183,9 +249,15 @@ void Noose::prepareSpriteNames(long long elapsedTime)
 		case dead:
 		{
 			animationLength = 1;
-			animationSpeed = 0.0005f;
-			additionalSprites.push_back(stillRope);
-			additionalSprites.push_back(stillLoop);
+			animationSpeed = 0.0005f;					
+
+			ropeSprite.path = "Game/worldSprites/noose/nooseRope/thrown.png";
+			loopSprite.path = "Game/worldSprites/noose/nooseLoop/1.png";
+
+			rotateAndExtend(&ropeSprite, &loopSprite);
+
+			additionalSprites.push_back(ropeSprite);
+			additionalSprites.push_back(loopSprite);
 			return;
 		}
 	default:;
@@ -199,34 +271,7 @@ void Noose::prepareSpriteNames(long long elapsedTime)
 		loopSprite.path = "Game/worldSprites/noose/nooseLoop/" + std::to_string(currentSprite[0]) + ".png";
 	}
 
-	if (owner != nullptr)
-	{
-		Vector2f ownerPos = Vector2f(owner->getPosition().x + owner->getConditionalSizeUnits().x / 10.0f, owner->getPosition().y - owner->getConditionalSizeUnits().y / 13.0f);
-		ropeSprite.size = Vector2f(Helper::getDist(ownerPos, position) + ropeElongation, ropeSprite.size.y); // a little bit longer rope for sprite joining		
-		if (position.y <= ownerPos.y)
-			ropeSprite.rotation = acos((ownerPos.x - position.x) / sqrt(pow(ownerPos.x - position.x, 2) + pow(ownerPos.y - position.y, 2))) / pi * 180;
-		else
-			ropeSprite.rotation = -acos((ownerPos.x - position.x) / sqrt(pow(ownerPos.x - position.x, 2) + pow(ownerPos.y - position.y, 2))) / pi * 180;
-	}		
-
-	if (currentAction != relax)
-	{
-		Vector2f ownerPos = Vector2f(owner->getPosition().x + owner->getConditionalSizeUnits().x / 10.0f, owner->getPosition().y - owner->getConditionalSizeUnits().y / 13.0f);
-		loopSprite.rotation = ropeSprite.rotation + 180;
-		loopSprite.offset.x -= sin(loopSprite.rotation / 180 * pi) * (textureBoxOffset.y); // rotational position correction
-		loopSprite.offset.y -= (1 - cos(loopSprite.rotation / 180 * pi)) * (textureBoxOffset.y);		
-	}
-
-	ropeSprite.offset.x += (owner->getPosition().x - position.x) * ropeElongation / Helper::getDist(position, owner->getPosition()); // offset of the extended rope
-	ropeSprite.offset.y += (owner->getPosition().y - position.y) * ropeElongation / Helper::getDist(position, owner->getPosition());
-
-	// change position to hero belt
-	auto dynOwner = dynamic_cast<Deerchant*>(owner);
-	if (dynOwner)
-	{
-		ropeSprite.position = dynOwner->getBeltPosition();
-		ropeSprite.offset = Vector2f(ropeSprite.offset.x + ropeSprite.position.x - position.x, ropeSprite.offset.y + ropeSprite.position.y - position.y);
-	}
+	rotateAndExtend(&ropeSprite, &loopSprite);
 
 	additionalSprites.push_back(ropeSprite);
     additionalSprites.push_back(loopSprite);

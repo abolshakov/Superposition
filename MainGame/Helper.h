@@ -1,4 +1,6 @@
 #pragma once
+#ifndef HELPER_H
+#define HELPER_H
 #include <SFML/Graphics.hpp>
 #include "TerrainObject.h"
 #include "DynamicObject.h"
@@ -24,5 +26,7 @@ public:
 	static RectangleShape makeLine(Vector2f point1, Vector2f point2, Color color = Color(255, 240, 134, 255));
 	static std::pair<float, float> solveSqr(float a, float b, float c);
 };
+
+#endif
 
 

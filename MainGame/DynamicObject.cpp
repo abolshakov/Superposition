@@ -13,11 +13,11 @@ DynamicObject::~DynamicObject()
 
 }
 
-void DynamicObject::handleInput()
+void DynamicObject::handleInput(bool usedMouse)
 {
 }
 
-void DynamicObject::setSide(Vector2f otherObjectPosition, float elapsedTime)
+Side DynamicObject::calculateSide(Vector2f otherObjectPosition, float elapsedTime)
 {
 	Side answer = down;
 
@@ -33,7 +33,23 @@ void DynamicObject::setSide(Vector2f otherObjectPosition, float elapsedTime)
 			else
 				if (this->position.x >= otherObjectPosition.x && abs(alpha) >= 0 && abs(alpha) <= 45)
 					answer = left;
-	side = answer;
+	return answer;
+}
+
+Side DynamicObject::invertSide(Side side)
+{
+	switch (side)
+	{
+	case up:
+		return down;
+	case down:
+		return up;
+	case left:
+		return right;
+	case right:
+		return left;
+	}
+	return down;
 }
 
 void DynamicObject::setMoveOffset(float elapsedTime)
@@ -209,19 +225,18 @@ Vector2f DynamicObject::EllipceSlip(DynamicObject *dynamic, Vector2f newPos, Vec
 Vector2f DynamicObject::doMove(long long elapsedTime)
 {
 	setMoveOffset(elapsedTime);
+	auto position = this->position;
+	position.x += pushVector.x; position.y += pushVector.y;
 
 	if (this->direction == STAND)
-		return Vector2f(this->position);
-
-	auto position = this->position;
-	auto moveOffset = this->moveOffset;
+		return position;
+	
+	const auto moveOffset = this->moveOffset;
 
 	if (moveOffset != Vector2f(-1, -1))
 	{
 		position.x += moveOffset.x * elapsedTime;
 		position.y += moveOffset.y * elapsedTime;
-
-		return Vector2f(position);
 	}
 
 	return Vector2f(position);
@@ -230,11 +245,16 @@ Vector2f DynamicObject::doMove(long long elapsedTime)
 Vector2f DynamicObject::doSlip(Vector2f newPosition, std::vector<StaticObject*> localStaticItems, float height, float elapsedTime)
 {
 	bool crashed = false;
+	if (!canCrashIntoStatic)
+		return newPosition;
 
 	for (auto&staticItem : localStaticItems)
 	{
 		auto terrain = dynamic_cast<TerrainObject*>(staticItem);
-		if (!terrain || staticItem->isBackground)
+		if (!terrain || staticItem->isBackground || staticItem->getRadius() == 0)
+			continue;
+
+		if (tag != Tag::hero1 && staticItem->isMultiellipse)
 			continue;
 
 		if (terrain->isMultiellipse)
@@ -330,10 +350,34 @@ void DynamicObject::changeAction(Actions newAction, bool resetSpriteNumber, bool
 			number = 1;
 }
 
-void DynamicObject::takeDamage(float damage)
+void DynamicObject::pushAway(float elapsedTime)
+{
+	if (pushDuration <= 0)
+	{
+		pushDirection = { 0, 0 };
+		pushDuration = 0;
+		pushVector = { 0, 0 };
+		color = Color(255, std::min(color.g + int(ceil(elapsedTime / 3000)), 255), std::min(color.b + int(ceil(elapsedTime / 3000)), 255), 255);
+		return;
+	}
+
+	pushDuration -= elapsedTime;
+	color = Color(255, 100, 100, 255);
+
+	const float elongationCoefficient = pushShift * elapsedTime / sqrt(pow(pushDirection.x, 2) + pow(pushDirection.y, 2));
+	//position.x += elongationCoefficient * pushDirection.x; position.y += elongationCoefficient * pushDirection.y;
+	pushVector = { elongationCoefficient * pushDirection.x, elongationCoefficient * pushDirection.y };
+	pushPower--;
+}
+
+void DynamicObject::takeDamage(float damage, Vector2f attackerPos)
 {
 	this->timeForNewHitself = 0;
 	this->healthPoint -= damage / this->armor;
+	pushPower = damage;
+	pushDuration = defaultPushDuration;
+	if (attackerPos != Vector2f(-1, -1))
+		pushDirection = Vector2f(this->position.x - attackerPos.x, this->position.y - attackerPos.y);
 }
 
 std::string DynamicObject::sideToString(Side side)
@@ -358,20 +402,20 @@ std::string DynamicObject::directionToString(Direction direction)
 	{
 	case UP:
 		return "up";
+	case UPRIGHT:
+		return "right";
 	case RIGHT:
+		return "right";
+	case DOWNRIGHT:
 		return "right";
 	case DOWN:
 		return "down";
-	case LEFT:
-		return "left";
-	case UPRIGHT:
-		return "right";
-	case UPLEFT:
-		return "left";
-	case DOWNRIGHT:
-		return "right";
 	case DOWNLEFT:
 		return "left";
+	case LEFT:
+		return "left";	
+	case UPLEFT:
+		return "left";		
 	}
 	return "";
 }

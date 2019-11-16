@@ -42,7 +42,7 @@ int MushroomStone::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void MushroomStone::prepareSpriteNames(long long elapsedTime)
+void MushroomStone::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement bonfireBody;

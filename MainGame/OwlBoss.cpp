@@ -37,6 +37,7 @@ void OwlBoss::behaviorWithStatic(WorldObject* target, float elapsedTime)
 
 void OwlBoss::behavior(float elapsedTime)
 {
+	fightLogic(elapsedTime);
 	//jerk interaction
 	if (isJerking)
 	{
@@ -104,7 +105,7 @@ void OwlBoss::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 	if (target->tag != Tag::hero1)
 		return;
 
-	setSide(movePosition, elapsedTime);
+	side = calculateSide(movePosition, elapsedTime);
 
 	timeAfterHit += elapsedTime;
 	timeAfterNewRoute += elapsedTime;
@@ -146,7 +147,7 @@ void OwlBoss::behaviorWithDynamic(DynamicObject* target, float elapsedTime)
 	if (Helper::getDist(this->position, movePosition) <= this->radius) //hit interaction
 	{
 		if (Helper::getDist(this->position, target->getPosition()) <= this->radius)
-			target->takeDamage(this->strength);
+			target->takeDamage(this->strength, position);
 		timeAfterHit = 0;
 		timeAfterNewRoute = 0;
 		flapsBeforeJerkCount = rand() % 3 + 3;
@@ -178,7 +179,12 @@ void OwlBoss::jerk(float power, float deceleration, Vector2f destinationPoint)
 	movePosition = Vector2f(destinationPoint);
 }
 
-void OwlBoss::prepareSpriteNames(long long elapsedTime)
+void OwlBoss::fightLogic(float elapsedTime, DynamicObject* target)
+{
+	pushAway(elapsedTime);
+}
+
+void OwlBoss::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	std::string spriteName;
 

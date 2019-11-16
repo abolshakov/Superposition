@@ -15,10 +15,12 @@ private:
 
 	std::unordered_map<FontName, Font> fonts;
 	std::unordered_map<FontName, Text> textBoxes;
+	Text numberOfItems;
 public:
 	TextWriter();
 	~TextWriter();
 	void drawString(std::string str, FontName font, int size, float posX, float posY, RenderWindow* window, Color color = Color::Black);
 	void drawTextBox(std::string str, FontName font, int size, float posX, float posY, float width, float height, RenderWindow* window, Color color = Color::Black);
+	void drawNumberOfItems(Vector2f pos, int itemsCount, RenderWindow &window);
 };
 

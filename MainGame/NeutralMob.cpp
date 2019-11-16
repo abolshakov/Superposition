@@ -42,8 +42,9 @@ void NeutralMob::behavior(float elapsedTime)
 		direction = STAND;
 		return;
 	}
+	fightLogic(elapsedTime);
 
-	setSide(movePosition, elapsedTime);	
+	side = calculateSide(movePosition, elapsedTime);
 	//return;
 	if (boundTarget == nullptr)
 		return;
@@ -71,4 +72,9 @@ void NeutralMob::behavior(float elapsedTime)
 
 	distanceToNearest = 10e6;
 	boundTarget = nullptr;
+}
+
+void NeutralMob::fightLogic(float elapsedTime, DynamicObject* target)
+{
+	pushAway(elapsedTime);
 }

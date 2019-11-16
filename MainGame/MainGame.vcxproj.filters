@@ -117,7 +117,6 @@
     <ClCompile Include="EffectsSystemMaker.cpp">
       <Filter>UISystems</Filter>
     </ClCompile>
-    <ClCompile Include="UIEffectsSystemMaker.cpp" />
     <ClCompile Include="Fog.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
@@ -130,9 +129,41 @@
     <ClCompile Include="HeroBagSpriteSystem.cpp">
       <Filter>UISystems</Filter>
     </ClCompile>
+    <ClCompile Include="UIEffectsSystemMaker.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="Fern.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Owl.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Totem.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="WreathTable.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectInitializer.cpp">
+      <Filter>UISystems</Filter>
+    </ClCompile>
+    <ClCompile Include="Bear.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Nightmare1.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Nightmare2.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="Nightmare3.cpp">
+      <Filter>Creatures</Filter>
+    </ClCompile>
+    <ClCompile Include="ClapWhirl.cpp">
+      <Filter>DynamicObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BoardSprite.h" />
     <ClInclude Include="DynamicObject.h" />
     <ClInclude Include="EventHandler.h" />
     <ClInclude Include="Helper.h" />
@@ -249,7 +280,6 @@
     <ClInclude Include="EffectsSystemMaker.h">
       <Filter>UISystems</Filter>
     </ClInclude>
-    <ClInclude Include="UIEffectsSystemMaker.h" />
     <ClInclude Include="Fog.h">
       <Filter>Terrain</Filter>
     </ClInclude>
@@ -261,6 +291,40 @@
     </ClInclude>
     <ClInclude Include="HeroBagSpriteSystem.h">
       <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="UIEffectsSystemMaker.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteStructures.h" />
+    <ClInclude Include="Fern.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Owl.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Totem.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="WreathTable.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectInitializer.h">
+      <Filter>UISystems</Filter>
+    </ClInclude>
+    <ClInclude Include="Bear.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Nightmare1.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Nightmare2.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="Nightmare3.h">
+      <Filter>Creatures</Filter>
+    </ClInclude>
+    <ClInclude Include="ClapWhirl.h">
+      <Filter>DynamicObjects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -46,7 +46,7 @@ int DroppedLoot::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void DroppedLoot::prepareSpriteNames(long long elapsedTime)
+void DroppedLoot::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement sprite;

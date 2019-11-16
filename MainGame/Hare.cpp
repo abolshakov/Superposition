@@ -67,6 +67,7 @@ void Hare::behaviorWithStatic(WorldObject* target, float elapsedTime)
 void Hare::behavior(float elapsedTime)
 {
 	endingPreviousAction();
+	fightLogic(elapsedTime);
 	if (healthPoint <= 0)
 	{
 		changeAction(dead, true);
@@ -105,7 +106,7 @@ void Hare::behavior(float elapsedTime)
 	// bouncing to a trap
 	if (boundTarget->tag == Tag::hareTrap)
 	{
-		setSide(boundTarget->getPosition(), elapsedTime);
+		side = calculateSide(boundTarget->getPosition(), elapsedTime);
 		if (Helper::getDist(position, boundTarget->getPosition()) <= radius)
 		{
 			const auto trap = dynamic_cast<HareTrap*>(boundTarget);
@@ -124,7 +125,7 @@ void Hare::behavior(float elapsedTime)
 	// runaway from enemy
 	if (boundTarget->tag == Tag::hero1)
 	{
-		setSide(movePosition, elapsedTime);
+		side = calculateSide(movePosition, elapsedTime);
 		speed = std::max(defaultSpeed, (defaultSpeed * 10) * (1 - (Helper::getDist(position, boundTarget->getPosition()) / sightRange * 1.5f)));
 		animationSpeed = std::max(0.0004f, 0.0003f * speed / defaultSpeed);
 		if (distanceToTarget <= sightRange)
@@ -188,7 +189,7 @@ void Hare::jerk(float power, float deceleration, Vector2f destinationPoint)
 	return;
 }
 
-void Hare::prepareSpriteNames(long long elapsedTime)
+void Hare::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	spriteChainElement fullSprite;
 

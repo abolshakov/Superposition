@@ -84,7 +84,7 @@ int Stump::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void Stump::prepareSpriteNames(long long elapsedTime)
+void Stump::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement stumpBody;
@@ -103,7 +103,7 @@ void Stump::prepareSpriteNames(long long elapsedTime)
 		{
 			animationLength = 15;
 			stumpBody.path = "Game/worldSprites/terrainObjects/stump/stump" + std::to_string(typeOfObject) + ".png";
-			transparency = 100 - currentSprite[0] * 100 / animationLength;
+			color.a = 255 - currentSprite[0] * 255 / animationLength;
 			break;
 		}
 	}

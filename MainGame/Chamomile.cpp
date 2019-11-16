@@ -58,12 +58,12 @@ int Chamomile::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void Chamomile::prepareSpriteNames(long long elapsedTime)
+void Chamomile::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
     additionalSprites.clear();
-	spriteChainElement chamomileBody;
-	chamomileBody.path = "Game/worldSprites/terrainObjects/chamomile/chamomile" + std::to_string(typeOfObject) + ".png";
-	chamomileBody.size = Vector2f(conditionalSizeUnits);
-	chamomileBody.offset = Vector2f(textureBoxOffset);
-	additionalSprites.push_back(chamomileBody);
+	spriteChainElement body;
+	body.path = "Game/worldSprites/terrainObjects/chamomile/chamomile" + std::to_string(typeOfObject) + ".png";
+	body.size = Vector2f(conditionalSizeUnits);
+	body.offset = Vector2f(textureBoxOffset);
+	additionalSprites.push_back(body);
 }

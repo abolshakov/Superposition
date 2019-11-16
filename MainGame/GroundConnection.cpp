@@ -8,6 +8,7 @@ GroundConnection::GroundConnection(std::string objectName, Vector2f centerPositi
 	isBackground = true;
 	toSaveName = "groundConnection";
 	setType(typeOfObject);
+	tag = Tag::groundConnection;
 }
 
 void GroundConnection::setType(int typeOfObject)
@@ -80,7 +81,7 @@ int GroundConnection::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void GroundConnection::prepareSpriteNames(long long elapsedTime)
+void GroundConnection::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement groundConnectionBody;

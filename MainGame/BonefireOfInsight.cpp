@@ -47,7 +47,7 @@ int BonefireOfInsight::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void BonefireOfInsight::prepareSpriteNames(long long elapsedTime)
+void BonefireOfInsight::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement bonfireBody;

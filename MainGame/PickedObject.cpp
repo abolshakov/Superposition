@@ -4,7 +4,7 @@
 
 PickedObject::PickedObject(std::string objectName, Vector2f centerPosition) : TerrainObject(objectName, centerPosition)
 {
-	
+	radius = 0;
 }
 
 bool PickedObject::pickUp(std::vector<HeroBag> *bags)

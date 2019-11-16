@@ -54,6 +54,7 @@ void HeroBookPage::setBookmarkPosition()
 	buttonList->at(ButtonTag::bookmarkWreathes).setPosition(Vector2f(bookmarkApproximateX, pageGlobalBounds.top + pageGlobalBounds.height * 5.2 / 10));
 	buttonList->at(ButtonTag::bookmarkNightmare).setPosition(Vector2f(bookmarkApproximateX, pageGlobalBounds.top + pageGlobalBounds.height * 7.2 / 10));
 	buttonList->at(ButtonTag::plus).setPosition(Vector2f(bookmarkApproximateX, pageGlobalBounds.top + pageGlobalBounds.height * 8.2 / 10));
+	buttonList->at(ButtonTag::makeWreath).setPosition(Vector2f(pageGlobalBounds.left + pageGlobalBounds.width * 1.35 / 10, pageGlobalBounds.top + pageGlobalBounds.height * 6.6 / 10));
 }
 
 void HeroBookPage::setArrowsPosition()
@@ -428,6 +429,19 @@ void HeroBookPage::initDrafts()
 	fin.close();
 }
 
+Tag HeroBookPage::tagToWreath(Tag item)
+{
+	switch (item)
+	{
+	case Tag::hare:
+		return Tag::hareWreath;
+	case Tag::owl:
+		return Tag::owlWreath;
+	default:
+		return Tag::emptyCell;
+	}	
+}
+
 bool HeroBookPage::checkWreathCellFit(int i, int j, std::vector<int> rings)
 {
 	//all rings
@@ -689,8 +703,11 @@ pageContent HeroBookPage::getPreparedContent(int pageNumber, Tag currentDraft)
 	//---------------
 	// description of each object
 	case 102:
+	case 103:
 	case 402:
 		result.buttons.push_back(ButtonTag::pagePattern);
+		//if (objectInfo.count(pageToObjectId(currentPage)) > 0 && objectInfo.at(pageToObjectId(currentPage)).isUnlocked)
+			result.buttons.push_back(ButtonTag::makeWreath);
 
 		// setting connections icons
 		for (auto& connection : objectInfo.at(pageToObjectId(currentPage)).connections)

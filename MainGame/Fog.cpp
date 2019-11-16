@@ -10,7 +10,6 @@ Fog::Fog(std::string objectName, Vector2f centerPosition, int typeOfObject) : Te
 	tag = Tag::fog;
 	toSaveName = "fog";
 	intangible = true;
-	transparency = 100;
 	currentSprite[0] = rand() % 150 + 1;
 	Fog::setType(typeOfObject);
 }
@@ -48,7 +47,7 @@ int Fog::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void Fog::prepareSpriteNames(long long elapsedTime)
+void Fog::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement fogBody;
@@ -61,8 +60,8 @@ void Fog::prepareSpriteNames(long long elapsedTime)
 		animationLength = 150;
 		animationSpeed = 0.0010f;
 		fogBody.path = "Game/worldSprites/terrainObjects/fog/" + std::to_string(currentSprite[0]) + ".png";
-		fogBody.transparency = transparency;
-		if (fogBody.transparency == 0)
+		fogBody.color.a = color.a;
+		if (fogBody.color.a == 0)
 			deletePromiseOn();
 		break;
 	default:
@@ -80,10 +79,10 @@ void Fog::prepareSpriteNames(long long elapsedTime)
 	{
 		if (state == absorbed)
 		{
-			if (transparency >= 3)
-				transparency -= 3;
+			if (color.a >= 3)
+				color.a -= 3;
 			else
-				transparency = 0;
+				color.a = 0;
 		}
 		timeForNewSprite = 0;
 		if (++currentSprite[0] > animationLength)

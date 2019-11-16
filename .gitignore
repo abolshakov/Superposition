@@ -2,3 +2,4 @@ x64/
 MainGame/x64/
 /MainGame/save.txt
 .vs
+/MainGame/*.TMP

@@ -131,7 +131,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 		return;
 	}
 
-	/*if (menuState == closed)
+	if (menuState == closed)
 	{
 		if (buttonList.at(ButtonTag::openMenu).isSelected(mousePos))
 		{
@@ -139,7 +139,7 @@ void MenuMaker::interact(World &world, RenderWindow &window)
 			wasActive = true;
 			return;
 		}
-	}*/
+	}
 }
 
 void MenuMaker::drawButtons(RenderWindow &window)
@@ -164,7 +164,7 @@ void MenuMaker::drawButtons(RenderWindow &window)
 
 	if (menuState == closed)
 	{
-		//buttonList.at(ButtonTag::openMenu).draw(window);
+		buttonList.at(ButtonTag::openMenu).draw(window);
 		return;
 	}
 }

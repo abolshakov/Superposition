@@ -109,7 +109,7 @@ int Rock::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void Rock::prepareSpriteNames(long long elapsedTime)
+void Rock::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement rockBody;
@@ -128,7 +128,7 @@ void Rock::prepareSpriteNames(long long elapsedTime)
 		{
 			animationLength = 15;
 			rockBody.path = "Game/worldSprites/terrainObjects/rock/rock" + std::to_string(typeOfObject) + ".png";
-			transparency = 100 - currentSprite[0] * 100 / animationLength;
+			color.a = 255 - currentSprite[0] * 255 / animationLength;
 			break;
 		}
 	}

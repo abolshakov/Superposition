@@ -14,8 +14,6 @@ protected:
 	int morality;
 	int fear;
 	float distanceToNearest = 10e6;
-private:
-	
 public:
 	NeutralMob(std::string objectName, Vector2f centerPosition);
 	~NeutralMob();
@@ -23,6 +21,8 @@ public:
 	void behaviorWithStatic(WorldObject* target, float elapsedTime) override;
 	void behavior(float elapsedTime) override;
 	void setTarget(DynamicObject& object) override;
+protected:
+	void fightLogic(float elapsedTime, DynamicObject* target = nullptr) override;
 };
 
 #endif

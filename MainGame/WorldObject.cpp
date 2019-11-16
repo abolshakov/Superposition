@@ -28,10 +28,10 @@ Vector2f WorldObject::getScaleRatio()
 	return Vector2f (float(conditionalSizeUnits.x) / originalTextureBox.width, float(conditionalSizeUnits.y) / originalTextureBox.height);
 }
 
-Vector2i WorldObject::calculateTextureOffset()
+/*Vector2i WorldObject::calculateTextureOffset()
 {
 	return Vector2i(0, 0);
-}
+}*/
 
 void WorldObject::initPedestal()
 {
@@ -42,6 +42,16 @@ void WorldObject::setPosition(Vector2f newPosition)
 	position = Vector2f(newPosition);
 	textureBox.left = int(newPosition.x) - textureBoxOffset.x;
 	textureBox.top = int(newPosition.y) - textureBoxOffset.y;
+}
+
+void WorldObject::takeDamage(float damage, Vector2f attackerPos)
+{
+	this->healthPoint -= damage / this->armor;
+}
+
+void WorldObject::onSpriteChange()
+{
+	return;
 }
 
 WorldObject::~WorldObject()

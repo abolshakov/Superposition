@@ -1,4 +1,6 @@
 #include "BuildSystemMaker.h"
+#include "ObjectInitializer.h"
+#include "DroppedLoot.h"
 
 BuildSystemMaker::BuildSystemMaker()
 {
@@ -10,7 +12,7 @@ BuildSystemMaker::~BuildSystemMaker()
 
 }
 
-void BuildSystemMaker::Init(const std::unordered_map<Tag, cell>& itemsSpriteList)
+void BuildSystemMaker::Init(const std::unordered_map<Tag, CellSprite>& itemsSpriteList)
 {
 	this->craftIngredientsSpriteList = itemsSpriteList;
 	inicializeObjectsInfo();
@@ -52,9 +54,9 @@ void BuildSystemMaker::initializeButtons()
 		(float)builtObjects[0].iconTexture.getSize().y / recipeFrame.getTextureRect().height * 2);
 }
 
-void BuildSystemMaker::inventoryBounding(std::vector<std::reference_wrapper<HeroBag>> bags)
+void BuildSystemMaker::inventoryBounding(std::vector<HeroBag>* boundBags)
 {
-	boundBags = std::ref(bags);
+	this->boundBags = boundBags;
 }
 
 void BuildSystemMaker::inicializeObjectsInfo()
@@ -89,27 +91,47 @@ void BuildSystemMaker::inicializeObjectsInfo()
 void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unordered_map<std::string, BoardSprite>& spriteMap, GridList<StaticObject>& staticGrid, float scaleFactor, Vector2f cameraPosition, std::vector<WorldObject*> visibleItems, bool showPositioning)
 {
 	Vector2f mousePos = (Vector2f )Mouse::getPosition();
+	mouseWorldPos = Vector2f((mousePos.x - Helper::GetScreenSize().x / 2 + cameraPosition.x*scaleFactor) / scaleFactor,
+		(mousePos.y - Helper::GetScreenSize().y / 2 + cameraPosition.y*scaleFactor) / scaleFactor);
 
-	if (!isBuilding)
-		window.draw(buildStartButton);
-	else
-		animator(elapsedTime);
-
-	if (showPositioning && selectedObject != -1)
+	if (showPositioning && selectedObject != Tag::emptyCell)
 	{
-		//initialize spriteSilhouette
-		auto terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[selectedObject].type + '1'));
-		
-		Vector2f mouseWorldPos = Vector2f ((mousePos.x - Helper::GetScreenSize().x / 2 + cameraPosition.x*scaleFactor) / scaleFactor,
-			(mousePos.y - Helper::GetScreenSize().y / 2 + cameraPosition.y*scaleFactor) / scaleFactor);
+		//initialize spriteSilhouette	
+		StaticObject* terrain = nullptr;
+		int type = 1;
+		if (droppedLootIdList.count(selectedObject) > 0)
+			terrain = ObjectInitializer::initializeStaticItem(Tag::droppedLoot, Vector2f(0, 0), int(selectedObject), "", 1, cameraPosition, scaleFactor, &spriteMap);
+		else
+		{
+			if (selectedObject == Tag::totem)
+			{
+				for (auto& item : visibleItems)
+				{
+					if (staticGrid.getIndexByPoint(item->getPosition().x, item->getPosition().y) != staticGrid.getIndexByPoint(mouseWorldPos.x, mouseWorldPos.y))
+						continue;
+					bool match = false;
+					auto droppedLoot = dynamic_cast<DroppedLoot*>(item);
+					if (droppedLoot && droppedLoot->getType() == 201)
+					{
+						for (auto& cell : droppedLoot->inventory)
+							if (cell.first == Tag::hare)
+							{
+								match = true;
+								break;
+							}
+					}
+					if (match)
+					{
+						type = 2;
+						break;
+					}
+				}
+			}
+			terrain = ObjectInitializer::initializeStaticItem(selectedObject, Vector2f(0, 0), type, "", 1, cameraPosition, scaleFactor, &spriteMap);
+		}		
 
-		Vector2f terrainPos = terrain->getBuildPosition(visibleItems, scaleFactor, cameraPosition);
+		const Vector2f terrainPos = terrain->getBuildPosition(visibleItems, scaleFactor, cameraPosition);		
 
-		const int terrainType = terrain->getBuildType(Vector2f(mouseWorldPos), Vector2f (terrain->getCurrentDot()));		
-		terrain = dynamic_cast<TerrainObject*>(staticGrid.getItemByName(builtObjects[selectedObject].type + std::to_string(terrainType)));
-		terrainPos = terrain->getBuildPosition(visibleItems, scaleFactor, cameraPosition);
-
-		//auto sprite = (&spriteMap[terrain->prepareSpriteNames(0)])->sprite;
 		terrain->prepareSpriteNames(0);
 		auto sprite = (&spriteMap[(terrain->additionalSprites)[0].path])->sprite;
 		sprite.setOrigin(float(sprite.getTextureRect().left), float(sprite.getTextureRect().top + sprite.getTextureRect().height));
@@ -130,14 +152,14 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 
 		if (staticGrid.isIntersectWithOthers(spriteBuildPos, float(terrain->getRadius()), visibleItems, terrain->isDotsAdjusted))
 		{
-			sprite.setColor(Color::Red);
+			sprite.setColor(Color(255,99,71));
 			canBePlaced = false;
 		}
 		else
-			sprite.setColor(Color::Green);
+			sprite.setColor(Color(127, 255, 0));
 
 		buildType = terrain->getType();
-
+		delete terrain;
 		if (!canBePlaced)
 		{
 			buildType = 1;
@@ -145,13 +167,9 @@ void BuildSystemMaker::draw(RenderWindow &window, float elapsedTime, std::unorde
 		}
 
 		window.draw(sprite);
-		//Helper::drawText(std::to_string(terrainPos.y), 50, 300, 300, &window);
 	}
 
-	if (!isBuilding)
-		return;
-
-	window.draw(buildStopButton);	
+	//window.draw(buildStopButton);	
 
 	//draw icons
 	for (int i = 0; i < builtObjects.size(); i++)
@@ -177,9 +195,9 @@ void BuildSystemMaker::drawRecipeFrame(RenderWindow &window)
 			window.draw(*currentRecipeItem);
 
 			int boundInventoryObjectsCount = 0;
-			for (auto& bag : boundBags)
+			for (auto bag = boundBags->begin(); bag != boundBags->end(); bag++)
 			{
-				for (auto& item : bag.get().cells)
+				for (auto& item : bag->cells)
 				{
 					if (item.content.first == builtObjects[currentObject].recipe[i].first)
 						boundInventoryObjectsCount += item.content.second;
@@ -201,57 +219,39 @@ void BuildSystemMaker::drawRecipeFrame(RenderWindow &window)
 void BuildSystemMaker::interact()
 {
 	Vector2f mousePos = (Vector2f )Mouse::getPosition();
-	if (isBuilding)
+	bool f = false;
+	for (int i = 0; i < builtObjects.size(); i++)
 	{
-		bool f = false;
-		for (int i = 0; i < builtObjects.size(); i++)
+		if (Helper::isIntersects(mousePos, IntRect(builtObjects[i].iconSprite.getPosition().x, builtObjects[i].iconSprite.getPosition().y, builtObjects[i].iconSprite.getGlobalBounds().width, builtObjects[i].iconSprite.getGlobalBounds().height)))
 		{
-			if (Helper::isIntersects(mousePos, IntRect(builtObjects[i].iconSprite.getPosition().x, builtObjects[i].iconSprite.getPosition().y, builtObjects[i].iconSprite.getGlobalBounds().width, builtObjects[i].iconSprite.getGlobalBounds().height)))
-			{
-				currentObject = i;
-				isRecipeFrame = true;
-				recipeFrame.setPosition(float(builtObjects[i].iconSprite.getPosition().x + builtObjects[i].iconSprite.getGlobalBounds().width*1.25f), float(builtObjects[i].iconSprite.getPosition().y));
-				f = true;
-				break;
-			}
-		}
-		if (!f)
-		{
-			isRecipeFrame = false;
-			currentObject = -1;
+			currentObject = i;
+			isRecipeFrame = true;
+			recipeFrame.setPosition(float(builtObjects[i].iconSprite.getPosition().x + builtObjects[i].iconSprite.getGlobalBounds().width*1.25f), float(builtObjects[i].iconSprite.getPosition().y));
+			f = true;
+			break;
 		}
 	}
-	else
+	if (!f)
 	{
-		if (heldItem == nullptr)
-			return;
-		if (heldItem->first == Tag::yarrow)
-		{
-			selectedObject = int(heldItem->first);
-		}
-		else
-		{
-			selectedObject = -1;
-		}
-	}
+		isRecipeFrame = false;
+		currentObject = -1;
+	}	
 }
 
-void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float scaleFactor)
+void BuildSystemMaker::onMouseUp(Vector2f focusedObjectPosition, float scaleFactor)
 {
 	Vector2f mousePos = (Vector2f )Mouse::getPosition();
 
 	usedMouse = false;
 
-	if (Helper::isIntersects(mousePos, sf::IntRect(buildStartButton.getGlobalBounds())) && !isBuilding)
+	if (Helper::isIntersects(mousePos, sf::IntRect(buildStartButton.getGlobalBounds())))
 	{
-		isBuilding = true;
 		currentObject = -1;
 		usedMouse = true;
 	}
 	else
-		if (Helper::isIntersects(mousePos, sf::IntRect(buildStopButton.getGlobalBounds())) && isBuilding)
+		if (Helper::isIntersects(mousePos, sf::IntRect(buildStopButton.getGlobalBounds())))
 		{
-			isBuilding = false;
 			animationSpeed = 0.001f;
 			for (int i = 0; i < builtObjects.size(); i++)
 			{
@@ -261,18 +261,11 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 			return;
 		}
 
-	if (selectedObject != -1 || currentObject != -1)
+	if (selectedObject != Tag::emptyCell || currentObject != -1)
 		usedMouse = true;
-
-	if (isBuilding && currentObject != -1 && canAfford())
-	{
-		selectedObject = currentObject;
-		return;
-	}
-
 	//return;
 
-	if (isBuilding && selectedObject != -1 && currentObject == -1 && canBePlaced)
+	if (selectedObject != Tag::emptyCell && currentObject == -1 && canBePlaced)
 	{
 		if (spriteBuildPos != Vector2f (-1, -1))
 			buildingPosition = spriteBuildPos;
@@ -286,9 +279,6 @@ void BuildSystemMaker::onMouseDownInteract(Vector2f focusedObjectPosition, float
 
 void BuildSystemMaker::buildHeldItem(Vector2f focusedObjectPosition, float scaleFactor)
 {
-	if (isBuilding)
-		return;
-
 	if (heldItem->first == Tag::emptyCell)
 	{
 		buildingPosition = Vector2f (-1, -1);
@@ -310,10 +300,10 @@ bool BuildSystemMaker::canAfford()
 
 		for (auto&curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
 		{
-			for (auto&bag : boundBags)
+			for (auto bag = boundBags->begin(); bag != boundBags->end(); bag++)
 			{
 				bool isBreak = false;
-				for (auto&item : bag.get().cells)
+				for (auto&item : bag->cells)
 				{
 					if (curRecipeItem->first == item.content.first)
 					{
@@ -341,13 +331,13 @@ bool BuildSystemMaker::canAfford()
 
 void BuildSystemMaker::wasPlaced()
 {
-	std::vector<std::pair <Tag, int>> temporaryInventory = builtObjects[selectedObject].recipe;
+	//std::vector<std::pair <Tag, int>> temporaryInventory = builtObjects[selectedObject].recipe;
 
-	for (auto&curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
+	/*for (auto&curRecipeItem = temporaryInventory.begin(); curRecipeItem != temporaryInventory.end(); ++curRecipeItem)
 	{
-		for (auto& bag : boundBags)
+		for (auto bag = boundBags->begin(); bag != boundBags->end(); bag++)
 		{
-			for (auto& item : bag.get().cells)
+			for (auto& item : bag->cells)
 			{
 				if (curRecipeItem->first == item.content.first)
 				{
@@ -367,10 +357,35 @@ void BuildSystemMaker::wasPlaced()
 				}
 			}
 		}
-	}
+	}*/
 
-	selectedObject = -1;
+	selectedObject = Tag::emptyCell;
 	buildingPosition = Vector2f (-1, -1);
+}
+
+void BuildSystemMaker::clearHareBags(int block, GridList<StaticObject>& staticGrid, std::vector<WorldObject*>* visibleItems)
+{
+	for (auto& item : *visibleItems)
+	{
+		if (staticGrid.getIndexByPoint(item->getPosition().x, item->getPosition().y) != staticGrid.getIndexByPoint(mouseWorldPos.x, mouseWorldPos.y))
+			continue;
+		bool match = false;
+		auto droppedLoot = dynamic_cast<DroppedLoot*>(item);
+		if (droppedLoot && droppedLoot->getType() == 201)
+		{
+			for (auto& cell : droppedLoot->inventory)
+				if (cell.first == Tag::hare)
+				{
+					match = true;
+					break;
+				}
+		}
+		if (match)
+		{
+			item->deletePromiseOn();
+			break;
+		}
+	}
 }
 
 void BuildSystemMaker::animator(float elapsedTime)
@@ -389,20 +404,4 @@ void BuildSystemMaker::animator(float elapsedTime)
 	{
 		builtObjects[i].iconSprite.setPosition(builtObjects[i].iconSprite.getPosition().x + animationSpeed * elapsedTime, builtObjects[i].iconSprite.getPosition().y);
 	}
-}
-
-int BuildSystemMaker::getBuiltObjectType()
-{
-	if (selectedObject == -1)
-		return -1;
-
-	std::string objectType = builtObjects[selectedObject].type;
-	if (objectType == "_fence")
-		return 18;
-	if (objectType == "_hareTrap")
-		return 16;
-	if (objectType == "_bonefireOfInsight")
-		return 4;
-	if (objectType == "_homeCosiness")
-		return 5;
 }

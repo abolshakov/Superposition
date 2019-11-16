@@ -21,7 +21,7 @@ public:
 	Deer(std::string objectName, Vector2f centerPosition);
 	~Deer();
 	Vector2i calculateTextureOffset() override;
-	void prepareSpriteNames(long long elapsedTime) override;
+	void prepareSpriteNames(long long elapsedTime, float scaleFactor) override;
 	void behaviorWithStatic(WorldObject* target, float elapsedTime) override;
 	void behavior(float elapsedTime) override;
 	void endingPreviousAction();

@@ -54,7 +54,7 @@ int Mugwort::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void Mugwort::prepareSpriteNames(long long elapsedTime)
+void Mugwort::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement mugwortBody;

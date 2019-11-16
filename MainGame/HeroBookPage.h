@@ -5,8 +5,9 @@
 #include <fstream>
 
 #include "WreathDraft.h"
-#include "BoardSprite.h"
+#include "SpriteStructures.h"
 #include "TextWriter.h"
+#include "HeroBag.h"
 
 enum class AuxiliarySpriteTag { line1 = 1, line2 = 2, line3 = 3, line4 = 4, line5 = 5, line6 = 6, line7 = 7 };
 
@@ -41,6 +42,53 @@ struct pageContent
 
 class HeroBookPage
 {
+public:
+	HeroBookPage();
+	~HeroBookPage();
+	void initAuxiliarySpriteMap();
+	void buttonListBounding(std::unordered_map<ButtonTag, ButtonMaker>* buttonList);
+	void setPage(int page) { this->currentPage = page; }
+	void onMouseDown();
+
+	// object information (creatures, craft, plants, wreaths, nightmare)
+	void initObjectInfo();
+	Tag pageToObjectId(int page);
+	int buttonToPage(ButtonTag button);
+	void setButtonLock(ButtonTag button, ButtonTag changedButton);
+	void drawIconFrame(ButtonTag button, RenderWindow* window, int type = 1);
+	void drawAllIcons(pageContent content, RenderWindow* window);
+	void drawLines(RenderWindow* window);
+	void drawHeadingText(RenderWindow* window);
+	void unlockObject(Tag object);
+	static int getHeadingPage(Tag object);
+	std::unordered_map<Tag, BookObjectInfo>* getObjectInfo() { return &objectInfo; }
+	static std::string buttonToString(ButtonTag button);
+	static Tag tagToWreath(Tag item);
+	//------------------------------------------------------------------
+
+	//wreaths
+	void clearWreathMatrix();
+	std::pair<int, int> getSelectedWreathCell();
+	std::pair<int, int> getSelectedPlantsCell();
+	std::vector<std::pair<int, int>> getBorderCells(int raw, int column);
+	static bool checkWreathCellFit(int i, int j, std::vector<int> rings = std::vector<int>());
+	void setPlantsOnMatrix(std::vector<std::pair<Tag, std::pair<int, int>>> plants);
+	bool isCenterSurrounded();
+	void drawConnectableFlowers(Tag currentFlower, RenderWindow* window);
+
+	std::vector<std::vector<Vector2f>> wreathMatrixPositions;
+	std::vector<std::vector<Tag>> wreathMatrix;
+	std::vector<std::vector<std::pair<Tag, int>>> plantsMatrix;
+	std::map<Tag, std::map<Tag, int>> doneRecipes;
+	std::unordered_map<Tag, std::vector<Tag>> plantsConnections;
+	std::unordered_map<Tag, DraftInfo> getOriginalSetups() { return originalSetups; };
+	bool readyToFinishDraft = false; 
+	bool nearTheTable = false;
+	//-------
+
+	std::string debugInfo = "";
+	pageContent getPreparedContent(int pageNumber, Tag currentDraft = Tag::emptyDraft);
+	std::vector<HeroBag>* boundBags;
 private:
 	static int div_up(int n, int d) { return n / d + (((n < 0) ^ (d > 0)) && (n % d)); }
 	std::unordered_map<ButtonTag, ButtonMaker>* buttonList;
@@ -72,50 +120,7 @@ private:
 	void coloredDfs(int raw, int column, int color, bool flowerPatency = false);	
 
 	std::unordered_map<Tag, DraftInfo> originalSetups;
-	std::vector<std::vector<int>> coloredMatrix;
+	std::vector<std::vector<int>> coloredMatrix;	
 	//--------
-public:
-	HeroBookPage();
-	~HeroBookPage();
-	void initAuxiliarySpriteMap();
-	void buttonListBounding(std::unordered_map<ButtonTag, ButtonMaker>* buttonList);
-	void setPage(int page) { this->currentPage = page; }
-	void onMouseDown();
-
-	// object information (creatures, craft, plants, wreaths, nightmare)
-	void initObjectInfo();
-	Tag pageToObjectId(int page);
-	int buttonToPage(ButtonTag button);
-	void setButtonLock(ButtonTag button, ButtonTag changedButton);
-	void drawIconFrame(ButtonTag button, RenderWindow* window, int type = 1);
-	void drawAllIcons(pageContent content, RenderWindow* window);
-	void drawLines(RenderWindow* window);
-	void drawHeadingText(RenderWindow* window);
-	void unlockObject(Tag object);
-	static int getHeadingPage(Tag object);
-	static std::string buttonToString(ButtonTag button);
-	//------------------------------------------------------------------
-
-	//wreaths
-	void clearWreathMatrix();
-	std::pair<int, int> getSelectedWreathCell();
-	std::pair<int, int> getSelectedPlantsCell();
-	std::vector<std::pair<int, int>> getBorderCells(int raw, int column);
-	static bool checkWreathCellFit(int i, int j, std::vector<int> rings = std::vector<int>());
-	void setPlantsOnMatrix(std::vector<std::pair<Tag, std::pair<int, int>>> plants);
-	bool isCenterSurrounded();
-	void drawConnectableFlowers(Tag currentFlower, RenderWindow* window);
-
-	std::vector<std::vector<Vector2f>> wreathMatrixPositions;
-	std::vector<std::vector<Tag>> wreathMatrix;
-	std::vector<std::vector<std::pair<Tag, int>>> plantsMatrix;
-	std::unordered_map<Tag, std::vector<Tag>> plantsConnections;
-	std::unordered_map<Tag, DraftInfo> getOriginalSetups() { return originalSetups; };
-	bool readyToFinishDraft = false;
-	//-------
-
-	std::string debugInfo = "";
-	pageContent getPreparedContent(int pageNumber, Tag currentDraft = Tag::emptyDraft);
-	
 };
 

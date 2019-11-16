@@ -4,6 +4,7 @@
 #include "ButtonMaker.h"
 #include "HeroBook.h"
 #include "TextWriter.h"
+#include "Deerchant.h"
 
 #include <cmath>
 #include <thread>
@@ -56,7 +57,7 @@ int main() {
 			{			
 				if (menuSystem.getState() == closed && world.getBuildSystem().succesInit)
 				{
-					world.onMouseDownInteract(currentMouseButton);
+					world.onMouseUp(currentMouseButton);					
 					mainBook.onMouseUp();
 				}
 					
@@ -103,11 +104,10 @@ int main() {
 			drawTime = drawClock.getElapsedTime().asMicroseconds();
 			drawClock.restart();
 
-			world.focusedObject->handleInput();
+			world.focusedObject->handleInput(world.getInventorySystem().getUsedMouse());
 			world.interact(mainWindow, interactTime);
-			mainBook.setWorldMouseName(world.getMouseDisplayName());
-			mainBook.setWorldSelectedObject(world.getSelectedObject());
-			mainBook.boundHeldItem(&world.getInventorySystem().getHeldItem());
+			auto hero = dynamic_cast<Deerchant*>(world.focusedObject);
+			mainBook.getAllOuterInfo(&hero->bags, world.getMouseDisplayName(), world.getSelectedObject(), &world.getInventorySystem().getHeldItem(), hero->nearTheTable);
 			mainBook.interact(interactTime);
 
 			mainWindow.clear(Color::White);
@@ -128,9 +128,9 @@ int main() {
 
 		auto hero = dynamic_cast<DynamicObject*>(world.focusedObject);
 
-		//textWriter.drawString(world.getInventorySystem().debugInfo, NormalFont, 30, 500, 500, &mainWindow);
-
+		//textWriter.drawString(std::to_string(world.scaleFactor), NormalFont, 30, 500, 500, &mainWindow);
 		textWriter.drawString(std::to_string(10e5 / drawTime), NormalFont, 30, 200, 200, &mainWindow, Color::Black);
+
 		mainWindow.display();
 	}
 }

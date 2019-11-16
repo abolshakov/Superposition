@@ -1,8 +1,12 @@
 102 0 4
  102 0 .
- 402 1 Yarrow is a favorite delicacy of hares, so most often they can be found next to it.
+ 402 1 Fern is a favorite delicacy of hares, so most often they can be found next to it.
  201 2 The memory-hare is small enough to fit in a bag, which allows him to constantly maintain my memory scale.
  103 5 Perhaps the hare may come in handy to catch another animal...
+ One of the peaceful incarnations of my memories. Perhaps that is why the world next to it does not change every time I turn away.
+103 1 2
+ 103 0 .
+ 403 1 Yarrow is a favorite delicacy of owls, so most often they can be found next to it.
  One of the peaceful incarnations of my memories. Perhaps that is why the world next to it does not change every time I turn away.
 402 1 2
  402 0 .

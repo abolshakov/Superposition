@@ -55,7 +55,7 @@ int Spawn::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void Spawn::prepareSpriteNames(long long elapsedTime)
+void Spawn::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement spawnBody;

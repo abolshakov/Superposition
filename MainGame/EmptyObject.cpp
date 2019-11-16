@@ -11,7 +11,7 @@ EmptyObject::~EmptyObject()
 {
 }
 
-void EmptyObject::prepareSpriteNames(long long elapsedTime)
+void EmptyObject::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	return;
 }

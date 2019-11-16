@@ -45,7 +45,7 @@ int HomeCosiness::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void HomeCosiness::prepareSpriteNames(long long elapsedTime)
+void HomeCosiness::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement bonfireBody;

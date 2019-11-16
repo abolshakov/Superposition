@@ -5,8 +5,6 @@
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include <unordered_set>
-#include "Helper.h"
-#include "BoardSprite.h"
 
 using namespace  sf;
 

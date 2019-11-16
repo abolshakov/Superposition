@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include "Helper.h"
-#include "BoardSprite.h"
+#include "SpriteStructures.h"
 
 using namespace  sf;
 

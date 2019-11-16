@@ -8,7 +8,7 @@ Ground::Ground(std::string objectName, Vector2f centerPosition, int typeOfObject
 	isBackground = true;
 	toSaveName = "ground";
 	setType(typeOfObject);
-	tag = Tag::tree;
+	tag = Tag::ground;
 }
 
 void Ground::setType(int typeOfObject)
@@ -36,7 +36,7 @@ int Ground::getBuildType(Vector2f ounPos, Vector2f otherPos)
 	return 1;
 }
 
-void Ground::prepareSpriteNames(long long elapsedTime)
+void Ground::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	additionalSprites.clear();
 	spriteChainElement groundBody;

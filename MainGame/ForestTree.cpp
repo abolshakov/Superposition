@@ -35,11 +35,14 @@ void ForestTree::setType(int typeOfObject)
 	if (typeOfObject == 9)
 		conditionalSizeUnits = Vector2i (328, 851);
 	if (typeOfObject == 10)
-		conditionalSizeUnits = Vector2i(693, 1004);
+		conditionalSizeUnits = Vector2i(864, 1004);
 	if (typeOfObject == 11)
 		conditionalSizeUnits = Vector2i(673, 1032);
 	if (typeOfObject == 12)
-		conditionalSizeUnits = Vector2i(1054, 961);
+		conditionalSizeUnits = Vector2i(1266, 961);
+
+	const float extension = int(90 + rand() % 20) / 100.0f; // in percents
+	conditionalSizeUnits.x *= extension; conditionalSizeUnits.y *= extension;
 }
 
 Vector2i ForestTree::calculateTextureOffset()
@@ -66,11 +69,11 @@ Vector2i ForestTree::calculateTextureOffset()
 	if (typeOfObject == 9)
 		return Vector2i (textureBox.width / 2, int(textureBox.height / 1.05));
 	if (typeOfObject == 10)
-		return Vector2i(textureBox.width / 2.4, int(textureBox.height / 1.1));
+		return Vector2i(textureBox.width / 2, int(textureBox.height / 1.1));
 	if (typeOfObject == 11)
 		return Vector2i(textureBox.width / 1.8, int(textureBox.height / 1.1));
 	if (typeOfObject == 12)
-		return Vector2i(textureBox.width / 2.4, int(textureBox.height / 1.1));
+		return Vector2i(textureBox.width / 2, int(textureBox.height / 1.1));
 
 	return Vector2i (textureBox.width / 2, int(textureBox.height / 1.25));
 }
@@ -172,12 +175,17 @@ Vector2f ForestTree::getBuildPosition(std::vector<WorldObject*> visibleItems, fl
 	return { -1, -1 };
 }
 
+Vector2f ForestTree::getOwlBase()
+{
+	return { position.x, position.y - conditionalSizeUnits.y / 2 };
+}
+
 int ForestTree::getBuildType(Vector2f ounPos, Vector2f otherPos)
 {
 	return 1;
 }
 
-void ForestTree::prepareSpriteNames(long long elapsedTime)
+void ForestTree::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
     additionalSprites.clear();
     spriteChainElement treeBody;
@@ -196,7 +204,7 @@ void ForestTree::prepareSpriteNames(long long elapsedTime)
 		{
 			animationLength = 15;
 			treeBody.path = "Game/worldSprites/terrainObjects/forestTree/forestTree" + std::to_string(typeOfObject) + ".png";
-			transparency = 100 - currentSprite[0] * 100 / animationLength;
+			color.a = 255 - currentSprite[0] * 255 / animationLength;
 			break;
 		}
 	}

@@ -1,0 +1,5 @@
+201
+Game/inventorySprites/bag1Icon.png
+Game/inventorySprites/bag1IconHover.png
+Game/inventorySprites/bag1.png
+Game/inventorySprites/bag1Hover.png

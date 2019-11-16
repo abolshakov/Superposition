@@ -7,8 +7,8 @@ Deer::Deer(const std::string objectName, Vector2f centerPosition) : NeutralMob(o
 	conditionalSizeUnits = Vector2i (360, 300);
 	currentSprite[0] = 1;
 	timeForNewSprite = 0;
-	//speed = 7e-4;
-	speed = 2e-4;
+	defaultSpeed = 0.00045f;
+	speed = 0.00045f;
 	animationSpeed = 5e-4;
 	animationLength = 8;
 	radius = 70;
@@ -44,6 +44,7 @@ void Deer::behaviorWithStatic(WorldObject* target, float elapsedTime)
 void Deer::behavior(float elapsedTime)
 {
 	endingPreviousAction();
+	fightLogic(elapsedTime);
 	if (healthPoint <= 0)
 	{
 		changeAction(dead, true);
@@ -53,16 +54,16 @@ void Deer::behavior(float elapsedTime)
 	
 	if (this->owner != nullptr)
 	{		
-		routeGenerationAbility = false;
+		speed = defaultSpeed;
 		if (currentAction == commonHit)
 		{
 			movePosition = position;
 			return;			
 		}
-		setSide(owner->getPosition(), elapsedTime);
+		side = calculateSide(owner->getPosition(), elapsedTime);
 		if (Helper::getDist(position, owner->getPosition()) > sightRange / 2)
 		{
-			changeAction(grab, true, false);
+			changeAction(grab, false, false);
 			movePosition = owner->getPosition();
 		}
 		else
@@ -74,12 +75,13 @@ void Deer::behavior(float elapsedTime)
 		return;
 	}
 
-	routeGenerationAbility = true;
-	setSide(movePosition, elapsedTime);
+	side = calculateSide(movePosition, elapsedTime);
 
 	if (boundTarget == nullptr)
 		return;
 	const float distanceToTarget = Helper::getDist(this->position, boundTarget->getPosition());
+	speed = std::max(defaultSpeed, (defaultSpeed * 10) * (1 - (distanceToTarget) / sightRange * 1.5f));
+	animationSpeed = std::max(0.0004f, 0.0003f * speed / defaultSpeed);
 
 	if (distanceToTarget <= sightRange)
 	{
@@ -201,8 +203,7 @@ Vector2f Deer::getHeadPosition()
 	}
 }
 
-
-void Deer::prepareSpriteNames(long long elapsedTime)
+void Deer::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	spriteChainElement fullSprite;
 

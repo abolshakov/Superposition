@@ -40,7 +40,7 @@ void Wolf::behaviorWithStatic(WorldObject* target, float elapsedTime)
 
 void Wolf::behavior(float elapsedTime)
 {
-
+	fightLogic(elapsedTime);
 }
 
 Vector2i Wolf::calculateTextureOffset()
@@ -65,7 +65,7 @@ void Wolf::jerk(float power, float deceleration, Vector2f destinationPoint)
 	return;
 }
 
-void Wolf::prepareSpriteNames(long long elapsedTime)
+void Wolf::prepareSpriteNames(long long elapsedTime, float scaleFactor)
 {
 	/*std::string spriteName;
 
